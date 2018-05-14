@@ -31,6 +31,7 @@ repositories {
 
 dependencies {
     compile(kotlinModule("stdlib-jdk8", kotlin_version))
+    compile("no.tornado", "tornadofx", "1.7.16")
     testCompile("junit", "junit", "4.12")
 }
 
