@@ -1,12 +1,20 @@
 package com.akazlou.dynoman
 
 import javafx.scene.control.TreeItem
-import javafx.scene.control.TreeView
 import tornadofx.View
-import tornadofx.vbox
+import tornadofx.cellFormat
+import tornadofx.populate
+import tornadofx.treeview
 
 class TableListView : View() {
-    override val root = vbox {
-        add(TreeView(TreeItem("X")))
+    val controller: MainController by inject()
+
+    override val root = treeview<DynamoDBTable> {
+        cellFormat { text = it.name }
+        root = TreeItem(DynamoDBTable("Tables"))
+
+        populate { parent ->
+            if (parent == root) controller.listTables() else null
+        }
     }
 }
