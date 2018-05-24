@@ -1,8 +1,12 @@
-package com.akazlou.dynoman
+package com.akazlou.dynoman.view
 
+import com.akazlou.dynoman.controller.MainController
+import com.akazlou.dynoman.domain.DynamoDBTable
 import javafx.collections.FXCollections
 import javafx.scene.control.TreeItem
-import tornadofx.*
+import tornadofx.View
+import tornadofx.cellFormat
+import tornadofx.treeview
 
 class TableListView : View() {
     private val controller: MainController by inject()

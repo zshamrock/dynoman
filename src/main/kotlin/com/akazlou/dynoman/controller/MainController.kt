@@ -1,7 +1,9 @@
-package com.akazlou.dynoman
+package com.akazlou.dynoman.controller
 
+import com.akazlou.dynoman.domain.DynamoDBTable
+import com.akazlou.dynoman.service.DynamoDBOperation
 import com.amazonaws.regions.Regions
-import tornadofx.*
+import tornadofx.Controller
 
 class MainController : Controller() {
     val operation = DynamoDBOperation("https://dynamodb.us-west-2.amazonaws.com", Regions.US_WEST_2.name)

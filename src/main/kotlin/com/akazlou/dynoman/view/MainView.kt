@@ -1,6 +1,7 @@
-package com.akazlou.dynoman
+package com.akazlou.dynoman.view
 
-import tornadofx.*
+import tornadofx.View
+import tornadofx.borderpane
 
 class MainView : View("DynamoDB Manager") {
     override val root = borderpane {

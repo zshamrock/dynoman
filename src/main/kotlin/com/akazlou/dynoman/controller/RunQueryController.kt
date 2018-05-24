@@ -1,6 +1,6 @@
-package com.akazlou.dynoman
+package com.akazlou.dynoman.controller
 
-import tornadofx.*
+import tornadofx.Controller
 
 class RunQueryController : Controller() {
     fun run(query: String): String {

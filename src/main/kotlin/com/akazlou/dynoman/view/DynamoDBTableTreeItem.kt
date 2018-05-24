@@ -1,5 +1,7 @@
-package com.akazlou.dynoman
+package com.akazlou.dynoman.view
 
+import com.akazlou.dynoman.domain.DynamoDBTable
+import com.akazlou.dynoman.service.DynamoDBOperation
 import javafx.collections.FXCollections
 import javafx.collections.ObservableList
 import javafx.scene.control.TreeItem

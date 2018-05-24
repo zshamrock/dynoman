@@ -1,4 +1,4 @@
-package com.akazlou.dynoman
+package com.akazlou.dynoman.service
 
 import com.amazonaws.auth.DefaultAWSCredentialsProviderChain
 import com.amazonaws.regions.Regions

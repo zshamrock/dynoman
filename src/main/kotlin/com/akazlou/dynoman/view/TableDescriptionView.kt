@@ -1,4 +1,4 @@
-package com.akazlou.dynoman
+package com.akazlou.dynoman.view
 
 import com.amazonaws.services.dynamodbv2.model.TableDescription
 import tornadofx.Fragment

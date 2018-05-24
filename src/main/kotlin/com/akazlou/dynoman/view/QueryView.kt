@@ -1,8 +1,15 @@
-package com.akazlou.dynoman
+package com.akazlou.dynoman.view
 
+import com.akazlou.dynoman.controller.RunQueryController
 import javafx.geometry.Pos
 import javafx.scene.control.TextArea
-import tornadofx.*
+import tornadofx.View
+import tornadofx.action
+import tornadofx.button
+import tornadofx.hbox
+import tornadofx.singleAssign
+import tornadofx.textarea
+import tornadofx.vbox
 
 class QueryView : View("Query") {
     private val controller: RunQueryController by inject()
