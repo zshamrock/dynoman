@@ -1,28 +1,27 @@
 package com.akazlou.dynoman.view
 
 import com.akazlou.dynoman.controller.RunQueryController
+import javafx.beans.property.SimpleStringProperty
+import javafx.beans.value.ObservableValue
+import javafx.collections.FXCollections
 import javafx.geometry.Pos
+import javafx.scene.control.TableColumn
+import javafx.scene.control.TableView
 import javafx.scene.control.TextArea
-import tornadofx.View
-import tornadofx.action
-import tornadofx.button
-import tornadofx.hbox
-import tornadofx.singleAssign
-import tornadofx.textarea
-import tornadofx.vbox
+import javafx.util.Callback
+import tornadofx.*
 
 class QueryView : View("Query") {
     private val controller: RunQueryController by inject()
 
     private var queryArea: TextArea by singleAssign()
-    private var resultArea: TextArea by singleAssign()
+    private var resultTable: TableView<Map<String, Any?>> by singleAssign()
 
     override val root = vbox {
         queryArea = textarea("SELECT * FROM T") {
             selectAll()
         }
-        resultArea = textarea {
-            isEditable = false
+        resultTable = tableview {
         }
         hbox {
             alignment = Pos.CENTER
@@ -30,7 +29,7 @@ class QueryView : View("Query") {
                 setPrefSize(100.0, 40.0)
                 action {
                     val result = controller.run(getQuery())
-                    setQueryResult(result)
+                    // setQueryResult(result)
                 }
                 shortcut("Ctrl+R")
             }
@@ -41,7 +40,15 @@ class QueryView : View("Query") {
         return queryArea.text
     }
 
-    private fun setQueryResult(result: String) {
-        resultArea.text = result
+    fun setQueryResult(result: List<Map<String, Any?>>) {
+        val columns = result.firstOrNull()?.keys?.map { attributeName ->
+            val column = TableColumn<Map<String, Any?>, String>(attributeName)
+            column.cellValueFactory = Callback<TableColumn.CellDataFeatures<Map<String, Any?>, String>, ObservableValue<String>> {
+                SimpleStringProperty(it.value.getOrDefault(attributeName, "").toString())
+            }
+            column
+        }
+        resultTable.columns.setAll(columns)
+        resultTable.items = FXCollections.observableList(result)
     }
 }

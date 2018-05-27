@@ -15,13 +15,14 @@ import tornadofx.*
 
 class TableListView : View() {
     private val controller: MainController by inject()
+    private val queryView: QueryView by inject()
 
     override val root = treeview<DynamoDBTable> {
         root = TreeItem(DynamoDBTable("Tables"))
         root.isExpanded = true
         isShowRoot = false
         cellFactory = Callback<TreeView<DynamoDBTable>, TreeCell<DynamoDBTable>> {
-            DynamoDBTextFieldTreeCell(DynamoDBTableStringConverter())
+            DynamoDBTextFieldTreeCell(controller, queryView, DynamoDBTableStringConverter())
         }
         val tables = controller.listTables()
         root.children.setAll(
@@ -39,14 +40,19 @@ class TableListView : View() {
 
     }
 
-    class DynamoDBTextFieldTreeCell(converter: DynamoDBTableStringConverter) :
+    class DynamoDBTextFieldTreeCell(controller: MainController,
+                                    queryView: QueryView,
+                                    converter: DynamoDBTableStringConverter) :
             TextFieldTreeCell<DynamoDBTable>(converter) {
         private val tableMenu: ContextMenu = ContextMenu()
 
         init {
             val scanMenuItem = MenuItem("Scan...")
             scanMenuItem.action {
-                println("Scan ${treeItem.value.name}")
+                val tableName = treeItem.value.name
+                println("Scan $tableName")
+                val result = controller.scan(tableName)
+                queryView.setQueryResult(result)
             }
             val queryMenuItem = MenuItem("Query...")
             queryMenuItem.action {
