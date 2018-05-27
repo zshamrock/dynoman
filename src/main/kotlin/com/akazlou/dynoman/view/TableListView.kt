@@ -46,11 +46,11 @@ class TableListView : View() {
         init {
             val scanMenuItem = MenuItem("Scan...")
             scanMenuItem.action {
-                println("Scan")
+                println("Scan ${treeItem.value.name}")
             }
             val queryMenuItem = MenuItem("Query...")
             queryMenuItem.action {
-                println("Query")
+                println("Query ${treeItem.value.name}")
             }
             tableMenu.items.addAll(scanMenuItem, queryMenuItem)
         }
@@ -60,6 +60,7 @@ class TableListView : View() {
             if (empty || item == null) {
                 text = null
                 graphic = null
+                contextMenu = null
             } else {
                 text = item.name
                 if (treeItem.parent != null && treeItem.parent == treeView.root) {
