@@ -18,6 +18,10 @@ class QueryView : View("Query") {
     private var resultTable: TableView<Map<String, Any?>> by singleAssign()
 
     override val root = vbox {
+        borderpaneConstraints {
+            prefHeight = 600.0
+            useMaxHeight = true
+        }
         queryArea = textarea("SELECT * FROM T") {
             selectAll()
         }

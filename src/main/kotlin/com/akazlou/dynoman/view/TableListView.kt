@@ -17,16 +17,29 @@ class TableListView : View() {
     private val controller: MainController by inject()
     private val queryView: QueryView by inject()
 
-    override val root = treeview<DynamoDBTable> {
-        root = TreeItem(DynamoDBTable("Tables"))
-        root.isExpanded = true
-        isShowRoot = false
-        cellFactory = Callback<TreeView<DynamoDBTable>, TreeCell<DynamoDBTable>> {
-            DynamoDBTextFieldTreeCell(controller, queryView, DynamoDBTableStringConverter())
+    override val root = vbox {
+        borderpaneConstraints {
+            maxHeight = 50.0
         }
-        val tables = controller.listTables()
-        root.children.setAll(
-                FXCollections.observableArrayList(tables.map { DynamoDBTableTreeItem(it, controller.operation) }))
+        treeview<DynamoDBTable> {
+            vboxConstraints {
+                prefWidth = 500.0
+            }
+            root = TreeItem(DynamoDBTable("Tables"))
+            root.isExpanded = true
+            isShowRoot = false
+            cellFactory = Callback<TreeView<DynamoDBTable>, TreeCell<DynamoDBTable>> {
+                DynamoDBTextFieldTreeCell(controller, queryView, DynamoDBTableStringConverter())
+            }
+            val tables = controller.listTables()
+            root.children.setAll(
+                    FXCollections.observableArrayList(tables.map { DynamoDBTableTreeItem(it, controller.operation) }))
+        }
+        textarea {
+            vbox {
+                prefWidth = 50.0
+            }
+        }
     }
 
     class DynamoDBTableStringConverter : StringConverter<DynamoDBTable>() {
