@@ -9,6 +9,7 @@ import javafx.scene.control.TreeCell
 import javafx.scene.control.TreeItem
 import javafx.scene.control.TreeView
 import javafx.scene.control.cell.TextFieldTreeCell
+import javafx.scene.layout.Priority
 import javafx.util.Callback
 import javafx.util.StringConverter
 import tornadofx.*
@@ -19,11 +20,14 @@ class TableListView : View() {
 
     override val root = vbox {
         borderpaneConstraints {
-            maxHeight = 50.0
+            prefWidth = 220.0
+            prefHeight = 725.0
+            useMaxHeight = true
         }
         treeview<DynamoDBTable> {
             vboxConstraints {
-                prefWidth = 500.0
+                prefHeight = 525.0
+                vGrow = Priority.ALWAYS
             }
             root = TreeItem(DynamoDBTable("Tables"))
             root.isExpanded = true
@@ -36,9 +40,10 @@ class TableListView : View() {
                     FXCollections.observableArrayList(tables.map { DynamoDBTableTreeItem(it, controller.operation) }))
         }
         textarea {
-            vbox {
-                prefWidth = 50.0
+            vboxConstraints {
+                prefHeight = 200.0
             }
+            isEditable = false
         }
     }
 
