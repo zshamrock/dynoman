@@ -6,6 +6,7 @@ import javafx.beans.property.SimpleStringProperty
 import javafx.beans.value.ObservableValue
 import javafx.collections.FXCollections
 import javafx.geometry.Pos
+import javafx.scene.control.TabPane
 import javafx.scene.control.TableColumn
 import javafx.scene.control.TableView
 import javafx.scene.control.TextArea
@@ -20,6 +21,8 @@ class QueryView : View("Query") {
 
     private var queryArea: TextArea by singleAssign()
     private var resultTable: TableView<Map<String, Any?>> by singleAssign()
+    private var queries: TabPane by singleAssign()
+
 
     override val root = vbox {
         borderpaneConstraints {
@@ -37,16 +40,27 @@ class QueryView : View("Query") {
                 shortcut("Ctrl+S")
             }
         }
-        queryArea = textarea("SELECT * FROM T") {
+        queries = tabpane {
             vboxConstraints {
-                prefHeight = 300.0
-            }
-            selectAll()
-        }
-        resultTable = tableview {
-            vboxConstraints {
-                prefHeight = 335.0
+                prefHeight = 635.0
                 vGrow = Priority.ALWAYS
+            }
+            tabClosingPolicy = TabPane.TabClosingPolicy.ALL_TABS
+            tab("Unnamed") {
+                vbox {
+                    queryArea = textarea("SELECT * FROM T") {
+                        vboxConstraints {
+                            prefHeight = 300.0
+                        }
+                        selectAll()
+                    }
+                    resultTable = tableview {
+                        vboxConstraints {
+                            prefHeight = 335.0
+                            vGrow = Priority.ALWAYS
+                        }
+                    }
+                }
             }
         }
         hbox {
