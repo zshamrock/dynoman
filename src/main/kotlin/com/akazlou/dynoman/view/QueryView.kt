@@ -1,28 +1,18 @@
 package com.akazlou.dynoman.view
 
 import com.akazlou.dynoman.controller.RunQueryController
+import com.akazlou.dynoman.domain.OperationType
 import com.amazonaws.regions.Regions
-import javafx.beans.property.SimpleStringProperty
-import javafx.beans.value.ObservableValue
-import javafx.collections.FXCollections
 import javafx.geometry.Pos
 import javafx.scene.control.TabPane
-import javafx.scene.control.TableColumn
-import javafx.scene.control.TableView
-import javafx.scene.control.TextArea
 import javafx.scene.layout.Priority
 import javafx.scene.text.Font
-import javafx.util.Callback
 import tornadofx.*
 
 class QueryView : View("Query") {
     private val region = Regions.US_WEST_2
     private val controller: RunQueryController by inject()
-
-    private var queryArea: TextArea by singleAssign()
-    private var resultTable: TableView<Map<String, Any?>> by singleAssign()
     private var queries: TabPane by singleAssign()
-
 
     override val root = vbox {
         borderpaneConstraints {
@@ -47,20 +37,7 @@ class QueryView : View("Query") {
             }
             tabClosingPolicy = TabPane.TabClosingPolicy.ALL_TABS
             tab("Unnamed") {
-                vbox {
-                    queryArea = textarea("SELECT * FROM T") {
-                        vboxConstraints {
-                            prefHeight = 300.0
-                        }
-                        selectAll()
-                    }
-                    resultTable = tableview {
-                        vboxConstraints {
-                            prefHeight = 335.0
-                            vGrow = Priority.ALWAYS
-                        }
-                    }
-                }
+                find(QueryTab::class)
             }
         }
         hbox {
@@ -71,7 +48,7 @@ class QueryView : View("Query") {
             button("Run") {
                 setPrefSize(100.0, 40.0)
                 action {
-                    val result = controller.run(getQuery())
+                    //val result = controller.run(getQuery())
                     // setQueryResult(result)
                 }
                 shortcut("Ctrl+R")
@@ -88,19 +65,8 @@ class QueryView : View("Query") {
         }
     }
 
-    private fun getQuery(): String {
-        return queryArea.text
-    }
 
-    fun setQueryResult(result: List<Map<String, Any?>>) {
-        val columns = result.firstOrNull()?.keys?.map { attributeName ->
-            val column = TableColumn<Map<String, Any?>, String>(attributeName)
-            column.cellValueFactory = Callback<TableColumn.CellDataFeatures<Map<String, Any?>, String>, ObservableValue<String>> {
-                SimpleStringProperty(it.value.getOrDefault(attributeName, "").toString())
-            }
-            column
-        }
-        resultTable.columns.setAll(columns)
-        resultTable.items = FXCollections.observableList(result)
+    fun setQueryResult(operationType: OperationType, table: String, result: List<Map<String, Any?>>) {
+
     }
 }

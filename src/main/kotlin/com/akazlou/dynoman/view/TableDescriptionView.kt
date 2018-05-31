@@ -1,11 +1,9 @@
 package com.akazlou.dynoman.view
 
 import com.amazonaws.services.dynamodbv2.model.TableDescription
-import tornadofx.Fragment
-import tornadofx.text
-import tornadofx.vbox
+import tornadofx.*
 
-class TableDescriptionView : Fragment("Table Description") {
+class  TableDescriptionView : Fragment("Table Description") {
     val description: TableDescription by param()
     override val root = vbox {
         text("Name: ${description.tableName}")

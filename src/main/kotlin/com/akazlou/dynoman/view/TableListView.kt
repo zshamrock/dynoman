@@ -2,6 +2,7 @@ package com.akazlou.dynoman.view
 
 import com.akazlou.dynoman.controller.MainController
 import com.akazlou.dynoman.domain.DynamoDBTable
+import com.akazlou.dynoman.domain.OperationType
 import javafx.collections.FXCollections
 import javafx.scene.control.ContextMenu
 import javafx.scene.control.MenuItem
@@ -70,7 +71,7 @@ class TableListView : View() {
                 val tableName = treeItem.value.name
                 println("Scan $tableName")
                 val result = controller.scan(tableName)
-                queryView.setQueryResult(result)
+                queryView.setQueryResult(OperationType.SCAN, tableName, result)
             }
             val queryMenuItem = MenuItem("Query...")
             queryMenuItem.action {
