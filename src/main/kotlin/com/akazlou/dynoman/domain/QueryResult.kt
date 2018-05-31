@@ -1,5 +1,5 @@
 package com.akazlou.dynoman.domain
 
-data class QueryResult(private val operationType: OperationType,
-                       private val table: String,
-                       private val result: List<Map<String, Any?>>)
+data class QueryResult(val operationType: OperationType,
+                       val table: String,
+                       val result: List<Map<String, Any?>>)

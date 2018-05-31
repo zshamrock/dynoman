@@ -2,6 +2,7 @@ package com.akazlou.dynoman.view
 
 import com.akazlou.dynoman.controller.RunQueryController
 import com.akazlou.dynoman.domain.OperationType
+import com.akazlou.dynoman.domain.QueryResult
 import com.amazonaws.regions.Regions
 import javafx.geometry.Pos
 import javafx.scene.control.TabPane
@@ -36,9 +37,7 @@ class QueryView : View("Query") {
                 vGrow = Priority.ALWAYS
             }
             tabClosingPolicy = TabPane.TabClosingPolicy.ALL_TABS
-            tab("Unnamed") {
-                find(QueryTab::class)
-            }
+            tab("Unnamed", find(QueryTab::class).root)
         }
         hbox {
             vboxConstraints {
@@ -67,6 +66,9 @@ class QueryView : View("Query") {
 
 
     fun setQueryResult(operationType: OperationType, table: String, result: List<Map<String, Any?>>) {
-
+        val tab = find(QueryTab::class)
+        tab.setQueryResult(QueryResult(operationType, table, result))
+        queries.tab("$operationType $table", tab.root)
+        queries.selectionModel.selectLast()
     }
 }
