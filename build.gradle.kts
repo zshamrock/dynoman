@@ -14,6 +14,11 @@ buildscript {
 
 plugins {
     java
+    application
+}
+
+application {
+    mainClassName = "com.akazlou.dynoman.DynomanApp"
 }
 
 group = "dynoman"
