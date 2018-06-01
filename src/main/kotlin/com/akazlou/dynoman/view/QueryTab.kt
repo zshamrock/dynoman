@@ -1,5 +1,6 @@
 package com.akazlou.dynoman.view
 
+import com.akazlou.dynoman.domain.OperationType
 import com.akazlou.dynoman.domain.QueryResult
 import javafx.beans.property.SimpleStringProperty
 import javafx.beans.value.ObservableValue
@@ -34,6 +35,7 @@ class QueryTab : Fragment("Query Tab") {
     }
 
     fun setQueryResult(qr: QueryResult) {
+        queryArea.text = if (qr.operationType == OperationType.SCAN) "SELECT * FROM ${qr.table}" else ""
         val columns = qr.result.firstOrNull()?.keys?.map { attributeName ->
             val column = TableColumn<Map<String, Any?>, String>(attributeName)
             column.cellValueFactory = Callback<TableColumn.CellDataFeatures<Map<String, Any?>, String>, ObservableValue<String>> {
