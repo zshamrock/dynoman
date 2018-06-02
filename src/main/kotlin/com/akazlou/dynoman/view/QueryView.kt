@@ -34,6 +34,19 @@ class QueryView : View("Query") {
                     find(SaveQueryFragment::class).openModal(stageStyle = StageStyle.UTILITY)
                 }
             }
+            region {
+                hboxConstraints {
+                    hGrow = Priority.ALWAYS
+                }
+            }
+            val namedQueries = listOf("X", "Y", "Z").observable()
+            combobox<String> {
+                setPrefSize(200.0, 40.0)
+                items = namedQueries
+            }
+            button("Open") {
+                setPrefSize(100.0, 40.0)
+            }
         }
         queries = tabpane {
             vboxConstraints {
@@ -41,7 +54,7 @@ class QueryView : View("Query") {
                 vGrow = Priority.ALWAYS
             }
             tabClosingPolicy = TabPane.TabClosingPolicy.ALL_TABS
-            tab("Unnamed", find(QueryTab::class).root)
+            tab("Unnamed", find(QueryTabFragment::class).root)
         }
         hbox {
             vboxConstraints {
@@ -70,7 +83,7 @@ class QueryView : View("Query") {
 
 
     fun setQueryResult(operationType: OperationType, table: String, result: List<Map<String, Any?>>) {
-        val tab = find(QueryTab::class)
+        val tab = find(QueryTabFragment::class)
         tab.setQueryResult(QueryResult(operationType, table, result))
         queries.tab("$operationType $table", tab.root)
         queries.selectionModel.selectLast()

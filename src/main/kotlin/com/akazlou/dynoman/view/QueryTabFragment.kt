@@ -12,7 +12,7 @@ import javafx.scene.layout.Priority
 import javafx.util.Callback
 import tornadofx.*
 
-class QueryTab : Fragment("Query Tab") {
+class QueryTabFragment : Fragment("Query Tab") {
     private var queryArea: TextArea by singleAssign()
     private var resultTable: TableView<Map<String, Any?>> by singleAssign()
     override val root = vbox {
