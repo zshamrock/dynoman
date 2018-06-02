@@ -7,7 +7,11 @@ import com.amazonaws.services.dynamodbv2.document.spec.ScanSpec
 import tornadofx.*
 
 class MainController : Controller() {
-    val operation = DynamoDBOperation("https://dynamodb.us-west-2.amazonaws.com", Regions.US_WEST_2.name)
+    val operation =
+            DynamoDBOperation(
+                    "https://dynamodb.us-west-2.amazonaws.com",
+                    Regions.US_WEST_2.name,
+                    System.getProperty("offline", "false")!!.toBoolean())
 
     fun listTables(): List<DynamoDBTable> {
         return operation.listTables().map { DynamoDBTable(it) }

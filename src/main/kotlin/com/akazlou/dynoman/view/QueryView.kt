@@ -8,6 +8,7 @@ import javafx.geometry.Pos
 import javafx.scene.control.TabPane
 import javafx.scene.layout.Priority
 import javafx.scene.text.Font
+import javafx.stage.StageStyle
 import tornadofx.*
 
 class QueryView : View("Query") {
@@ -29,6 +30,9 @@ class QueryView : View("Query") {
             button("Save") {
                 setPrefSize(100.0, 40.0)
                 shortcut("Ctrl+S")
+                action {
+                    find(SaveQueryFragment::class).openModal(stageStyle = StageStyle.UTILITY)
+                }
             }
         }
         queries = tabpane {
@@ -46,11 +50,11 @@ class QueryView : View("Query") {
             alignment = Pos.CENTER
             button("Run") {
                 setPrefSize(100.0, 40.0)
+                shortcut("Ctrl+R")
                 action {
                     //val result = controller.run(getQuery())
                     // setQueryResult(result)
                 }
-                shortcut("Ctrl+R")
             }
         }
         hbox {
