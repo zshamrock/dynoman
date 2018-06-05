@@ -3,7 +3,9 @@ package com.akazlou.dynoman.view
 import com.akazlou.dynoman.controller.MainController
 import com.akazlou.dynoman.domain.DynamoDBTable
 import com.akazlou.dynoman.domain.OperationType
-import javafx.collections.FXCollections
+import com.akazlou.dynoman.service.DynamoDBOperation
+import com.amazonaws.regions.Regions
+import javafx.collections.ObservableList
 import javafx.scene.control.ContextMenu
 import javafx.scene.control.MenuItem
 import javafx.scene.control.TreeCell
@@ -18,6 +20,7 @@ import tornadofx.*
 class TableListView : View() {
     private val controller: MainController by inject()
     private val queryView: QueryView by inject()
+    private var tablesList: ObservableList<TreeItem<DynamoDBTable>> by singleAssign()
 
     override val root = vbox {
         borderpaneConstraints {
@@ -25,20 +28,32 @@ class TableListView : View() {
             prefHeight = 725.0
             useMaxHeight = true
         }
+        button("Connect") {
+            setPrefSize(100.0, 40.0)
+            vboxConstraints {
+                prefHeight = 45.0
+            }
+            action {
+                find(ConnectRegionFragment::class).openModal(block = true)
+                val region = getRegion()
+                queryView.setRegion(region)
+                val tables = controller.listTables(region)
+                val operation = controller.getClient(region)
+                tablesList.setAll(tables.map { DynamoDBTableTreeItem(it, operation) })
+            }
+        }
         treeview<DynamoDBTable> {
             vboxConstraints {
-                prefHeight = 525.0
+                prefHeight = 480.0
                 vGrow = Priority.ALWAYS
             }
             root = TreeItem(DynamoDBTable("Tables"))
             root.isExpanded = true
             isShowRoot = false
             cellFactory = Callback<TreeView<DynamoDBTable>, TreeCell<DynamoDBTable>> {
-                DynamoDBTextFieldTreeCell(controller, queryView, DynamoDBTableStringConverter())
+                DynamoDBTextFieldTreeCell(controller.getClient(getRegion()), queryView, DynamoDBTableStringConverter())
             }
-            val tables = controller.listTables()
-            root.children.setAll(
-                    FXCollections.observableArrayList(tables.map { DynamoDBTableTreeItem(it, controller.operation) }))
+            tablesList = root.children
         }
         textarea {
             vboxConstraints {
@@ -46,6 +61,10 @@ class TableListView : View() {
             }
             isEditable = false
         }
+    }
+
+    private fun getRegion(): Regions {
+        return Regions.fromName(app.config.string("region", Regions.US_WEST_2.getName()))
     }
 
     class DynamoDBTableStringConverter : StringConverter<DynamoDBTable>() {
@@ -59,7 +78,7 @@ class TableListView : View() {
 
     }
 
-    class DynamoDBTextFieldTreeCell(controller: MainController,
+    class DynamoDBTextFieldTreeCell(operation: DynamoDBOperation,
                                     queryView: QueryView,
                                     converter: DynamoDBTableStringConverter) :
             TextFieldTreeCell<DynamoDBTable>(converter) {
@@ -70,7 +89,7 @@ class TableListView : View() {
             scanMenuItem.action {
                 val tableName = treeItem.value.name
                 println("Scan $tableName")
-                val result = controller.scan(tableName)
+                val result = operation.scan(tableName)
                 queryView.setQueryResult(OperationType.SCAN, tableName, result)
             }
             val queryMenuItem = MenuItem("Query...")

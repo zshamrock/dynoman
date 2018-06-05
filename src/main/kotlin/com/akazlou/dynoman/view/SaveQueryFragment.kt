@@ -6,7 +6,7 @@ import tornadofx.*
 class SaveQueryFragment : Fragment("Save Query") {
     override val root = vbox {
         hbox {
-            label("Name:")
+            label("Name: ")
             textfield()
             alignment = Pos.CENTER
         }

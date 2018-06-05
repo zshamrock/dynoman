@@ -5,8 +5,9 @@ import com.amazonaws.regions.Regions
 import com.amazonaws.services.dynamodbv2.AmazonDynamoDBClient
 import com.amazonaws.services.dynamodbv2.document.DynamoDB
 import com.amazonaws.services.dynamodbv2.document.Table
+import com.amazonaws.services.dynamodbv2.document.spec.ScanSpec
 
-class DynamoDBOperation(endpoint: String, region: String, private val offline: Boolean) {
+class DynamoDBOperation(region: Regions, private val offline: Boolean) {
     private val dynamodb: DynamoDB?
 
     init {
@@ -15,7 +16,7 @@ class DynamoDBOperation(endpoint: String, region: String, private val offline: B
         } else {
             val amazonDynamoDB = AmazonDynamoDBClient.builder()
                     .withCredentials(DefaultAWSCredentialsProviderChain())
-                    .withRegion(Regions.US_WEST_2)
+                    .withRegion(region)
                     .build()
             DynamoDB(amazonDynamoDB)
         }
@@ -23,6 +24,13 @@ class DynamoDBOperation(endpoint: String, region: String, private val offline: B
 
     fun listTables(): List<String> {
         return if (offline) emptyList() else dynamodb!!.listTables().map { it.tableName }
+    }
+
+    fun scan(table: String): List<Map<String, Any?>> {
+        val spec = ScanSpec()
+                .withMaxResultSize(50)
+        val result = getTable(table).scan(spec)
+        return result.map { it.asMap() }
     }
 
     fun getTable(name: String): Table {

@@ -4,6 +4,7 @@ import com.akazlou.dynoman.controller.RunQueryController
 import com.akazlou.dynoman.domain.OperationType
 import com.akazlou.dynoman.domain.QueryResult
 import com.amazonaws.regions.Regions
+import javafx.beans.property.SimpleStringProperty
 import javafx.geometry.Pos
 import javafx.scene.control.TabPane
 import javafx.scene.layout.Priority
@@ -12,9 +13,9 @@ import javafx.stage.StageStyle
 import tornadofx.*
 
 class QueryView : View("Query") {
-    private val region = Regions.US_WEST_2
     private val controller: RunQueryController by inject()
     private var queries: TabPane by singleAssign()
+    private val region = SimpleStringProperty(app.config.string("region").orEmpty())
 
     override val root = vbox {
         borderpaneConstraints {
@@ -74,9 +75,14 @@ class QueryView : View("Query") {
             vboxConstraints {
                 maxHeight = 35.0
             }
-            text("Region: ${region.name}") {
+            textflow {
                 alignment = Pos.CENTER_RIGHT
-                font = Font.font("Verdana")
+                text("Region: ") {
+                    font = Font.font("Verdana")
+                }
+                text(region) {
+                    font = Font.font("Verdana")
+                }
             }
         }
     }
@@ -87,5 +93,9 @@ class QueryView : View("Query") {
         tab.setQueryResult(QueryResult(operationType, table, result))
         queries.tab("$operationType $table", tab.root)
         queries.selectionModel.selectLast()
+    }
+
+    fun setRegion(region: Regions) {
+        this.region.value = region.getName()
     }
 }
