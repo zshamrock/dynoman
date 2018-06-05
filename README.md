@@ -1,6 +1,10 @@
 ## Dynoman - DynamoDB management UI
 
-![Public Preview](public-preview.png)
+![Initial Screen](public-preview1.png)
+
+![Connect](public-preview2.png)
+
+![Tables](public-preview.png)
 
 ****
 
