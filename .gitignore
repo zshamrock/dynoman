@@ -27,3 +27,7 @@ preview*.jpg
 
 # TornadoFX
 app.properties
+
+# Gradle
+build
+.gradle
