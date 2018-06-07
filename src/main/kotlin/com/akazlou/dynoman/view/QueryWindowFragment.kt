@@ -16,6 +16,7 @@ class QueryWindowFragment : Fragment("Query...") {
             row {
                 label("Query")
                 combobox(values = listOf("[Table] ${description.tableName}: $tableAttributesString")) {
+                    selectionModel.select(0)
                 }
             }
         }
