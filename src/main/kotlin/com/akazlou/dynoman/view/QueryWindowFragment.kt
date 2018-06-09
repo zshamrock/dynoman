@@ -7,11 +7,12 @@ import javafx.beans.property.SimpleBooleanProperty
 import javafx.geometry.Pos
 import javafx.scene.control.ComboBox
 import tornadofx.*
-import java.util.stream.Stream
 
 class QueryWindowFragment : Fragment("Query...") {
-    // TODO: make it static final const
-    private val SORT_KEY_AVAILABLE_OPERATORS: List<String> = listOf("=", "!=", ">", "<", ">=", "<=", "between")
+    companion object {
+        @JvmField val SORT_KEY_AVAILABLE_OPERATORS: List<String> = listOf("=", "!=", ">", "<", ">=", "<=", "between")
+    }
+
     val description: TableDescription by param()
     private val queryTypes: List<String>
     private var queryTypeComboBox: ComboBox<String> by singleAssign()
@@ -24,7 +25,7 @@ class QueryWindowFragment : Fragment("Query...") {
             "[Index] ${index.indexName}: ${joinKeySchema(index.keySchema)}"
         }
         queryTypes = listOf(tableQueryString, *indexQueryStrings.toTypedArray())
-        rowObservables = generateSequence() {
+        rowObservables = generateSequence {
             SimpleBooleanProperty(false)
         }.take(queryTypes.size).toList()
         rowObservables[0].value = true
