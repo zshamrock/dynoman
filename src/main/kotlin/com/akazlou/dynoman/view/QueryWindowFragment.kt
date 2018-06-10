@@ -1,5 +1,6 @@
 package com.akazlou.dynoman.view
 
+import com.amazonaws.services.dynamodbv2.model.GlobalSecondaryIndexDescription
 import com.amazonaws.services.dynamodbv2.model.KeySchemaElement
 import com.amazonaws.services.dynamodbv2.model.KeyType
 import com.amazonaws.services.dynamodbv2.model.TableDescription
@@ -21,7 +22,8 @@ class QueryWindowFragment : Fragment("Query...") {
     init {
 
         val tableQueryString = "[Table] ${description.tableName}: ${joinKeySchema(description.keySchema)}"
-        val indexQueryStrings = description.globalSecondaryIndexes.map { index ->
+        val gsi = description.globalSecondaryIndexes.orEmpty()
+        val indexQueryStrings = gsi.map { index ->
             "[Index] ${index.indexName}: ${joinKeySchema(index.keySchema)}"
         }
         queryTypes = listOf(tableQueryString, *indexQueryStrings.toTypedArray())
@@ -29,6 +31,7 @@ class QueryWindowFragment : Fragment("Query...") {
             SimpleBooleanProperty(false)
         }.take(queryTypes.size).toList()
         rowObservables[0].value = true
+        println(rowObservables)
     }
 
     private fun joinKeySchema(keySchema: List<KeySchemaElement>): String {
@@ -36,12 +39,12 @@ class QueryWindowFragment : Fragment("Query...") {
     }
 
     override val root = vbox {
+        val gsi = description.globalSecondaryIndexes.orEmpty()
         gridpane {
             row {
                 label("Query")
                 queryTypeComboBox = combobox(values = queryTypes) {
                     selectionModel.select(0)
-
                     gridpaneConstraints {
                         columnSpan = 3
                     }
@@ -49,7 +52,7 @@ class QueryWindowFragment : Fragment("Query...") {
             }
             val keySchemas = listOf(
                     description.keySchema,
-                    *description.globalSecondaryIndexes.map { it.keySchema }.toTypedArray())
+                    *gsi.map { it.keySchema }.toTypedArray())
             keySchemas.forEachIndexed { index, keySchema ->
                 keySchema.forEach {
                     row {
@@ -62,6 +65,8 @@ class QueryWindowFragment : Fragment("Query...") {
                             combobox(values = SORT_KEY_AVAILABLE_OPERATORS)
                         }
                         textfield { }
+                        println(index)
+                        println(rowObservables[index])
                         visibleWhen(rowObservables[index])
                     }
                 }
