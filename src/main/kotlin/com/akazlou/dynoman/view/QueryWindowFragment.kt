@@ -1,6 +1,5 @@
 package com.akazlou.dynoman.view
 
-import com.amazonaws.services.dynamodbv2.model.GlobalSecondaryIndexDescription
 import com.amazonaws.services.dynamodbv2.model.KeySchemaElement
 import com.amazonaws.services.dynamodbv2.model.KeyType
 import com.amazonaws.services.dynamodbv2.model.TableDescription
@@ -48,6 +47,9 @@ class QueryWindowFragment : Fragment("Query...") {
                     gridpaneConstraints {
                         columnSpan = 3
                     }
+                }
+                queryTypeComboBox.valueProperty().onChange {
+                    println(it)
                 }
             }
             val keySchemas = listOf(
