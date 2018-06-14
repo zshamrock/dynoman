@@ -6,16 +6,19 @@ import com.amazonaws.services.dynamodbv2.model.TableDescription
 import javafx.beans.property.SimpleBooleanProperty
 import javafx.geometry.Pos
 import javafx.scene.control.ComboBox
+import javafx.scene.layout.GridPane
 import tornadofx.*
 
 class QueryWindowFragment : Fragment("Query...") {
     companion object {
-        @JvmField val SORT_KEY_AVAILABLE_OPERATORS: List<String> = listOf("=", "!=", ">", "<", ">=", "<=", "between")
+        @JvmField
+        val SORT_KEY_AVAILABLE_OPERATORS: List<String> = listOf("=", "!=", ">", "<", ">=", "<=", "between")
     }
 
     val description: TableDescription by param()
     private val queryTypes: List<QueryType>
     private var queryTypeComboBox: ComboBox<QueryType> by singleAssign()
+    private var queryGridPane: GridPane by singleAssign()
     private val rowObservables: List<SimpleBooleanProperty>
 
     init {
@@ -32,39 +35,44 @@ class QueryWindowFragment : Fragment("Query...") {
     }
 
     override val root = vbox {
-        val gsi = description.globalSecondaryIndexes.orEmpty()
-        gridpane {
-            row {
-                label("Query")
-                queryTypeComboBox = combobox(values = queryTypes) {
-                    selectionModel.select(0)
-                    gridpaneConstraints {
-                        columnSpan = 3
+        hbox {
+            hboxConstraints {
+                spacing = 5.0
+            }
+            label("Query")
+            queryTypeComboBox = combobox(values = queryTypes) {
+                selectionModel.select(0)
+            }
+            queryTypeComboBox.valueProperty().onChange {
+                val children = queryGridPane.children
+                children.clear()
+                var rowIndex = 0
+                it?.keySchema?.forEach {
+                    val isHash = it.keyType == KeyType.HASH.name
+                    queryGridPane.addRow(rowIndex, label(if (isHash) "Partition Key" else "Sort Key"))
+                    queryGridPane.addRow(rowIndex, text(it.attributeName))
+                    if (isHash) {
+                        queryGridPane.addRow(rowIndex, label("="))
+                    } else {
+                        queryGridPane.addRow(rowIndex, combobox(values = SORT_KEY_AVAILABLE_OPERATORS))
                     }
-                }
-                queryTypeComboBox.valueProperty().onChange {
-                    println(it)
+                    queryGridPane.addRow(rowIndex, textfield { })
+                    rowIndex++
                 }
             }
-            val keySchemas = listOf(
-                    description.keySchema,
-                    *gsi.map { it.keySchema }.toTypedArray())
-            keySchemas.forEachIndexed { index, keySchema ->
-                keySchema.forEach {
-                    row {
-                        val isHash = it.keyType == KeyType.HASH.name
-                        label(if (isHash) "Partition Key" else "Sort Key")
-                        text(it.attributeName)
-                        if (isHash) {
-                            label("=")
-                        } else {
-                            combobox(values = SORT_KEY_AVAILABLE_OPERATORS)
-                        }
-                        textfield { }
-                        println(index)
-                        println(rowObservables[index])
-                        visibleWhen(rowObservables[index])
+        }
+        queryGridPane = gridpane {
+            queryTypes[0].keySchema.forEach {
+                row {
+                    val isHash = it.keyType == KeyType.HASH.name
+                    label(if (isHash) "Partition Key" else "Sort Key")
+                    text(it.attributeName)
+                    if (isHash) {
+                        label("=")
+                    } else {
+                        combobox(values = SORT_KEY_AVAILABLE_OPERATORS)
                     }
+                    textfield { }
                 }
             }
         }
