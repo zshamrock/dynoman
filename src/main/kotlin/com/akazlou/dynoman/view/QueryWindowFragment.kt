@@ -14,27 +14,21 @@ class QueryWindowFragment : Fragment("Query...") {
     }
 
     val description: TableDescription by param()
-    private val queryTypes: List<String>
-    private var queryTypeComboBox: ComboBox<String> by singleAssign()
+    private val queryTypes: List<QueryType>
+    private var queryTypeComboBox: ComboBox<QueryType> by singleAssign()
     private val rowObservables: List<SimpleBooleanProperty>
 
     init {
-
-        val tableQueryString = "[Table] ${description.tableName}: ${joinKeySchema(description.keySchema)}"
         val gsi = description.globalSecondaryIndexes.orEmpty()
         val indexQueryStrings = gsi.map { index ->
-            "[Index] ${index.indexName}: ${joinKeySchema(index.keySchema)}"
+            QueryType(index.indexName, index.keySchema, true)
         }
-        queryTypes = listOf(tableQueryString, *indexQueryStrings.toTypedArray())
+        queryTypes = listOf(QueryType(description.tableName, description.keySchema, false), *indexQueryStrings.toTypedArray())
         rowObservables = generateSequence {
             SimpleBooleanProperty(false)
         }.take(queryTypes.size).toList()
         rowObservables[0].value = true
         println(rowObservables)
-    }
-
-    private fun joinKeySchema(keySchema: List<KeySchemaElement>): String {
-        return keySchema.joinToString { it.attributeName }
     }
 
     override val root = vbox {
@@ -88,5 +82,15 @@ class QueryWindowFragment : Fragment("Query...") {
                 }
             }
         }
+    }
+}
+
+private data class QueryType(val name: String, val keySchema: List<KeySchemaElement>, val isIndex: Boolean) {
+    override fun toString(): String {
+        return (if (isIndex) "[Index]" else "[Table]") + " $name: ${joinKeySchema(keySchema)}"
+    }
+
+    private fun joinKeySchema(keySchema: List<KeySchemaElement>): String {
+        return keySchema.joinToString { it.attributeName }
     }
 }
