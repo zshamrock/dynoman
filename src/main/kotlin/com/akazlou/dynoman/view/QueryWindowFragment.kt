@@ -6,6 +6,7 @@ import com.amazonaws.services.dynamodbv2.model.TableDescription
 import javafx.beans.property.SimpleBooleanProperty
 import javafx.geometry.Pos
 import javafx.scene.control.ComboBox
+import javafx.scene.control.ToggleGroup
 import javafx.scene.layout.GridPane
 import tornadofx.*
 
@@ -35,10 +36,7 @@ class QueryWindowFragment : Fragment("Query...") {
     }
 
     override val root = vbox {
-        hbox {
-            hboxConstraints {
-                spacing = 5.0
-            }
+        hbox(5.0) {
             label("Query")
             queryTypeComboBox = combobox(values = queryTypes) {
                 selectionModel.select(0)
@@ -76,8 +74,15 @@ class QueryWindowFragment : Fragment("Query...") {
                 }
             }
         }
-        hbox {
-            padding = insets(5)
+        separator()
+        val sortGroup = ToggleGroup()
+        hbox(5.0) {
+            label("Sort")
+            radiobutton("Ascending", sortGroup)
+            radiobutton("Descending", sortGroup)
+        }
+        separator()
+        hbox(5.0) {
             alignment = Pos.CENTER
             button("Query") {
                 // TODO: Extract the sizes into the constant, so allow ease of modification just in one place
