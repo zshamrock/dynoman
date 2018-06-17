@@ -13,7 +13,7 @@ import tornadofx.*
 class QueryWindowFragment : Fragment("Query...") {
     companion object {
         @JvmField
-        val SORT_KEY_AVAILABLE_OPERATORS: List<String> = listOf("=", "!=", ">", "<", ">=", "<=", "between")
+        val SORT_KEY_AVAILABLE_OPERATORS: List<String> = listOf("=", ">", "<", ">=", "<=", "between")
     }
 
     val description: TableDescription by param()
@@ -35,7 +35,7 @@ class QueryWindowFragment : Fragment("Query...") {
         println(rowObservables)
     }
 
-    override val root = vbox {
+    override val root = vbox(5.0) {
         hbox(5.0) {
             label("Query")
             queryTypeComboBox = combobox(values = queryTypes) {
@@ -74,12 +74,19 @@ class QueryWindowFragment : Fragment("Query...") {
                 }
             }
         }
+        button("Add filter") {
+            setPrefSize(100.0, 40.0)
+            action {
+
+            }
+        }
         separator()
         val sortGroup = ToggleGroup()
         hbox(5.0) {
             label("Sort")
-            radiobutton("Ascending", sortGroup)
+            val asc = radiobutton("Ascending", sortGroup)
             radiobutton("Descending", sortGroup)
+            sortGroup.selectToggle(asc)
         }
         separator()
         hbox(5.0) {
