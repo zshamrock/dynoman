@@ -4,13 +4,13 @@ import javafx.geometry.Pos
 import tornadofx.*
 
 class SaveQueryFragment : Fragment("Save Query") {
-    override val root = vbox {
-        hbox {
+    override val root = vbox(5.0) {
+        hbox(5.0) {
             label("Name: ")
             textfield()
             alignment = Pos.CENTER
         }
-        hbox {
+        hbox(5.0) {
             button("Save") {
                 setPrefSize(100.0, 40.0)
             }

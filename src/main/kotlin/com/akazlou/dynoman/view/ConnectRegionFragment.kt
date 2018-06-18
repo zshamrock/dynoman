@@ -7,13 +7,13 @@ import tornadofx.*
 
 class ConnectRegionFragment : Fragment("Connect Region") {
     private val region = SimpleStringProperty(Regions.US_WEST_2.getName())
-    override val root = vbox {
-        hbox {
+    override val root = vbox(5.0) {
+        hbox(5.0) {
             label("Region: ")
             combobox(region, Regions.values().map { it.getName() })
             alignment = Pos.CENTER
         }
-        hbox {
+        hbox(5.0) {
             button("Connect") {
                 setPrefSize(100.0, 40.0)
                 action {

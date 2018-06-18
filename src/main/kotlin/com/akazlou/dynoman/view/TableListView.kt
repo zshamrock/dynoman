@@ -22,7 +22,7 @@ class TableListView : View() {
     private val queryView: QueryView by inject()
     private var tablesList: ObservableList<TreeItem<DynamoDBTable>> by singleAssign()
 
-    override val root = vbox {
+    override val root = vbox(5.0) {
         borderpaneConstraints {
             prefWidth = 220.0
             prefHeight = 725.0

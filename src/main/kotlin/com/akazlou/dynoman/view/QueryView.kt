@@ -17,12 +17,12 @@ class QueryView : View("Query") {
     private var queries: TabPane by singleAssign()
     private val region = SimpleStringProperty(app.config.string("region").orEmpty())
 
-    override val root = vbox {
+    override val root = vbox(5.0) {
         borderpaneConstraints {
             prefHeight = 725.0
             useMaxWidth = true
         }
-        val controlArea = hbox {
+        val controlArea = hbox(5.0) {
             vboxConstraints {
                 maxHeight = 45.0
             }
@@ -57,7 +57,7 @@ class QueryView : View("Query") {
             tabClosingPolicy = TabPane.TabClosingPolicy.ALL_TABS
             tab("Unnamed", find(QueryTabFragment::class).root)
         }
-        hbox {
+        hbox(5.0) {
             vboxConstraints {
                 maxHeight = 45.0
             }
@@ -71,7 +71,7 @@ class QueryView : View("Query") {
                 }
             }
         }
-        hbox {
+        hbox(5.0) {
             vboxConstraints {
                 maxHeight = 35.0
             }

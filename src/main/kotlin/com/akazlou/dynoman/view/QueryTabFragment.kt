@@ -15,7 +15,7 @@ import tornadofx.*
 class QueryTabFragment : Fragment("Query Tab") {
     private var queryArea: TextArea by singleAssign()
     private var resultTable: TableView<Map<String, Any?>> by singleAssign()
-    override val root = vbox {
+    override val root = vbox(5.0) {
         queryArea = textarea("SELECT * FROM T") {
             vboxConstraints {
                 prefHeight = 300.0
