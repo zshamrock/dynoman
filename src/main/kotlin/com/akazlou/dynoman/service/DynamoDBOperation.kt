@@ -4,7 +4,9 @@ import com.amazonaws.auth.DefaultAWSCredentialsProviderChain
 import com.amazonaws.regions.Regions
 import com.amazonaws.services.dynamodbv2.AmazonDynamoDBClient
 import com.amazonaws.services.dynamodbv2.document.DynamoDB
+import com.amazonaws.services.dynamodbv2.document.RangeKeyCondition
 import com.amazonaws.services.dynamodbv2.document.Table
+import com.amazonaws.services.dynamodbv2.document.spec.QuerySpec
 import com.amazonaws.services.dynamodbv2.document.spec.ScanSpec
 
 class DynamoDBOperation(region: Regions, private val offline: Boolean) {
@@ -35,5 +37,46 @@ class DynamoDBOperation(region: Regions, private val offline: Boolean) {
 
     fun getTable(name: String): Table {
         return dynamodb!!.getTable(name)
+    }
+
+    fun query(tableName: String,
+              indexName: String?,
+              hashKeyName: String,
+              hashKeyType: String,
+              hashKeyValue: String,
+              sortKeyName: String?,
+              sortKeyType: String?,
+              sortKeyOperation: String,
+              sortKeyValue: String?,
+              sortOrder: String): List<Map<String, Any?>> {
+        val spec = QuerySpec()
+        spec.withHashKey(hashKeyName, when (hashKeyType) {
+            "N" -> hashKeyValue.toLong()
+            else -> hashKeyValue
+        })
+        if (!sortKeyName.isNullOrEmpty() && !sortKeyValue.isNullOrEmpty()) {
+            val range = RangeKeyCondition(sortKeyName)
+            val value: Any? = when (sortKeyType) {
+                "N" -> sortKeyValue!!.toLong()
+                else -> sortKeyValue
+            }
+            when (sortKeyOperation) {
+                "=" -> range.eq(value)
+                ">" -> range.gt(value)
+                ">=" -> range.ge(value)
+                "<" -> range.lt(value)
+                "<=" -> range.le(value)
+            }
+            spec.withRangeKeyCondition(range)
+        }
+        spec.withScanIndexForward(sortOrder == "asc")
+        spec.withMaxResultSize(50)
+        val table = getTable(tableName)
+        val result = if (indexName != null) {
+            table.getIndex(indexName).query(spec)
+        } else {
+            table.query(spec)
+        }
+        return result.map { it.asMap() }
     }
 }

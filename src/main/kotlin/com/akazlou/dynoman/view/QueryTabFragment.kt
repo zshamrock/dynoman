@@ -36,6 +36,9 @@ class QueryTabFragment : Fragment("Query Tab") {
 
     fun setQueryResult(qr: QueryResult) {
         queryArea.text = if (qr.operationType == OperationType.SCAN) "SELECT * FROM ${qr.table}" else ""
+        if (qr.result.isEmpty()) {
+            return
+        }
         val columns = qr.result.firstOrNull()?.keys?.map { attributeName ->
             val column = TableColumn<Map<String, Any?>, String>(attributeName)
             column.cellValueFactory = Callback<TableColumn.CellDataFeatures<Map<String, Any?>, String>, ObservableValue<String>> {

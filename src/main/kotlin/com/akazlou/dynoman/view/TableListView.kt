@@ -96,7 +96,10 @@ class TableListView : View() {
             queryMenuItem.action {
                 println("Query ${treeItem.value.name}")
                 val description = (treeItem as DynamoDBTableTreeItem).description
-                find<QueryWindowFragment>(params = mapOf(QueryWindowFragment::description to description)).openModal()
+                find<QueryWindowFragment>(
+                        params = mapOf(
+                                QueryWindowFragment::description to description,
+                                QueryWindowFragment::operation to operation)).openModal()
             }
             tableMenu.items.addAll(scanMenuItem, queryMenuItem)
         }
