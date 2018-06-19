@@ -3,7 +3,7 @@ package com.akazlou.dynoman.view
 import com.amazonaws.services.dynamodbv2.model.KeySchemaElement
 import com.amazonaws.services.dynamodbv2.model.KeyType
 import com.amazonaws.services.dynamodbv2.model.TableDescription
-import javafx.beans.property.SimpleBooleanProperty
+import javafx.beans.property.SimpleObjectProperty
 import javafx.geometry.Pos
 import javafx.scene.control.ComboBox
 import javafx.scene.control.ToggleGroup
@@ -20,7 +20,7 @@ class QueryWindowFragment : Fragment("Query...") {
     private val queryTypes: List<QueryType>
     private var queryTypeComboBox: ComboBox<QueryType> by singleAssign()
     private var queryGridPane: GridPane by singleAssign()
-    private val rowObservables: List<SimpleBooleanProperty>
+    private val queryType = SimpleObjectProperty<QueryType>()
 
     init {
         val gsi = description.globalSecondaryIndexes.orEmpty()
@@ -28,17 +28,13 @@ class QueryWindowFragment : Fragment("Query...") {
             QueryType(index.indexName, index.keySchema, true)
         }
         queryTypes = listOf(QueryType(description.tableName, description.keySchema, false), *indexQueryStrings.toTypedArray())
-        rowObservables = generateSequence {
-            SimpleBooleanProperty(false)
-        }.take(queryTypes.size).toList()
-        rowObservables[0].value = true
-        println(rowObservables)
+        queryType.value = queryTypes[0]
     }
 
     override val root = vbox(5.0) {
         hbox(5.0) {
             label("Query")
-            queryTypeComboBox = combobox(values = queryTypes) {
+            queryTypeComboBox = combobox(values = queryTypes, property = queryType) {
                 selectionModel.select(0)
             }
             queryTypeComboBox.valueProperty().onChange {
@@ -94,6 +90,11 @@ class QueryWindowFragment : Fragment("Query...") {
             button("Query") {
                 // TODO: Extract the sizes into the constant, so allow ease of modification just in one place
                 setPrefSize(100.0, 40.0)
+                action {
+                    println("Query:")
+                    println(queryType)
+                    println(queryType.value)
+                }
             }
             button("Cancel") {
                 setPrefSize(100.0, 40.0)
