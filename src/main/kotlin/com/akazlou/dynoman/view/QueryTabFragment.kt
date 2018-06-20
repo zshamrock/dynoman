@@ -5,6 +5,7 @@ import com.akazlou.dynoman.domain.QueryResult
 import javafx.beans.property.SimpleStringProperty
 import javafx.beans.value.ObservableValue
 import javafx.collections.FXCollections
+import javafx.scene.control.SelectionMode
 import javafx.scene.control.TableColumn
 import javafx.scene.control.TableView
 import javafx.scene.control.TextArea
@@ -27,6 +28,10 @@ class QueryTabFragment : Fragment("Query Tab") {
                 prefHeight = 335.0
                 vGrow = Priority.ALWAYS
             }
+        }
+        with(resultTable.selectionModel) {
+            isCellSelectionEnabled = true
+            selectionMode = SelectionMode.MULTIPLE
         }
     }
 
