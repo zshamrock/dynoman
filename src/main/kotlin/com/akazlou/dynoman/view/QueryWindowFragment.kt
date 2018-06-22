@@ -17,6 +17,10 @@ class QueryWindowFragment : Fragment("Query...") {
     companion object {
         @JvmField
         val SORT_KEY_AVAILABLE_OPERATORS: List<String> = listOf("=", "<", "<=", ">", ">=", "Between")
+
+        @JvmField
+        val FILTER_KEY_AVAILABLE_OPERATORS: List<String> = listOf("=", "!=", "<=", "<", ">=", ">", "Between", "Exists",
+                "Not exists", "Contains", "Not contains", "Begins with")
     }
 
     val operation: DynamoDBOperation by param()
