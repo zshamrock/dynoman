@@ -21,6 +21,9 @@ class QueryWindowFragment : Fragment("Query...") {
         @JvmField
         val FILTER_KEY_AVAILABLE_OPERATORS: List<String> = listOf("=", "!=", "<=", "<", ">=", ">", "Between", "Exists",
                 "Not exists", "Contains", "Not contains", "Begins with")
+
+        @JvmField
+        val FILTER_KEY_TYPES: List<String> = listOf("String", "Number")
     }
 
     val operation: DynamoDBOperation by param()
@@ -33,6 +36,10 @@ class QueryWindowFragment : Fragment("Query...") {
     private val sortKey = SimpleStringProperty()
     private val sortKeyOperation = SimpleStringProperty("=")
     private val sort = SimpleStringProperty("asc")
+    private val filterKeys = mutableListOf<SimpleStringProperty>()
+    private val filterKeyTypes = mutableListOf<SimpleStringProperty>()
+    private val filterKeyOperations = mutableListOf<SimpleStringProperty>()
+    private val filterKeyValues = mutableListOf<SimpleStringProperty?>()
 
     init {
         val gsi = description.globalSecondaryIndexes.orEmpty()
@@ -61,7 +68,7 @@ class QueryWindowFragment : Fragment("Query...") {
         button("Add filter") {
             setPrefSize(100.0, 40.0)
             action {
-
+                addFilterRow(queryGridPane)
             }
         }
         separator()
@@ -127,6 +134,37 @@ class QueryWindowFragment : Fragment("Query...") {
                     combobox(values = SORT_KEY_AVAILABLE_OPERATORS, property = sortKeyOperation)
                 }
                 textfield(if (isHash) hashKey else sortKey) { }
+            }
+        }
+    }
+
+    private fun addFilterRow(queryGridPane: GridPane) {
+        queryGridPane.row {
+            label(if (filterKeys.isEmpty()) "Filter" else "And")
+            val filterKey = SimpleStringProperty()
+            filterKeys.add(filterKey)
+            textfield(filterKey) { }
+            val filterKeyType = SimpleStringProperty("String")
+            filterKeyTypes.add(filterKeyType)
+            combobox(values = FILTER_KEY_TYPES, property = filterKeyType)
+            val filterKeyOperation = SimpleStringProperty("=")
+            filterKeyOperations.add(filterKeyOperation)
+            combobox(values = FILTER_KEY_AVAILABLE_OPERATORS, property = filterKeyOperation)
+            val filterKeyValue = SimpleStringProperty()
+            filterKeyValues.add(filterKeyValue)
+            textfield(filterKeyValue) { }
+            button("x") {
+                properties["filterKey"] = filterKey
+                action {
+                    val index = filterKeys.indexOf(properties["filterKey"])
+                    val children = queryGridPane.children
+                    filterKeys.removeAt(index)
+                    filterKeyTypes.removeAt(index)
+                    filterKeyOperations.removeAt(index)
+                    filterKeyValues.removeAt(index)
+                    properties.remove("filterKey")
+                    children.removeAt(index)
+                }
             }
         }
     }
