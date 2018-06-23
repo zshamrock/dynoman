@@ -8,6 +8,7 @@ import com.amazonaws.services.dynamodbv2.model.TableDescription
 import javafx.beans.property.SimpleObjectProperty
 import javafx.beans.property.SimpleStringProperty
 import javafx.geometry.Pos
+import javafx.scene.Node
 import javafx.scene.control.ComboBox
 import javafx.scene.control.ToggleGroup
 import javafx.scene.layout.GridPane
@@ -40,6 +41,7 @@ class QueryWindowFragment : Fragment("Query...") {
     private val filterKeyTypes = mutableListOf<SimpleStringProperty>()
     private val filterKeyOperations = mutableListOf<SimpleStringProperty>()
     private val filterKeyValues = mutableListOf<SimpleStringProperty?>()
+    private var keysRowsCount = 0
 
     init {
         val gsi = description.globalSecondaryIndexes.orEmpty()
@@ -123,8 +125,10 @@ class QueryWindowFragment : Fragment("Query...") {
     }
 
     private fun addRow(queryGridPane: GridPane, keySchema: List<KeySchemaElement>) {
+        keysRowsCount = 0
         keySchema.forEach {
             queryGridPane.row {
+                keysRowsCount++
                 val isHash = it.keyType == KeyType.HASH.name
                 label(if (isHash) "Partition Key" else "Sort Key")
                 text(it.attributeName)
@@ -139,6 +143,7 @@ class QueryWindowFragment : Fragment("Query...") {
     }
 
     private fun addFilterRow(queryGridPane: GridPane) {
+        println("grid properties: ${queryGridPane.properties}")
         queryGridPane.row {
             label(if (filterKeys.isEmpty()) "Filter" else "And")
             val filterKey = SimpleStringProperty()
@@ -154,16 +159,26 @@ class QueryWindowFragment : Fragment("Query...") {
             filterKeyValues.add(filterKeyValue)
             textfield(filterKeyValue) { }
             button("x") {
-                properties["filterKey"] = filterKey
                 action {
-                    val index = filterKeys.indexOf(properties["filterKey"])
+                    val rowIndex = GridPane.getRowIndex(this)
+                    println("row index: $rowIndex")
+                    val index = rowIndex - keysRowsCount
+                    println("row index: $rowIndex, filter key index: $index")
                     val children = queryGridPane.children
+                    val nodesToDelete = mutableListOf<Node>()
+                    children.forEach { node ->
+                        val childRowIndex = GridPane.getRowIndex(node) ?: 0
+                        if (childRowIndex == rowIndex) {
+                            nodesToDelete.add(node)
+                        } else if (childRowIndex > rowIndex) {
+                            GridPane.setRowIndex(node, childRowIndex - 1)
+                        }
+                    }
                     filterKeys.removeAt(index)
                     filterKeyTypes.removeAt(index)
                     filterKeyOperations.removeAt(index)
                     filterKeyValues.removeAt(index)
-                    properties.remove("filterKey")
-                    children.removeAt(index)
+                    children.removeAll(nodesToDelete)
                 }
             }
         }
