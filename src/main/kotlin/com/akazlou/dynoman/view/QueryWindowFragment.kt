@@ -1,6 +1,7 @@
 package com.akazlou.dynoman.view
 
 import com.akazlou.dynoman.domain.OperationType
+import com.akazlou.dynoman.ext.removeRow
 import com.akazlou.dynoman.service.DynamoDBOperation
 import com.amazonaws.services.dynamodbv2.model.KeySchemaElement
 import com.amazonaws.services.dynamodbv2.model.KeyType
@@ -8,7 +9,6 @@ import com.amazonaws.services.dynamodbv2.model.TableDescription
 import javafx.beans.property.SimpleObjectProperty
 import javafx.beans.property.SimpleStringProperty
 import javafx.geometry.Pos
-import javafx.scene.Node
 import javafx.scene.control.ComboBox
 import javafx.scene.control.ToggleGroup
 import javafx.scene.layout.GridPane
@@ -160,25 +160,12 @@ class QueryWindowFragment : Fragment("Query...") {
             textfield(filterKeyValue) { }
             button("x") {
                 action {
-                    val rowIndex = GridPane.getRowIndex(this)
-                    println("row index: $rowIndex")
+                    val rowIndex = queryGridPane.removeRow(this)
                     val index = rowIndex - keysRowsCount
-                    println("row index: $rowIndex, filter key index: $index")
-                    val children = queryGridPane.children
-                    val nodesToDelete = mutableListOf<Node>()
-                    children.forEach { node ->
-                        val childRowIndex = GridPane.getRowIndex(node) ?: 0
-                        if (childRowIndex == rowIndex) {
-                            nodesToDelete.add(node)
-                        } else if (childRowIndex > rowIndex) {
-                            GridPane.setRowIndex(node, childRowIndex - 1)
-                        }
-                    }
                     filterKeys.removeAt(index)
                     filterKeyTypes.removeAt(index)
                     filterKeyOperations.removeAt(index)
                     filterKeyValues.removeAt(index)
-                    children.removeAll(nodesToDelete)
                 }
             }
         }
