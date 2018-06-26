@@ -1,6 +1,7 @@
 package com.akazlou.dynoman.view
 
 import com.akazlou.dynoman.domain.OperationType
+import com.akazlou.dynoman.ext.removeAllRows
 import com.akazlou.dynoman.ext.removeRow
 import com.akazlou.dynoman.service.DynamoDBOperation
 import com.amazonaws.services.dynamodbv2.model.KeySchemaElement
@@ -57,8 +58,7 @@ class QueryWindowFragment : Fragment("Query...") {
             label("Query")
             queryTypeComboBox = combobox(values = queryTypes, property = queryType)
             queryTypeComboBox.valueProperty().onChange {
-                val children = queryGridPane.children
-                children.clear()
+                queryGridPane.removeAllRows()
                 hashKey.value = ""
                 sortKey.value = ""
                 sortKeyOperation.value = "="

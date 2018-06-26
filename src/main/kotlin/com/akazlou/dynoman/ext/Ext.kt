@@ -2,6 +2,7 @@ package com.akazlou.dynoman.ext
 
 import javafx.scene.Node
 import javafx.scene.layout.GridPane
+import kotlin.collections.set
 
 // This is taken from TornadoFX internal, which requires to decrement this property correctly, in order further
 // GridPane.row and the corresponding deletes to work properly. Other words it will allow to keep
@@ -29,4 +30,9 @@ fun GridPane.removeRow(node: Node): Int {
     }
     children.removeAll(nodesToDelete)
     return rowIndex
+}
+
+fun GridPane.removeAllRows() {
+    children.clear()
+    properties.remove(GridPaneRowIdKey)
 }
