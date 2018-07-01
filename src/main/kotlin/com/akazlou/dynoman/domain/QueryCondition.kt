@@ -6,7 +6,11 @@ data class QueryCondition(val name: String, val type: Type, val operator: Operat
 
 enum class Type {
     STRING,
-    NUMBER
+    NUMBER;
+
+    override fun toString(): String {
+        return name.capitalize()
+    }
 }
 
 enum class Operator(val text: String) {
@@ -23,10 +27,33 @@ enum class Operator(val text: String) {
     NOT_CONTAINS("Not Contains"),
     BEGINS_WITH("Begins with");
 
-    fun <T> apply(attribute: String, type: Type, vararg values: T): QueryFilter {
+    fun apply(attribute: String, type: Type, vararg values: String): QueryFilter {
+        val value1: Any? = cast(0, type, values)
+        val value2: Any? = cast(1, type, values)
+        val filter = QueryFilter(attribute)
         return when (this) {
-            EQ -> QueryFilter(attribute).eq(values[0])
-            else -> throw IllegalArgumentException("Unsupported operator $this")
+            EQ -> filter.eq(value1)
+            LT -> filter.lt(value1)
+            LE -> filter.le(value1)
+            GT -> filter.gt(value1)
+            GE -> filter.ge(value1)
+            NE -> filter.ne(value1)
+            BETWEEN -> filter.between(value1, value2)
+            EXISTS -> filter.exists()
+            NOT_EXISTS -> filter.notExist()
+            CONTAINS -> filter.contains(value1)
+            NOT_CONTAINS -> filter.notContains(value1)
+            BEGINS_WITH -> filter.beginsWith(value1.toString())
         }
+    }
+
+    private fun cast(index: Int, type: Type, values: Array<out String>): Any? {
+        return if (values.size > index) {
+            if (type == Type.STRING) values[index] else values[index].toLong()
+        } else null
+    }
+
+    override fun toString(): String {
+        return text
     }
 }

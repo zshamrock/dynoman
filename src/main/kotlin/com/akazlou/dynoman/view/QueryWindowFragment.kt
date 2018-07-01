@@ -1,6 +1,8 @@
 package com.akazlou.dynoman.view
 
 import com.akazlou.dynoman.domain.OperationType
+import com.akazlou.dynoman.domain.Operator
+import com.akazlou.dynoman.domain.Type
 import com.akazlou.dynoman.ext.removeAllRows
 import com.akazlou.dynoman.ext.removeRow
 import com.akazlou.dynoman.service.DynamoDBOperation
@@ -18,14 +20,31 @@ import tornadofx.*
 class QueryWindowFragment : Fragment("Query...") {
     companion object {
         @JvmField
-        val SORT_KEY_AVAILABLE_OPERATORS: List<String> = listOf("=", "<", "<=", ">", ">=", "Between")
+        val SORT_KEY_AVAILABLE_OPERATORS: List<Operator> = listOf(
+                Operator.EQ,
+                Operator.LT,
+                Operator.LE,
+                Operator.GT,
+                Operator.GE,
+                Operator.BETWEEN)
 
         @JvmField
-        val FILTER_KEY_AVAILABLE_OPERATORS: List<String> = listOf("=", "!=", "<=", "<", ">=", ">", "Between", "Exists",
-                "Not exists", "Contains", "Not contains", "Begins with")
+        val FILTER_KEY_AVAILABLE_OPERATORS: List<Operator> = listOf(
+                Operator.EQ,
+                Operator.NE,
+                Operator.LT,
+                Operator.LE,
+                Operator.GT,
+                Operator.GE,
+                Operator.BETWEEN,
+                Operator.EXISTS,
+                Operator.NOT_EXISTS,
+                Operator.CONTAINS,
+                Operator.NOT_CONTAINS,
+                Operator.BEGINS_WITH)
 
         @JvmField
-        val FILTER_KEY_TYPES: List<String> = listOf("String", "Number")
+        val FILTER_KEY_TYPES: List<Type> = listOf(Type.STRING, Type.NUMBER)
     }
 
     val operation: DynamoDBOperation by param()
