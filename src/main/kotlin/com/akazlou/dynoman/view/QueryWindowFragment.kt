@@ -55,11 +55,11 @@ class QueryWindowFragment : Fragment("Query...") {
     private val queryType = SimpleObjectProperty<QueryType>()
     private val hashKey = SimpleStringProperty()
     private val sortKey = SimpleStringProperty()
-    private val sortKeyOperation = SimpleStringProperty("=")
+    private val sortKeyOperation = SimpleObjectProperty<Operator>(Operator.EQ)
     private val sort = SimpleStringProperty("asc")
     private val filterKeys = mutableListOf<SimpleStringProperty>()
-    private val filterKeyTypes = mutableListOf<SimpleStringProperty>()
-    private val filterKeyOperations = mutableListOf<SimpleStringProperty>()
+    private val filterKeyTypes = mutableListOf<SimpleObjectProperty<Type>>()
+    private val filterKeyOperations = mutableListOf<SimpleObjectProperty<Operator>>()
     private val filterKeyValues = mutableListOf<SimpleStringProperty?>()
     private var keysRowsCount = 0
 
@@ -80,7 +80,7 @@ class QueryWindowFragment : Fragment("Query...") {
                 queryGridPane.removeAllRows()
                 hashKey.value = ""
                 sortKey.value = ""
-                sortKeyOperation.value = "="
+                sortKeyOperation.value = Operator.EQ
                 addRow(queryGridPane, it!!.keySchema)
             }
         }
@@ -168,10 +168,10 @@ class QueryWindowFragment : Fragment("Query...") {
             val filterKey = SimpleStringProperty()
             filterKeys.add(filterKey)
             textfield(filterKey) { }
-            val filterKeyType = SimpleStringProperty("String")
+            val filterKeyType = SimpleObjectProperty<Type>(Type.STRING)
             filterKeyTypes.add(filterKeyType)
             combobox(values = FILTER_KEY_TYPES, property = filterKeyType)
-            val filterKeyOperation = SimpleStringProperty("=")
+            val filterKeyOperation = SimpleObjectProperty<Operator>(Operator.EQ)
             filterKeyOperations.add(filterKeyOperation)
             combobox(values = FILTER_KEY_AVAILABLE_OPERATORS, property = filterKeyOperation)
             val filterKeyValue = SimpleStringProperty()

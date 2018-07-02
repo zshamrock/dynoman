@@ -1,6 +1,8 @@
 package com.akazlou.dynoman.domain
 
 import com.amazonaws.services.dynamodbv2.document.QueryFilter
+import com.amazonaws.services.dynamodbv2.document.RangeKeyCondition
+import java.util.Locale
 
 data class QueryCondition(val name: String, val type: Type, val operator: Operator, val value: String)
 
@@ -9,7 +11,7 @@ enum class Type {
     NUMBER;
 
     override fun toString(): String {
-        return name.capitalize()
+        return name.toLowerCase(Locale.ROOT).capitalize()
     }
 }
 
@@ -44,6 +46,17 @@ enum class Operator(val text: String) {
             CONTAINS -> filter.contains(value1)
             NOT_CONTAINS -> filter.notContains(value1)
             BEGINS_WITH -> filter.beginsWith(value1.toString())
+        }
+    }
+
+    fun apply(range: RangeKeyCondition, value: Any) {
+        when (this) {
+            EQ -> range.eq(value)
+            GT -> range.gt(value)
+            GE -> range.ge(value)
+            LT -> range.lt(value)
+            LE -> range.le(value)
+            else -> throw IllegalArgumentException("Unsupported operator for the range key condition: $this")
         }
     }
 
