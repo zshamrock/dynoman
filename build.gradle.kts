@@ -53,6 +53,8 @@ dependencies {
     compile("no.tornado", "tornadofx", "1.7.16")
     compile("com.amazonaws", "aws-java-sdk-dynamodb", "1.11.330")
     testCompile("org.jetbrains.spek:spek-api:1.1.5")
+    testCompile("org.jetbrains.kotlin", "kotlin-test", "1.2.50")
+    testCompile("org.assertj", "assertj-core", "3.10.0")
     testRuntime("org.jetbrains.spek:spek-junit-platform-engine:1.1.5")
 }
 
