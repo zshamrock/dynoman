@@ -26,7 +26,7 @@ class TimestampFunction : Function<Long> {
         return ZoneOffset.ofHoursMinutes(hours, mins)
     }
 
-    private fun apply(text: String, offset: ZoneOffset = ZoneOffset.UTC): Long {
+    fun apply(text: String, offset: ZoneOffset = ZoneOffset.UTC): Long {
         val dtf = if (text.contains("am", true) || text.contains("pm", true)) {
             DateTimeFormatter.ofPattern("yyyy-MM-dd hh:mm:ss")
         } else {

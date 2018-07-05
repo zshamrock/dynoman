@@ -1,15 +1,14 @@
 package function
 
 import com.akazlou.dynoman.function.TimestampFunction
+import io.kotlintest.shouldBe
+import io.kotlintest.specs.StringSpec
 
 
-object TimestampFunctionSpec : StringSpek({
-    describe("timestamp function") {
+class TimestampFunctionSpec : StringSpec({
+    "should parse text without am/pm into the proper timestamp" {
         val function = TimestampFunction()
-
-        it("should parse text without am/pm into the proper timestamp") {
-            val timestamp = function.apply("2018-07-03 22:51:20")
-            assertThat(timestamp).isEqualTo(1530658280001L)
-        }
+        val timestamp = function.apply("2018-07-03 22:51:20")
+        timestamp shouldBe 1530658280000L
     }
 })
