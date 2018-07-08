@@ -4,19 +4,18 @@ import java.time.LocalDateTime
 import java.time.ZoneOffset
 import java.time.format.DateTimeFormatter
 
-class TimestampFunction : Function<Long> {
+class TimestampFunction : Function<Long>() {
     override fun name(): String {
         return "timestamp"
     }
 
-    override fun parse(text: String): Long {
-        val args = text.trim().drop(name().length).trim('(', ')').split(',')
+    override fun run(vararg args: Any): Long {
         val offset = if (args.size == 2) {
-            parseOffset(args[1])
+            parseOffset(args[1].toString())
         } else {
             ZoneOffset.UTC
         }
-        return apply(args[0], offset)
+        return apply(args[0].toString(), offset)
     }
 
     private fun parseOffset(text: String): ZoneOffset {
@@ -26,7 +25,7 @@ class TimestampFunction : Function<Long> {
         return ZoneOffset.ofHoursMinutes(hours, mins)
     }
 
-    fun apply(text: String, offset: ZoneOffset = ZoneOffset.UTC): Long {
+    private fun apply(text: String, offset: ZoneOffset = ZoneOffset.UTC): Long {
         val dtf = if (text.contains("am", true) || text.contains("pm", true)) {
             DateTimeFormatter.ofPattern("yyyy-MM-dd hh:mm:ss")
         } else {
