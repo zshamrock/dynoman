@@ -19,14 +19,16 @@ abstract class Function<T> {
             if (isInQuote) {
                 if (ch == token) {
                     tokens.pop()
-                } else {
-                    arg += ch
                 }
+                arg += ch
                 return@forEach
             }
             when (ch) {
                 '\'', '"', '(' -> {
                     tokens.push(ch)
+                    if (ch == '\'' || ch == '"') {
+                        arg += ch
+                    }
                 }
                 ')' -> {
                     if (token != '(') {
@@ -36,29 +38,33 @@ abstract class Function<T> {
                     tokens.pop()
                 }
                 ',' -> {
-                    args += if (arg.startsWith('\'') || arg.startsWith('"')) {
-                        // String type
-                        arg.trim('\'', '"')
-                    } else if (arg == "true" || arg == "false") {
-                        // Boolean type
-                        arg.toBoolean()
-                    } else {
-                        // Long type
-                        arg.toLong()
-                    }
+                    args += cast(arg.trim())
                     arg = ""
                 }
                 else -> arg += ch
             }
         }
         if (arg.isNotEmpty()) {
-            args += arg
+            args += cast(arg.trim())
         }
         if (tokens.isNotEmpty()) {
             throw IllegalArgumentException("Can't parse the function statement '$text'. "
                     + "Please, check it is syntactically correct.")
         }
         return args.toTypedArray()
+    }
+
+    private fun cast(arg: String): Any {
+        return if (arg.startsWith('\'') || arg.startsWith('"')) {
+            // String type
+            arg.trim('\'', '"')
+        } else if (arg == "true" || arg == "false") {
+            // Boolean type
+            arg.toBoolean()
+        } else {
+            // Long type
+            arg.toLong()
+        }
     }
 
     abstract fun name(): String

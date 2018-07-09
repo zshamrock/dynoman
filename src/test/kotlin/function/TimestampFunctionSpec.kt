@@ -11,4 +11,10 @@ class TimestampFunctionSpec : StringSpec({
         val timestamp = function.parse("timestamp(\"2018-07-03 22:51:20\")")
         timestamp shouldBe 1530658280000L
     }
+
+    "should parse text without am/pm into the proper timestamp with the time zone" {
+        val function = TimestampFunction()
+        val timestamp = function.parse("timestamp(\"2018-07-03 22:51:20\", '+05:00')")
+        timestamp shouldBe 1530640280000L
+    }
 })
