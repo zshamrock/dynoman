@@ -46,6 +46,8 @@ dependencies {
     compile(kotlinModule("stdlib-jdk8", kotlin_version))
     compile("no.tornado", "tornadofx", "1.7.16")
     compile("com.amazonaws", "aws-java-sdk-dynamodb", "1.11.330")
+    compile("org.jetbrains.kotlin", "kotlin-reflect", kotlin_version)
+    compile("org.reflections", "reflections", "0.9.11")
     testCompile("io.kotlintest:kotlintest-runner-junit5:3.1.7")
 }
 
