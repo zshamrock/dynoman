@@ -5,6 +5,7 @@ import com.akazlou.dynoman.domain.Operator
 import com.akazlou.dynoman.domain.Type
 import com.akazlou.dynoman.ext.removeAllRows
 import com.akazlou.dynoman.ext.removeRow
+import com.akazlou.dynoman.function.Functions
 import com.akazlou.dynoman.service.DynamoDBOperation
 import com.amazonaws.services.dynamodbv2.model.KeySchemaElement
 import com.amazonaws.services.dynamodbv2.model.KeyType
@@ -62,6 +63,7 @@ class QueryWindowFragment : Fragment("Query...") {
     private val filterKeyOperations = mutableListOf<SimpleObjectProperty<Operator>>()
     private val filterKeyValues = mutableListOf<SimpleStringProperty?>()
     private var keysRowsCount = 0
+    private val functions = Functions.getAvailableFunctions()
 
     init {
         val gsi = description.globalSecondaryIndexes.orEmpty()
@@ -120,11 +122,11 @@ class QueryWindowFragment : Fragment("Query...") {
                                 if (qt.isIndex) qt.name else null,
                                 qt.hashKey.attributeName,
                                 attributeDefinitions[qt.hashKey.attributeName]!!,
-                                hashKey.value,
+                                parseValue(hashKey.value),
                                 qt.sortKey?.attributeName,
                                 attributeDefinitions[qt.sortKey?.attributeName],
                                 sortKeyOperation.value,
-                                sortKey.value,
+                                parseValue(sortKey.value),
                                 sort.value)
                         find(QueryView::class).setQueryResult(
                                 OperationType.QUERY,
@@ -141,6 +143,15 @@ class QueryWindowFragment : Fragment("Query...") {
                 }
             }
         }
+    }
+
+    private fun parseValue(value: String): String {
+        functions.forEach { function ->
+            if (value.startsWith(function.name())) {
+                return function.parse(value).toString()
+            }
+        }
+        return value
     }
 
     private fun addRow(queryGridPane: GridPane, keySchema: List<KeySchemaElement>) {
