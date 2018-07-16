@@ -32,7 +32,7 @@ Gradle was chosen like the natural choice for the kotlin projects, and using the
 work it then takes lots of efforts to make it work.
 
 ## Mon 16 Jul, 2018
-- Kotlin testing support/frameworks is terrible. 
+- Kotlin testing support/frameworks could be better. 
 
 Spek requires the crazy Gradle setup (although to be fair Maven setup 
 is way simpler, which probably suggest I should use Maven instead). Still Spek is far from the elegance and power of 
