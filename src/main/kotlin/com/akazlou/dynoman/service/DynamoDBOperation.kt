@@ -1,6 +1,7 @@
 package com.akazlou.dynoman.service
 
 import com.akazlou.dynoman.domain.Operator
+import com.akazlou.dynoman.domain.QueryCondition
 import com.amazonaws.auth.DefaultAWSCredentialsProviderChain
 import com.amazonaws.regions.Regions
 import com.amazonaws.services.dynamodbv2.AmazonDynamoDBClient
@@ -49,7 +50,8 @@ class DynamoDBOperation(region: Regions, private val offline: Boolean) {
               sortKeyType: String?,
               sortKeyOperation: Operator,
               sortKeyValue: String?,
-              sortOrder: String): List<Map<String, Any?>> {
+              sortOrder: String,
+              conditions: List<QueryCondition>): List<Map<String, Any?>> {
         val spec = QuerySpec()
         spec.withHashKey(hashKeyName, when (hashKeyType) {
             "N" -> hashKeyValue.toLong()
@@ -64,6 +66,7 @@ class DynamoDBOperation(region: Regions, private val offline: Boolean) {
             sortKeyOperation.apply(range, value!!)
             spec.withRangeKeyCondition(range)
         }
+        spec.withQueryFilters(*(conditions.map { it.toQueryFilter() }.toTypedArray()))
         spec.withScanIndexForward(sortOrder == "asc")
         spec.withMaxResultSize(50)
         val table = getTable(tableName)

@@ -2,6 +2,7 @@ package com.akazlou.dynoman.view
 
 import com.akazlou.dynoman.domain.OperationType
 import com.akazlou.dynoman.domain.Operator
+import com.akazlou.dynoman.domain.QueryCondition
 import com.akazlou.dynoman.domain.Type
 import com.akazlou.dynoman.ext.removeAllRows
 import com.akazlou.dynoman.ext.removeRow
@@ -117,6 +118,14 @@ class QueryWindowFragment : Fragment("Query...") {
                     println(qt)
                     if (!hashKey.value.isNullOrBlank()) {
                         val attributeDefinitions = description.attributeDefinitions.associateBy({ it.attributeName }, { it.attributeType })
+                        val conditions = filterKeys.mapIndexed { index, filterKey ->
+                            QueryCondition(
+                                    filterKey.value,
+                                    filterKeyTypes[index].value,
+                                    filterKeyOperations[index].value,
+                                    // TODO: Actually have to correctly handle when the value is missing
+                                    filterKeyValues[index]!!.value)
+                        }
                         val result = operation.query(
                                 description.tableName,
                                 if (qt.isIndex) qt.name else null,
@@ -127,7 +136,8 @@ class QueryWindowFragment : Fragment("Query...") {
                                 attributeDefinitions[qt.sortKey?.attributeName],
                                 sortKeyOperation.value,
                                 parseValue(sortKey.value),
-                                sort.value)
+                                sort.value,
+                                conditions)
                         find(QueryView::class).setQueryResult(
                                 OperationType.QUERY,
                                 description.tableName,

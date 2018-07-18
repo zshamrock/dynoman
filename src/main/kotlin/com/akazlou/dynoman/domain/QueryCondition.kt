@@ -4,7 +4,11 @@ import com.amazonaws.services.dynamodbv2.document.QueryFilter
 import com.amazonaws.services.dynamodbv2.document.RangeKeyCondition
 import java.util.Locale
 
-data class QueryCondition(val name: String, val type: Type, val operator: Operator, val value: String)
+data class QueryCondition(val name: String, val type: Type, val operator: Operator, val value: String) {
+    fun toQueryFilter(): QueryFilter {
+        return operator.apply(name, type, value)
+    }
+}
 
 enum class Type {
     STRING,
