@@ -16,22 +16,26 @@ import tornadofx.*
 class QueryTabFragment : Fragment("Query Tab") {
     private var queryArea: TextArea by singleAssign()
     private var resultTable: TableView<Map<String, Any?>> by singleAssign()
-    override val root = vbox(5.0) {
-        queryArea = textarea("SELECT * FROM T") {
-            vboxConstraints {
-                prefHeight = 300.0
-            }
-            selectAll()
-        }
-        resultTable = tableview {
-            vboxConstraints {
-                prefHeight = 335.0
-                vGrow = Priority.ALWAYS
+    override val root = squeezebox {
+        fold("Query", expanded = true) {
+            queryArea = textarea("SELECT * FROM T") {
+                vboxConstraints {
+                    prefHeight = 300.0
+                }
+                selectAll()
             }
         }
-        with(resultTable.selectionModel) {
-            isCellSelectionEnabled = true
-            selectionMode = SelectionMode.MULTIPLE
+        fold("Data", expanded = true) {
+            resultTable = tableview {
+                vboxConstraints {
+                    prefHeight = 335.0
+                    vGrow = Priority.ALWAYS
+                }
+            }
+            with(resultTable.selectionModel) {
+                isCellSelectionEnabled = true
+                selectionMode = SelectionMode.MULTIPLE
+            }
         }
     }
 
