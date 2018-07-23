@@ -6,6 +6,7 @@ import javafx.beans.property.SimpleStringProperty
 import javafx.beans.value.ObservableValue
 import javafx.collections.FXCollections
 import javafx.scene.control.SelectionMode
+import javafx.scene.control.TabPane
 import javafx.scene.control.TableColumn
 import javafx.scene.control.TableView
 import javafx.scene.control.TextArea
@@ -18,11 +19,18 @@ class QueryTabFragment : Fragment("Query Tab") {
     private var resultTable: TableView<Map<String, Any?>> by singleAssign()
     override val root = squeezebox {
         fold("Query", expanded = true) {
-            queryArea = textarea("SELECT * FROM T") {
-                vboxConstraints {
-                    prefHeight = 300.0
+            tabpane {
+                tabClosingPolicy = TabPane.TabClosingPolicy.UNAVAILABLE
+                tab("SQL") {
+                    queryArea = textarea("SELECT * FROM T") {
+                        vboxConstraints {
+                            prefHeight = 300.0
+                        }
+                        selectAll()
+                    }
                 }
-                selectAll()
+                tab("Editor") {
+                }
             }
         }
         fold("Data", expanded = true) {
