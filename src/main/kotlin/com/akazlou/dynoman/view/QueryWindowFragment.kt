@@ -131,7 +131,7 @@ class QueryWindowFragment : Fragment("Query...") {
                                 if (qt.isIndex) qt.name else null,
                                 qt.hashKey.attributeName,
                                 attributeDefinitions[qt.hashKey.attributeName]!!,
-                                parseValue(hashKey.value),
+                                parseValue(hashKey.value)!!,
                                 qt.sortKey?.attributeName,
                                 attributeDefinitions[qt.sortKey?.attributeName],
                                 sortKeyOperation.value,
@@ -155,7 +155,10 @@ class QueryWindowFragment : Fragment("Query...") {
         }
     }
 
-    private fun parseValue(value: String): String {
+    private fun parseValue(value: String?): String? {
+        if (value == null) {
+            return null
+        }
         functions.forEach { function ->
             if (value.startsWith(function.name())) {
                 return function.parse(value).toString()
