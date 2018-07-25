@@ -30,6 +30,7 @@ class QueryTabFragment : Fragment("Query Tab") {
                     }
                 }
                 tab("Editor") {
+                    find<QueryEditorFragment>().root
                 }
             }
         }
