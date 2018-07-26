@@ -29,9 +29,7 @@ class QueryTabFragment : Fragment("Query Tab") {
                         selectAll()
                     }
                 }
-                tab("Editor") {
-                    find<QueryEditorFragment>().root
-                }
+                tab("Editor", find<QueryEditorFragment>().root)
             }
         }
         fold("Data", expanded = true) {
