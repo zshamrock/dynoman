@@ -3,7 +3,9 @@ package com.akazlou.dynoman.view
 import com.akazlou.dynoman.controller.RunQueryController
 import com.akazlou.dynoman.domain.OperationType
 import com.akazlou.dynoman.domain.QueryResult
+import com.akazlou.dynoman.service.DynamoDBOperation
 import com.amazonaws.regions.Regions
+import com.amazonaws.services.dynamodbv2.model.TableDescription
 import javafx.beans.property.SimpleStringProperty
 import javafx.geometry.Pos
 import javafx.scene.control.TabPane
@@ -55,7 +57,8 @@ class QueryView : View("Query") {
                 vGrow = Priority.ALWAYS
             }
             tabClosingPolicy = TabPane.TabClosingPolicy.ALL_TABS
-            tab("Unnamed", find(QueryTabFragment::class).root)
+            // TODO: Correctly handle Unnamed tab
+            //tab("Unnamed", find(QueryTabFragment::class).root)
         }
         hbox(5.0) {
             vboxConstraints {
@@ -87,9 +90,13 @@ class QueryView : View("Query") {
         }
     }
 
-
-    fun setQueryResult(operationType: OperationType, table: String, result: List<Map<String, Any?>>) {
-        val tab = find(QueryTabFragment::class)
+    fun setQueryResult(operation: DynamoDBOperation,
+                       description: TableDescription,
+                       operationType: OperationType,
+                       table: String,
+                       result: List<Map<String, Any?>>) {
+        val tab = find<QueryTabFragment>(
+                params = mapOf("description" to description, "operation" to operation))
         tab.setQueryResult(QueryResult(operationType, table, result))
         queries.tab("$operationType $table", tab.root)
         queries.selectionModel.selectLast()

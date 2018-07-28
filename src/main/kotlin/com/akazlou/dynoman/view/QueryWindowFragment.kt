@@ -139,6 +139,8 @@ class QueryWindowFragment : Fragment("Query...") {
                                 sort.value,
                                 conditions)
                         find(QueryView::class).setQueryResult(
+                                operation,
+                                description,
                                 OperationType.QUERY,
                                 description.tableName,
                                 result)

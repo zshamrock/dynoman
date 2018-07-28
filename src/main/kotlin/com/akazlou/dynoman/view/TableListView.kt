@@ -89,8 +89,9 @@ class TableListView : View() {
             scanMenuItem.action {
                 val tableName = treeItem.value.name
                 println("Scan $tableName")
+                val description = (treeItem as DynamoDBTableTreeItem).description
                 val result = operation.scan(tableName)
-                queryView.setQueryResult(OperationType.SCAN, tableName, result)
+                queryView.setQueryResult(operation, description, OperationType.SCAN, tableName, result)
             }
             val queryMenuItem = MenuItem("Query...")
             queryMenuItem.action {

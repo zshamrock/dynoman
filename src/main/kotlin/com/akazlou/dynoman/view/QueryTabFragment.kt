@@ -29,7 +29,10 @@ class QueryTabFragment : Fragment("Query Tab") {
                         selectAll()
                     }
                 }
-                tab("Editor", find<QueryEditorFragment>().root)
+                tab("Editor", find<QueryWindowFragment>(
+                        params = mapOf(
+                                QueryWindowFragment::description to params["description"],
+                                QueryWindowFragment::operation to params["operation"])).root)
             }
         }
         fold("Data", expanded = true) {
