@@ -72,7 +72,11 @@ class QueryWindowFragment : Fragment("Query...") {
             QueryType(index.indexName, index.keySchema, true)
         }
         queryTypes = listOf(QueryType(description.tableName, description.keySchema, false), *indexQueryStrings.toTypedArray())
-        queryType.value = queryTypes[0]
+        queryType.value = params.getOrDefault("queryType", queryTypes[0]) as QueryType
+        hashKey.value = params.getOrDefault("hashKey", "") as String
+        sortKeyOperation.value = (params["sortKeyOperation"] as Operator?) ?: Operator.EQ
+        sortKey.value = (params["sortKey"] as String?) ?: ""
+        sort.value = params.getOrDefault("sort", "asc") as String
     }
 
     override val root = vbox(5.0) {
@@ -143,6 +147,11 @@ class QueryWindowFragment : Fragment("Query...") {
                                 description,
                                 OperationType.QUERY,
                                 description.tableName,
+                                queryType.value,
+                                hashKey.value,
+                                sortKeyOperation.value,
+                                sortKey.value,
+                                sort.value,
                                 result)
                     }
                     close()

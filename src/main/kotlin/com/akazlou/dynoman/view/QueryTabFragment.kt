@@ -21,7 +21,8 @@ class QueryTabFragment : Fragment("Query Tab") {
         fold("Query", expanded = true) {
             tabpane {
                 tabClosingPolicy = TabPane.TabClosingPolicy.UNAVAILABLE
-                tab("SQL") {
+                tabMinWidth = 60.0
+                val sql = tab("SQL") {
                     queryArea = textarea("SELECT * FROM T") {
                         vboxConstraints {
                             prefHeight = 300.0
@@ -29,10 +30,16 @@ class QueryTabFragment : Fragment("Query Tab") {
                         selectAll()
                     }
                 }
-                tab("Editor", find<QueryWindowFragment>(
+                val editor = tab("EDITOR", find<QueryWindowFragment>(
                         params = mapOf(
                                 QueryWindowFragment::description to params["description"],
-                                QueryWindowFragment::operation to params["operation"])).root)
+                                QueryWindowFragment::operation to params["operation"],
+                                "queryType" to params["queryType"],
+                                "hashKey" to params["hashKey"],
+                                "sortKeyOperation" to params["sortKeyOperation"],
+                                "sortKey" to params["sortKey"],
+                                "sort" to params["sort"])).root)
+                editor.select()
             }
         }
         fold("Data", expanded = true) {
