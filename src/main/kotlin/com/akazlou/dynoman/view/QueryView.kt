@@ -103,6 +103,7 @@ class QueryView : View("Query") {
                        result: List<Map<String, Any?>>) {
         val tab = find<QueryTabFragment>(
                 params = mapOf(
+                        QueryTabFragment::operationType to operationType,
                         "description" to description,
                         "operation" to operation,
                         "queryType" to queryType,

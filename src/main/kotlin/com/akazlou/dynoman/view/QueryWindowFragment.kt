@@ -47,6 +47,8 @@ class QueryWindowFragment : Fragment("Query...") {
 
         @JvmField
         val FILTER_KEY_TYPES: List<Type> = listOf(Type.STRING, Type.NUMBER)
+
+        const val DEFAULT_SORT_ORDER = "asc"
     }
 
     val operation: DynamoDBOperation by param()
@@ -58,7 +60,7 @@ class QueryWindowFragment : Fragment("Query...") {
     private val hashKey = SimpleStringProperty()
     private val sortKey = SimpleStringProperty()
     private val sortKeyOperation = SimpleObjectProperty<Operator>(Operator.EQ)
-    private val sort = SimpleStringProperty("asc")
+    private val sort = SimpleStringProperty(DEFAULT_SORT_ORDER)
     private val filterKeys = mutableListOf<SimpleStringProperty>()
     private val filterKeyTypes = mutableListOf<SimpleObjectProperty<Type>>()
     private val filterKeyOperations = mutableListOf<SimpleObjectProperty<Operator>>()
@@ -73,10 +75,6 @@ class QueryWindowFragment : Fragment("Query...") {
         }
         queryTypes = listOf(QueryType(description.tableName, description.keySchema, false), *indexQueryStrings.toTypedArray())
         queryType.value = queryTypes[0]
-        hashKey.value = params.getOrDefault("hashKey", "") as String
-        sortKeyOperation.value = (params["sortKeyOperation"] as Operator?) ?: Operator.EQ
-        sortKey.value = (params["sortKey"] as String?) ?: ""
-        sort.value = params.getOrDefault("sort", "asc") as String
     }
 
     override val root = vbox(5.0) {
@@ -84,7 +82,6 @@ class QueryWindowFragment : Fragment("Query...") {
             label("Query")
             queryTypeComboBox = combobox(values = queryTypes, property = queryType)
             queryTypeComboBox.valueProperty().onChange {
-                println("Changed")
                 queryGridPane.removeAllRows()
                 hashKey.value = ""
                 sortKey.value = ""
@@ -226,8 +223,20 @@ class QueryWindowFragment : Fragment("Query...") {
         }
     }
 
-    fun customInit() {
-        queryTypeComboBox.value = params.getOrDefault("queryType", queryType.value) as QueryType
+    fun init(operationType: OperationType,
+             queryType: QueryType?,
+             hashKey: String?,
+             sortKeyOperation: Operator?,
+             sortKey: String?,
+             sort: String?) {
+        if (operationType == OperationType.SCAN) {
+            return
+        }
+        queryTypeComboBox.value = queryType
+        this.hashKey.value = hashKey
+        this.sortKeyOperation.value = sortKeyOperation
+        this.sortKey.value = sortKey
+        this.sort.value = sort
     }
 }
 

@@ -1,6 +1,7 @@
 package com.akazlou.dynoman.view
 
 import com.akazlou.dynoman.domain.OperationType
+import com.akazlou.dynoman.domain.Operator
 import com.akazlou.dynoman.domain.QueryResult
 import javafx.beans.property.SimpleStringProperty
 import javafx.beans.value.ObservableValue
@@ -15,6 +16,7 @@ import javafx.util.Callback
 import tornadofx.*
 
 class QueryTabFragment : Fragment("Query Tab") {
+    val operationType: OperationType by param()
     private var queryArea: TextArea by singleAssign()
     private var resultTable: TableView<Map<String, Any?>> by singleAssign()
     override val root = squeezebox {
@@ -33,14 +35,14 @@ class QueryTabFragment : Fragment("Query Tab") {
                 val qwf = find<QueryWindowFragment>(
                         params = mapOf(
                                 QueryWindowFragment::description to params["description"],
-                                QueryWindowFragment::operation to params["operation"],
-                                "queryType" to params["queryType"],
-                                "hashKey" to params["hashKey"],
-                                "sortKeyOperation" to params["sortKeyOperation"],
-                                "sortKey" to params["sortKey"],
-                                "sort" to params["sort"]))
+                                QueryWindowFragment::operation to params["operation"]))
                 val editor = tab("EDITOR", qwf.root)
-                qwf.customInit()
+                qwf.init(operationType,
+                        params["queryType"] as QueryType?,
+                        params["hashKey"] as String?,
+                        params["sortKeyOperation"] as Operator?,
+                        params["sortKey"] as String?,
+                        params["sort"] as String?)
                 editor.select()
             }
         }
