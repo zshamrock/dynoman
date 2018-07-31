@@ -30,7 +30,7 @@ class QueryTabFragment : Fragment("Query Tab") {
                         selectAll()
                     }
                 }
-                val editor = tab("EDITOR", find<QueryWindowFragment>(
+                val qwf = find<QueryWindowFragment>(
                         params = mapOf(
                                 QueryWindowFragment::description to params["description"],
                                 QueryWindowFragment::operation to params["operation"],
@@ -38,7 +38,9 @@ class QueryTabFragment : Fragment("Query Tab") {
                                 "hashKey" to params["hashKey"],
                                 "sortKeyOperation" to params["sortKeyOperation"],
                                 "sortKey" to params["sortKey"],
-                                "sort" to params["sort"])).root)
+                                "sort" to params["sort"]))
+                val editor = tab("EDITOR", qwf.root)
+                qwf.customInit()
                 editor.select()
             }
         }

@@ -72,7 +72,7 @@ class QueryWindowFragment : Fragment("Query...") {
             QueryType(index.indexName, index.keySchema, true)
         }
         queryTypes = listOf(QueryType(description.tableName, description.keySchema, false), *indexQueryStrings.toTypedArray())
-        queryType.value = params.getOrDefault("queryType", queryTypes[0]) as QueryType
+        queryType.value = queryTypes[0]
         hashKey.value = params.getOrDefault("hashKey", "") as String
         sortKeyOperation.value = (params["sortKeyOperation"] as Operator?) ?: Operator.EQ
         sortKey.value = (params["sortKey"] as String?) ?: ""
@@ -84,6 +84,7 @@ class QueryWindowFragment : Fragment("Query...") {
             label("Query")
             queryTypeComboBox = combobox(values = queryTypes, property = queryType)
             queryTypeComboBox.valueProperty().onChange {
+                println("Changed")
                 queryGridPane.removeAllRows()
                 hashKey.value = ""
                 sortKey.value = ""
@@ -223,6 +224,10 @@ class QueryWindowFragment : Fragment("Query...") {
                 }
             }
         }
+    }
+
+    fun customInit() {
+        queryTypeComboBox.value = params.getOrDefault("queryType", queryType.value) as QueryType
     }
 }
 
