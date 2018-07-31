@@ -34,6 +34,7 @@ class QueryTabFragment : Fragment("Query Tab") {
                 }
                 val qwf = find<QueryWindowFragment>(
                         params = mapOf(
+                                QueryWindowFragment::mode to QueryWindowFragment.Mode.INLINE,
                                 QueryWindowFragment::description to params["description"],
                                 QueryWindowFragment::operation to params["operation"]))
                 val editor = tab("EDITOR", qwf.root)
@@ -42,7 +43,8 @@ class QueryTabFragment : Fragment("Query Tab") {
                         params["hashKey"] as String?,
                         params["sortKeyOperation"] as Operator?,
                         params["sortKey"] as String?,
-                        params["sort"] as String?)
+                        params["sort"] as String?,
+                        this@QueryTabFragment)
                 editor.select()
             }
         }

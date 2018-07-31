@@ -109,6 +109,7 @@ class TableListView : View() {
                 val description = (treeItem as DynamoDBTableTreeItem).description
                 find<QueryWindowFragment>(
                         params = mapOf(
+                                QueryWindowFragment::mode to QueryWindowFragment.Mode.MODAL,
                                 QueryWindowFragment::description to description,
                                 QueryWindowFragment::operation to operation)).openModal()
             }

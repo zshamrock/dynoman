@@ -3,6 +3,7 @@ package com.akazlou.dynoman.view
 import com.akazlou.dynoman.domain.OperationType
 import com.akazlou.dynoman.domain.Operator
 import com.akazlou.dynoman.domain.QueryCondition
+import com.akazlou.dynoman.domain.QueryResult
 import com.akazlou.dynoman.domain.Type
 import com.akazlou.dynoman.ext.removeAllRows
 import com.akazlou.dynoman.ext.removeRow
@@ -51,6 +52,12 @@ class QueryWindowFragment : Fragment("Query...") {
         const val DEFAULT_SORT_ORDER = "asc"
     }
 
+    enum class Mode {
+        MODAL,
+        INLINE
+    }
+
+    val mode: Mode by param()
     val operation: DynamoDBOperation by param()
     val description: TableDescription by param()
     private val queryTypes: List<QueryType>
@@ -67,6 +74,7 @@ class QueryWindowFragment : Fragment("Query...") {
     private val filterKeyValues = mutableListOf<SimpleStringProperty?>()
     private var keysRowsCount = 0
     private val functions = Functions.getAvailableFunctions()
+    private var tab: QueryTabFragment? = null
 
     init {
         val gsi = description.globalSecondaryIndexes.orEmpty()
@@ -140,25 +148,33 @@ class QueryWindowFragment : Fragment("Query...") {
                                 parseValue(sortKey.value),
                                 sort.value,
                                 conditions)
-                        find(QueryView::class).setQueryResult(
-                                operation,
-                                description,
-                                OperationType.QUERY,
-                                description.tableName,
-                                queryType.value,
-                                hashKey.value,
-                                sortKeyOperation.value,
-                                sortKey.value,
-                                sort.value,
-                                result)
+                        if (mode == Mode.MODAL) {
+                            find(QueryView::class).setQueryResult(
+                                    operation,
+                                    description,
+                                    OperationType.QUERY,
+                                    description.tableName,
+                                    queryType.value,
+                                    hashKey.value,
+                                    sortKeyOperation.value,
+                                    sortKey.value,
+                                    sort.value,
+                                    result)
+                        } else {
+                            tab?.setQueryResult(QueryResult(OperationType.QUERY, description.tableName, result))
+                        }
                     }
-                    close()
+                    if (mode == Mode.MODAL) {
+                        close()
+                    }
                 }
             }
-            button("Cancel") {
-                setPrefSize(100.0, 40.0)
-                action {
-                    close()
+            if (mode == Mode.MODAL) {
+                button("Cancel") {
+                    setPrefSize(100.0, 40.0)
+                    action {
+                        close()
+                    }
                 }
             }
         }
@@ -228,7 +244,9 @@ class QueryWindowFragment : Fragment("Query...") {
              hashKey: String?,
              sortKeyOperation: Operator?,
              sortKey: String?,
-             sort: String?) {
+             sort: String?,
+             tab: QueryTabFragment) {
+        this.tab = tab
         if (operationType == OperationType.SCAN) {
             return
         }
