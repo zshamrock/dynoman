@@ -10,7 +10,7 @@ import org.gradle.api.tasks.testing.Test
 
 buildscript {
     var kotlin_version: String by extra
-    kotlin_version = "1.2.51"
+    kotlin_version = "1.2.60"
 
     repositories {
         mavenCentral()
