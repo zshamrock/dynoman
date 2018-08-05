@@ -90,13 +90,14 @@ class TableListView : View() {
                 val tableName = treeItem.value.name
                 println("Scan $tableName")
                 val description = (treeItem as DynamoDBTableTreeItem).description
+                val queryType = QueryType(tableName, description.keySchema, false)
                 val result = operation.scan(tableName)
                 queryView.setQueryResult(
                         operation,
                         description,
                         OperationType.SCAN,
                         tableName,
-                        null,
+                        queryType,
                         null,
                         null,
                         null,

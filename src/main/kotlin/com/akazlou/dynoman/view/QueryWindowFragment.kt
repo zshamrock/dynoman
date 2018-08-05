@@ -154,14 +154,20 @@ class QueryWindowFragment : Fragment("Query...") {
                                     description,
                                     OperationType.QUERY,
                                     description.tableName,
-                                    queryType.value,
+                                    qt,
                                     hashKey.value,
                                     sortKeyOperation.value,
                                     sortKey.value,
                                     sort.value,
                                     result)
                         } else {
-                            tab?.setQueryResult(QueryResult(OperationType.QUERY, description.tableName, result))
+                            tab?.setQueryResult(
+                                    QueryResult(
+                                            OperationType.QUERY,
+                                            description.tableName,
+                                            qt.hashKey,
+                                            qt.sortKey,
+                                            result))
                         }
                     }
                     if (mode == Mode.MODAL) {

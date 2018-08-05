@@ -71,7 +71,7 @@ class QueryTabFragment : Fragment("Query Tab") {
         if (qr.result.isEmpty()) {
             return
         }
-        val columns = qr.result.firstOrNull()?.keys?.map { attributeName ->
+        val columns = qr.keys().map { attributeName ->
             val column = TableColumn<Map<String, Any?>, String>(attributeName)
             column.cellValueFactory = Callback<TableColumn.CellDataFeatures<Map<String, Any?>, String>, ObservableValue<String>> {
                 SimpleStringProperty(it.value.getOrDefault(attributeName, "").toString())
