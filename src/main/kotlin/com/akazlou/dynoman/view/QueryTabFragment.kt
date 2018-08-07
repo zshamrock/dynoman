@@ -11,6 +11,7 @@ import javafx.scene.control.TabPane
 import javafx.scene.control.TableColumn
 import javafx.scene.control.TableView
 import javafx.scene.control.TextArea
+import javafx.scene.input.KeyCombination
 import javafx.scene.layout.Priority
 import javafx.util.Callback
 import tornadofx.*
@@ -53,6 +54,33 @@ class QueryTabFragment : Fragment("Query Tab") {
                 vboxConstraints {
                     prefHeight = 335.0
                     vGrow = Priority.ALWAYS
+                }
+                contextmenu {
+                    item("Open Value in Viewer") {
+                        setOnAction {
+                            println("Open Value in Viewer")
+                            println(selectedCell)
+                        }
+                    }
+                    separator()
+                    item("Copy Row") {
+                        setOnAction {
+                            println("Copy Row")
+                            println(selectedCell)
+                        }
+                    }
+                    item("Copy Row (with names)") {
+                        setOnAction {
+                            println("Copy Row (with names)")
+                            println(selectedCell)
+                        }
+                    }
+                    item("Copy Field", KeyCombination.keyCombination("Ctrl+C")) {
+                        setOnAction {
+                            println("Copy Field")
+                            println(selectedCell)
+                        }
+                    }
                 }
             }
             with(resultTable.selectionModel) {
