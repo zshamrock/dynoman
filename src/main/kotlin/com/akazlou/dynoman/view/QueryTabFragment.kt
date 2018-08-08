@@ -78,14 +78,20 @@ class QueryTabFragment : Fragment("Query Tab") {
                     item("Copy Field", KeyCombination.keyCombination("Ctrl+C")) {
                         setOnAction {
                             println("Copy Field")
+                            if (selectedValue != null) {
+                                clipboard.putString(selectedValue as String)
+                            }
                             println(selectedCell)
+                            println(selectedColumn)
+                            println(selectedItem)
+                            println(selectedValue)
                         }
                     }
                 }
             }
             with(resultTable.selectionModel) {
                 isCellSelectionEnabled = true
-                selectionMode = SelectionMode.MULTIPLE
+                selectionMode = SelectionMode.SINGLE
             }
         }
     }
