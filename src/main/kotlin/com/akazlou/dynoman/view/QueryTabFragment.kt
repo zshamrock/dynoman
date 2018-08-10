@@ -3,6 +3,7 @@ package com.akazlou.dynoman.view
 import com.akazlou.dynoman.domain.OperationType
 import com.akazlou.dynoman.domain.Operator
 import com.akazlou.dynoman.domain.QueryResult
+import com.amazonaws.services.dynamodbv2.model.KeySchemaElement
 import javafx.beans.property.SimpleStringProperty
 import javafx.beans.value.ObservableValue
 import javafx.collections.FXCollections
@@ -19,7 +20,7 @@ import tornadofx.*
 class QueryTabFragment : Fragment("Query Tab") {
     val operationType: OperationType by param()
     private var queryArea: TextArea by singleAssign()
-    private var resultTable: TableView<Map<String, Any?>> by singleAssign()
+    private var resultTable: TableView<ResultData> by singleAssign()
     override val root = squeezebox {
         fold("Query", expanded = true) {
             tabpane {
@@ -65,8 +66,16 @@ class QueryTabFragment : Fragment("Query Tab") {
                     separator()
                     item("Copy Row") {
                         setOnAction {
+                            if (selectedItem != null) {
+                                clipboard.putString((selectedItem as ResultData).getValues().joinToString {
+                                    "'$it'"
+                                })
+                            }
                             println("Copy Row")
                             println(selectedCell)
+                            println(selectedColumn)
+                            println(selectedItem)
+                            println(selectedValue)
                         }
                     }
                     item("Copy Row (with names)") {
@@ -105,14 +114,33 @@ class QueryTabFragment : Fragment("Query Tab") {
         if (qr.result.isEmpty()) {
             return
         }
-        val columns = qr.keys().map { attributeName ->
-            val column = TableColumn<Map<String, Any?>, String>(attributeName)
-            column.cellValueFactory = Callback<TableColumn.CellDataFeatures<Map<String, Any?>, String>, ObservableValue<String>> {
-                SimpleStringProperty(it.value.getOrDefault(attributeName, "").toString())
+        val results = qr.result.map { ResultData(it, qr.hashKey, qr.sortKey) }
+        val columns = results.first().getKeys().map { attributeName ->
+            val column = TableColumn<ResultData, String>(attributeName)
+            column.cellValueFactory = Callback<TableColumn.CellDataFeatures<ResultData, String>, ObservableValue<String>> {
+                SimpleStringProperty(it.value.getValue(attributeName))
             }
             column
         }
         resultTable.columns.setAll(columns)
-        resultTable.items = FXCollections.observableList(qr.result)
+        resultTable.items = FXCollections.observableList(results)
+    }
+}
+
+data class ResultData(val data: Map<String, Any?>, val hashKey: KeySchemaElement, val sortKey: KeySchemaElement?) {
+    fun getKeys(): List<String> {
+        if (data.isEmpty()) {
+            return emptyList()
+        }
+        val primaryKeys = listOfNotNull(hashKey.attributeName, sortKey?.attributeName)
+        return primaryKeys + (data.keys.toList() - primaryKeys).sorted()
+    }
+
+    fun getValue(attributeName: String): String {
+        return data.getOrDefault(attributeName, "").toString()
+    }
+
+    fun getValues(): List<String> {
+        return getKeys().map { getValue(it) }
     }
 }
