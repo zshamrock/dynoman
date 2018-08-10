@@ -67,21 +67,26 @@ class QueryTabFragment : Fragment("Query Tab") {
                     item("Copy Row") {
                         setOnAction {
                             if (selectedItem != null) {
-                                clipboard.putString((selectedItem as ResultData).getValues().joinToString {
+                                val content = (selectedItem as ResultData).getValues().joinToString {
                                     "'$it'"
-                                })
+                                }
+                                clipboard.putString(content)
                             }
                             println("Copy Row")
-                            println(selectedCell)
-                            println(selectedColumn)
-                            println(selectedItem)
-                            println(selectedValue)
                         }
                     }
                     item("Copy Row (with names)") {
                         setOnAction {
+                            if (selectedItem != null) {
+                                val resultData = selectedItem as ResultData
+                                val content = (resultData.getKeys().joinToString { it }
+                                        + "\n"
+                                        + resultData.getValues().joinToString {
+                                    "'$it'"
+                                })
+                                clipboard.putString(content)
+                            }
                             println("Copy Row (with names)")
-                            println(selectedCell)
                         }
                     }
                     item("Copy Field", KeyCombination.keyCombination("Ctrl+C")) {
