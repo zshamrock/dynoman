@@ -80,7 +80,7 @@ class QueryWindowFragment : Fragment("Query...") {
         val gsi = description.globalSecondaryIndexes.orEmpty()
         val indexQueryStrings = gsi.map { index ->
             QueryType(index.indexName, index.keySchema, true)
-        }
+        }.sorted()
         queryTypes = listOf(QueryType(description.tableName, description.keySchema, false), *indexQueryStrings.toTypedArray())
         queryType.value = queryTypes[0]
     }
