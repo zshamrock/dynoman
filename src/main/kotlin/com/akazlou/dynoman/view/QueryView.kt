@@ -111,7 +111,7 @@ class QueryView : View("Query") {
                         "sortKeyOperation" to sortKeyOperation,
                         "sortKey" to sortKey,
                         "sort" to sort))
-        tab.setQueryResult(QueryResult(operationType, table, queryType.hashKey, queryType.sortKey, result))
+        tab.setQueryResult(QueryResult(operationType, description, result))
         queries.tab("$operationType $table", tab.root)
         queries.selectionModel.selectLast()
     }

@@ -164,9 +164,7 @@ class QueryWindowFragment : Fragment("Query...") {
                             tab?.setQueryResult(
                                     QueryResult(
                                             OperationType.QUERY,
-                                            description.tableName,
-                                            qt.hashKey,
-                                            qt.sortKey,
+                                            description,
                                             result))
                         }
                     }
