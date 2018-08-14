@@ -17,6 +17,7 @@ buildscript {
     }
     dependencies {
         classpath(kotlinModule("gradle-plugin", kotlin_version))
+        classpath("com.github.jengelman.gradle.plugins:shadow:2.0.4")
     }
 }
 
@@ -34,6 +35,7 @@ version = "1.0.0-SNAPSHOT"
 
 apply {
     plugin("kotlin")
+    plugin("com.github.johnrengelman.shadow")
 }
 
 val kotlin_version: String by extra
@@ -53,6 +55,12 @@ dependencies {
 
 configure<JavaPluginConvention> {
     sourceCompatibility = JavaVersion.VERSION_1_8
+}
+
+tasks.getByName<Jar>("jar") {
+    manifest {
+        attributes(mapOf("Main-Class" to "com.akazlou.dynoman.DynomanApp"))
+    }
 }
 
 tasks.withType<KotlinCompile> {
