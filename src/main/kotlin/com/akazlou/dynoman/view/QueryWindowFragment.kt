@@ -16,6 +16,7 @@ import javafx.beans.property.SimpleObjectProperty
 import javafx.beans.property.SimpleStringProperty
 import javafx.geometry.Pos
 import javafx.scene.control.ComboBox
+import javafx.scene.control.ScrollPane
 import javafx.scene.control.ToggleGroup
 import javafx.scene.layout.GridPane
 import tornadofx.*
@@ -86,23 +87,30 @@ class QueryWindowFragment : Fragment("Query...") {
     }
 
     override val root = vbox(5.0) {
-        hbox(5.0) {
-            label("Query")
-            queryTypeComboBox = combobox(values = queryTypes, property = queryType)
-            queryTypeComboBox.valueProperty().onChange {
-                queryGridPane.removeAllRows()
-                hashKey.value = ""
-                sortKey.value = ""
-                sortKeyOperation.value = Operator.EQ
-                addRow(queryGridPane, it!!.keySchema)
-            }
-        }
-        queryGridPane = gridpane {}
-        addRow(queryGridPane, queryTypes[0].keySchema)
-        button("Add filter") {
-            setPrefSize(100.0, 40.0)
-            action {
-                addFilterRow(queryGridPane)
+        scrollpane {
+            vbarPolicy = ScrollPane.ScrollBarPolicy.AS_NEEDED
+            hbarPolicy = ScrollPane.ScrollBarPolicy.NEVER
+            vbox(5.0) {
+                setPrefSize(750.0, 150.0)
+                hbox(5.0) {
+                    label("Query")
+                    queryTypeComboBox = combobox(values = queryTypes, property = queryType)
+                    queryTypeComboBox.valueProperty().onChange {
+                        queryGridPane.removeAllRows()
+                        hashKey.value = ""
+                        sortKey.value = ""
+                        sortKeyOperation.value = Operator.EQ
+                        addRow(queryGridPane, it!!.keySchema)
+                    }
+                }
+                queryGridPane = gridpane {}
+                addRow(queryGridPane, queryTypes[0].keySchema)
+                button("Add filter") {
+                    setPrefSize(100.0, 40.0)
+                    action {
+                        addFilterRow(queryGridPane)
+                    }
+                }
             }
         }
         separator()
