@@ -46,6 +46,7 @@ class QueryTabFragment : Fragment("Query Tab") {
                         params["sortKeyOperation"] as Operator?,
                         params["sortKey"] as String?,
                         params["sort"] as String?,
+                        emptyList(),
                         this@QueryTabFragment)
                 editor.select()
             }

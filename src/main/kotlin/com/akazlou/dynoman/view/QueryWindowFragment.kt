@@ -3,6 +3,7 @@ package com.akazlou.dynoman.view
 import com.akazlou.dynoman.domain.OperationType
 import com.akazlou.dynoman.domain.Operator
 import com.akazlou.dynoman.domain.QueryCondition
+import com.akazlou.dynoman.domain.QueryFilter
 import com.akazlou.dynoman.domain.QueryResult
 import com.akazlou.dynoman.domain.Type
 import com.akazlou.dynoman.ext.removeAllRows
@@ -251,12 +252,17 @@ class QueryWindowFragment : Fragment("Query...") {
         }
     }
 
+    private fun addFilterRow() {
+        TODO("Implement this function to add filter rows from the modal to embedded switch")
+    }
+
     fun init(operationType: OperationType,
              queryType: QueryType?,
              hashKey: String?,
              sortKeyOperation: Operator?,
              sortKey: String?,
              sort: String?,
+             queryFilters: List<QueryFilter>,
              tab: QueryTabFragment) {
         this.tab = tab
         if (operationType == OperationType.SCAN) {
@@ -267,6 +273,10 @@ class QueryWindowFragment : Fragment("Query...") {
         this.sortKeyOperation.value = sortKeyOperation
         this.sortKey.value = sortKey
         this.sort.value = sort
+        this.filterKeys.addAll(queryFilters.map { SimpleStringProperty(it.name) })
+        this.filterKeyTypes.addAll(queryFilters.map { SimpleObjectProperty(it.type) })
+        this.filterKeyOperations.addAll(queryFilters.map { SimpleObjectProperty(it.operator) })
+        this.filterKeyValues.addAll(queryFilters.map { SimpleStringProperty(it.value) })
     }
 }
 
