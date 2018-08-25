@@ -102,6 +102,7 @@ class TableListView : View() {
                         null,
                         null,
                         null,
+                        emptyList(),
                         result)
             }
             val queryMenuItem = MenuItem("Query...")

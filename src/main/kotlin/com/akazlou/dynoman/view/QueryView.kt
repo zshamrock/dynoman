@@ -3,6 +3,7 @@ package com.akazlou.dynoman.view
 import com.akazlou.dynoman.controller.RunQueryController
 import com.akazlou.dynoman.domain.OperationType
 import com.akazlou.dynoman.domain.Operator
+import com.akazlou.dynoman.domain.QueryFilter
 import com.akazlou.dynoman.domain.QueryResult
 import com.akazlou.dynoman.service.DynamoDBOperation
 import com.amazonaws.regions.Regions
@@ -100,6 +101,7 @@ class QueryView : View("Query") {
                        sortKeyOperation: Operator?,
                        sortKey: String?,
                        sort: String?,
+                       queryFilters: List<QueryFilter>,
                        result: List<Map<String, Any?>>) {
         val tab = find<QueryTabFragment>(
                 params = mapOf(
@@ -110,7 +112,8 @@ class QueryView : View("Query") {
                         "hashKey" to hashKey,
                         "sortKeyOperation" to sortKeyOperation,
                         "sortKey" to sortKey,
-                        "sort" to sort))
+                        "sort" to sort,
+                        "queryFilters" to queryFilters))
         tab.setQueryResult(QueryResult(operationType, description, result))
         queries.tab("$operationType $table", tab.root)
         queries.selectionModel.selectLast()

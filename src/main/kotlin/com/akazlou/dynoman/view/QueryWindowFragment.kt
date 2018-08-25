@@ -158,6 +158,12 @@ class QueryWindowFragment : Fragment("Query...") {
                                 sort.value,
                                 conditions)
                         if (mode == Mode.MODAL) {
+                            val queryFilters = filterKeys.mapIndexed { index, property ->
+                                QueryFilter(property.value,
+                                        filterKeyTypes[index].value,
+                                        filterKeyOperations[index].value,
+                                        filterKeyValues[index]?.value)
+                            }
                             find(QueryView::class).setQueryResult(
                                     operation,
                                     description,
@@ -168,6 +174,7 @@ class QueryWindowFragment : Fragment("Query...") {
                                     sortKeyOperation.value,
                                     sortKey.value,
                                     sort.value,
+                                    queryFilters,
                                     result)
                         } else {
                             tab?.setQueryResult(
@@ -223,21 +230,33 @@ class QueryWindowFragment : Fragment("Query...") {
         }
     }
 
-    private fun addFilterRow(queryGridPane: GridPane) {
+    private fun addFilterRow(queryGridPane: GridPane, queryFilter: QueryFilter? = null) {
         println("grid properties: ${queryGridPane.properties}")
         queryGridPane.row {
             label(if (filterKeys.isEmpty()) "Filter" else "And")
             val filterKey = SimpleStringProperty()
             filterKeys.add(filterKey)
+            if (queryFilter != null) {
+                filterKey.value = queryFilter.name
+            }
             textfield(filterKey) { }
             val filterKeyType = SimpleObjectProperty<Type>(Type.STRING)
             filterKeyTypes.add(filterKeyType)
+            if (queryFilter != null) {
+                filterKeyType.value = queryFilter.type
+            }
             combobox(values = FILTER_KEY_TYPES, property = filterKeyType)
             val filterKeyOperation = SimpleObjectProperty<Operator>(Operator.EQ)
             filterKeyOperations.add(filterKeyOperation)
+            if (queryFilter != null) {
+                filterKeyOperation.value = queryFilter.operator
+            }
             combobox(values = FILTER_KEY_AVAILABLE_OPERATORS, property = filterKeyOperation)
             val filterKeyValue = SimpleStringProperty()
             filterKeyValues.add(filterKeyValue)
+            if (queryFilter != null) {
+                filterKeyValue.value = queryFilter.value
+            }
             textfield(filterKeyValue) { }
             button("x") {
                 action {
@@ -250,10 +269,6 @@ class QueryWindowFragment : Fragment("Query...") {
                 }
             }
         }
-    }
-
-    private fun addFilterRow() {
-        TODO("Implement this function to add filter rows from the modal to embedded switch")
     }
 
     fun init(operationType: OperationType,
@@ -273,10 +288,7 @@ class QueryWindowFragment : Fragment("Query...") {
         this.sortKeyOperation.value = sortKeyOperation
         this.sortKey.value = sortKey
         this.sort.value = sort
-        this.filterKeys.addAll(queryFilters.map { SimpleStringProperty(it.name) })
-        this.filterKeyTypes.addAll(queryFilters.map { SimpleObjectProperty(it.type) })
-        this.filterKeyOperations.addAll(queryFilters.map { SimpleObjectProperty(it.operator) })
-        this.filterKeyValues.addAll(queryFilters.map { SimpleStringProperty(it.value) })
+        queryFilters.forEach { addFilterRow(queryGridPane, it) }
     }
 }
 

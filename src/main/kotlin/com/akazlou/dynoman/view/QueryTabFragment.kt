@@ -2,6 +2,7 @@ package com.akazlou.dynoman.view
 
 import com.akazlou.dynoman.domain.OperationType
 import com.akazlou.dynoman.domain.Operator
+import com.akazlou.dynoman.domain.QueryFilter
 import com.akazlou.dynoman.domain.QueryResult
 import com.amazonaws.services.dynamodbv2.model.KeySchemaElement
 import javafx.beans.property.SimpleStringProperty
@@ -40,13 +41,14 @@ class QueryTabFragment : Fragment("Query Tab") {
                                 QueryWindowFragment::description to params["description"],
                                 QueryWindowFragment::operation to params["operation"]))
                 val editor = tab("EDITOR", qwf.root)
+                val queryFilters = params["queryFilters"]
                 qwf.init(operationType,
                         params["queryType"] as QueryType?,
                         params["hashKey"] as String?,
                         params["sortKeyOperation"] as Operator?,
                         params["sortKey"] as String?,
                         params["sort"] as String?,
-                        emptyList(),
+                        (queryFilters as? List<*>)?.filterIsInstance<QueryFilter>() ?: emptyList(),
                         this@QueryTabFragment)
                 editor.select()
             }
