@@ -88,11 +88,11 @@ class QueryWindowFragment : Fragment("Query...") {
     }
 
     override val root = vbox(5.0) {
+        prefWidth = 750.0
         scrollpane {
             vbarPolicy = ScrollPane.ScrollBarPolicy.AS_NEEDED
             hbarPolicy = ScrollPane.ScrollBarPolicy.NEVER
             vbox(5.0) {
-                setPrefSize(750.0, 150.0)
                 hbox(5.0) {
                     label("Query")
                     queryTypeComboBox = combobox(values = queryTypes, property = queryType)
@@ -107,93 +107,96 @@ class QueryWindowFragment : Fragment("Query...") {
                 queryGridPane = gridpane {}
                 addRow(queryGridPane, queryTypes[0].keySchema)
                 button("Add filter") {
-                    setPrefSize(100.0, 40.0)
+                    //setPrefSize(100.0, 40.0)
+                    prefWidth = 100.0
                     action {
                         addFilterRow(queryGridPane)
                     }
                 }
-            }
-        }
-        separator()
-        val sortGroup = ToggleGroup()
-        sortGroup.bind(sort)
-        hbox(5.0) {
-            label("Sort")
-            val asc = radiobutton("Ascending", sortGroup, "asc")
-            radiobutton("Descending", sortGroup, "desc")
-            sortGroup.selectToggle(asc)
-        }
-        separator()
-        hbox(5.0) {
-            alignment = Pos.CENTER
-            button("Query") {
-                // TODO: Extract the sizes into the constant, so allow ease of modification just in one place
-                setPrefSize(100.0, 40.0)
-                action {
-                    println("Query:")
-                    println("Hash Key = ${hashKey.value}, Sort Key ${sortKeyOperation.value} ${sortKey.value}")
-                    println("Sort By ${sort.value}")
-                    val qt = queryType.value
-                    println(qt)
-                    if (!hashKey.value.isNullOrBlank()) {
-                        val attributeDefinitions = description.attributeDefinitions.associateBy({ it.attributeName }, { it.attributeType })
-                        val conditions = filterKeys.mapIndexed { index, filterKey ->
-                            QueryCondition(
-                                    filterKey.value,
-                                    filterKeyTypes[index].value,
-                                    filterKeyOperations[index].value,
-                                    // TODO: Actually have to correctly handle when the value is missing
-                                    filterKeyValues[index]!!.value)
-                        }
-                        val result = operation.query(
-                                description.tableName,
-                                if (qt.isIndex) qt.name else null,
-                                qt.hashKey.attributeName,
-                                attributeDefinitions[qt.hashKey.attributeName]!!,
-                                parseValue(hashKey.value)!!,
-                                qt.sortKey?.attributeName,
-                                attributeDefinitions[qt.sortKey?.attributeName],
-                                sortKeyOperation.value,
-                                parseValue(sortKey.value),
-                                sort.value,
-                                conditions)
-                        if (mode == Mode.MODAL) {
-                            val queryFilters = filterKeys.mapIndexed { index, property ->
-                                QueryFilter(property.value,
-                                        filterKeyTypes[index].value,
-                                        filterKeyOperations[index].value,
-                                        filterKeyValues[index]?.value)
-                            }
-                            find(QueryView::class).setQueryResult(
-                                    operation,
-                                    description,
-                                    OperationType.QUERY,
-                                    description.tableName,
-                                    qt,
-                                    hashKey.value,
-                                    sortKeyOperation.value,
-                                    sortKey.value,
-                                    sort.value,
-                                    queryFilters,
-                                    result)
-                        } else {
-                            tab?.setQueryResult(
-                                    QueryResult(
-                                            OperationType.QUERY,
+                separator()
+                val sortGroup = ToggleGroup()
+                sortGroup.bind(sort)
+                hbox(5.0) {
+                    label("Sort")
+                    val asc = radiobutton("Ascending", sortGroup, "asc")
+                    radiobutton("Descending", sortGroup, "desc")
+                    sortGroup.selectToggle(asc)
+                }
+                separator()
+                hbox(5.0) {
+                    alignment = Pos.CENTER
+                    button("Query") {
+                        // TODO: Extract the sizes into the constant, so allow ease of modification just in one place
+                        //setPrefSize(100.0, 40.0)
+                        prefWidth = 100.0
+                        action {
+                            println("Query:")
+                            println("Hash Key = ${hashKey.value}, Sort Key ${sortKeyOperation.value} ${sortKey.value}")
+                            println("Sort By ${sort.value}")
+                            val qt = queryType.value
+                            println(qt)
+                            if (!hashKey.value.isNullOrBlank()) {
+                                val attributeDefinitions = description.attributeDefinitions.associateBy({ it.attributeName }, { it.attributeType })
+                                val conditions = filterKeys.mapIndexed { index, filterKey ->
+                                    QueryCondition(
+                                            filterKey.value,
+                                            filterKeyTypes[index].value,
+                                            filterKeyOperations[index].value,
+                                            // TODO: Actually have to correctly handle when the value is missing
+                                            filterKeyValues[index]!!.value)
+                                }
+                                val result = operation.query(
+                                        description.tableName,
+                                        if (qt.isIndex) qt.name else null,
+                                        qt.hashKey.attributeName,
+                                        attributeDefinitions[qt.hashKey.attributeName]!!,
+                                        parseValue(hashKey.value)!!,
+                                        qt.sortKey?.attributeName,
+                                        attributeDefinitions[qt.sortKey?.attributeName],
+                                        sortKeyOperation.value,
+                                        parseValue(sortKey.value),
+                                        sort.value,
+                                        conditions)
+                                if (mode == Mode.MODAL) {
+                                    val queryFilters = filterKeys.mapIndexed { index, property ->
+                                        QueryFilter(property.value,
+                                                filterKeyTypes[index].value,
+                                                filterKeyOperations[index].value,
+                                                filterKeyValues[index]?.value)
+                                    }
+                                    find(QueryView::class).setQueryResult(
+                                            operation,
                                             description,
-                                            result))
+                                            OperationType.QUERY,
+                                            description.tableName,
+                                            qt,
+                                            hashKey.value,
+                                            sortKeyOperation.value,
+                                            sortKey.value,
+                                            sort.value,
+                                            queryFilters,
+                                            result)
+                                } else {
+                                    tab?.setQueryResult(
+                                            QueryResult(
+                                                    OperationType.QUERY,
+                                                    description,
+                                                    result))
+                                }
+                            }
+                            if (mode == Mode.MODAL) {
+                                close()
+                            }
                         }
                     }
                     if (mode == Mode.MODAL) {
-                        close()
-                    }
-                }
-            }
-            if (mode == Mode.MODAL) {
-                button("Cancel") {
-                    setPrefSize(100.0, 40.0)
-                    action {
-                        close()
+                        button("Cancel") {
+                            //setPrefSize(pref100.0, 40.0)
+                            prefWidth = 100.0
+                            action {
+                                close()
+                            }
+                        }
                     }
                 }
             }

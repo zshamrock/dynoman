@@ -33,7 +33,8 @@ class QueryView : View("Query") {
             padding = tornadofx.insets(5, 0)
             alignment = Pos.CENTER_LEFT
             button("Save") {
-                setPrefSize(100.0, 40.0)
+                //setPrefSize(100.0, 40.0)
+                prefWidth = 100.0
                 shortcut("Ctrl+S")
                 action {
                     find(SaveQueryFragment::class).openModal(stageStyle = StageStyle.UTILITY)
@@ -46,11 +47,13 @@ class QueryView : View("Query") {
             }
             val namedQueries = listOf("X", "Y", "Z").observable()
             combobox<String> {
-                setPrefSize(200.0, 40.0)
+                //setPrefSize(200.0, 40.0)
+                prefWidth = 200.0
                 items = namedQueries
             }
             button("Open") {
-                setPrefSize(100.0, 40.0)
+                //setPrefSize(100.0, 40.0)
+                prefWidth = 100.0
             }
         }
         queries = tabpane {
@@ -68,7 +71,8 @@ class QueryView : View("Query") {
             }
             alignment = Pos.CENTER
             button("Run") {
-                setPrefSize(100.0, 40.0)
+                //setPrefSize(100.0, 40.0)
+                prefWidth = 100.0
                 shortcut("Ctrl+R")
                 action {
                     //val result = controller.run(getQuery())

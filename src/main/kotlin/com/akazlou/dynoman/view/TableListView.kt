@@ -29,7 +29,8 @@ class TableListView : View() {
             useMaxHeight = true
         }
         button("Connect") {
-            setPrefSize(100.0, 40.0)
+            //setPrefSize(100.0, 40.0)
+            prefWidth = 100.0
             vboxConstraints {
                 prefHeight = 45.0
             }

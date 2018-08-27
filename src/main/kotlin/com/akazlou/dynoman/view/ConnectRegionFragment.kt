@@ -15,7 +15,8 @@ class ConnectRegionFragment : Fragment("Connect Region") {
         }
         hbox(5.0) {
             button("Connect") {
-                setPrefSize(100.0, 40.0)
+                //setPrefSize(100.0, 40.0)
+                prefWidth = 100.0
                 action {
                     with(app.config) {
                         set("region" to region.value)
