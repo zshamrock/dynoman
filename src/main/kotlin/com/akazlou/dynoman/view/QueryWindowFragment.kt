@@ -19,6 +19,7 @@ import javafx.geometry.Pos
 import javafx.scene.control.ComboBox
 import javafx.scene.control.ScrollPane
 import javafx.scene.control.ToggleGroup
+import javafx.scene.layout.ColumnConstraints
 import javafx.scene.layout.GridPane
 import tornadofx.*
 
@@ -52,6 +53,12 @@ class QueryWindowFragment : Fragment("Query...") {
         val FILTER_KEY_TYPES: List<Type> = listOf(Type.STRING, Type.NUMBER)
 
         const val DEFAULT_SORT_ORDER = "asc"
+
+        const val KEY_TYPE_COLUMN_WIDTH = 90.0
+        const val ATTRIBUTE_NAME_COLUMN_WIDTH = 140.0
+        const val ATTRIBUTE_TYPE_COLUMN_WIDTH = 100.0
+        const val ATTRIBUTE_OPERATION_COLUMN_WIDTH = 140.0
+        const val ATTRIBUTE_VALUE_COLUMN_WIDTH = 150.0
     }
 
     enum class Mode {
@@ -62,6 +69,7 @@ class QueryWindowFragment : Fragment("Query...") {
     val mode: Mode by param()
     val operation: DynamoDBOperation by param()
     val description: TableDescription by param()
+    private val attributeDefinitions: Map<String, String>
     private val queryTypes: List<QueryType>
     private var queryTypeComboBox: ComboBox<QueryType> by singleAssign()
     private var queryGridPane: GridPane by singleAssign()
@@ -85,6 +93,7 @@ class QueryWindowFragment : Fragment("Query...") {
         }.sorted()
         queryTypes = listOf(QueryType(description.tableName, description.keySchema, false), *indexQueryStrings.toTypedArray())
         queryType.value = queryTypes[0]
+        attributeDefinitions = description.attributeDefinitions.associateBy({ it.attributeName }, { it.attributeType })
     }
 
     override val root = vbox(5.0) {
@@ -101,11 +110,19 @@ class QueryWindowFragment : Fragment("Query...") {
                         hashKey.value = ""
                         sortKey.value = ""
                         sortKeyOperation.value = Operator.EQ
-                        addRow(queryGridPane, it!!.keySchema)
+                        addKeySchemaRows(queryGridPane, it!!.keySchema)
                     }
                 }
                 queryGridPane = gridpane {}
-                addRow(queryGridPane, queryTypes[0].keySchema)
+                queryGridPane.hgap = 5.0
+                with(queryGridPane.columnConstraints) {
+                    add(ColumnConstraints(KEY_TYPE_COLUMN_WIDTH))
+                    add(ColumnConstraints(ATTRIBUTE_NAME_COLUMN_WIDTH))
+                    add(ColumnConstraints(ATTRIBUTE_TYPE_COLUMN_WIDTH))
+                    add(ColumnConstraints(ATTRIBUTE_OPERATION_COLUMN_WIDTH))
+                    add(ColumnConstraints(ATTRIBUTE_VALUE_COLUMN_WIDTH))
+                }
+                addKeySchemaRows(queryGridPane, queryTypes[0].keySchema)
                 button("Add filter") {
                     //setPrefSize(100.0, 40.0)
                     prefWidth = 100.0
@@ -136,7 +153,6 @@ class QueryWindowFragment : Fragment("Query...") {
                             val qt = queryType.value
                             println(qt)
                             if (!hashKey.value.isNullOrBlank()) {
-                                val attributeDefinitions = description.attributeDefinitions.associateBy({ it.attributeName }, { it.attributeType })
                                 val conditions = filterKeys.mapIndexed { index, filterKey ->
                                     QueryCondition(
                                             filterKey.value,
@@ -215,18 +231,26 @@ class QueryWindowFragment : Fragment("Query...") {
         return value
     }
 
-    private fun addRow(queryGridPane: GridPane, keySchema: List<KeySchemaElement>) {
+    private fun addKeySchemaRows(queryGridPane: GridPane, keySchema: List<KeySchemaElement>) {
         keysRowsCount = 0
         keySchema.forEach {
             queryGridPane.row {
                 keysRowsCount++
                 val isHash = it.keyType == KeyType.HASH.name
-                label(if (isHash) "Partition Key" else "Sort Key")
-                text(it.attributeName)
+                text(if (isHash) "Partition Key" else "Sort Key")
+                label(it.attributeName)
+                label(when (attributeDefinitions[it.attributeName]) {
+                    "S" -> "String"
+                    "N" -> "Number"
+                    "B" -> "Binary"
+                    else -> "?"
+                })
                 if (isHash) {
                     label("=")
                 } else {
-                    combobox(values = SORT_KEY_AVAILABLE_OPERATORS, property = sortKeyOperation)
+                    val sortKeyOperationComboBox = combobox(
+                            values = SORT_KEY_AVAILABLE_OPERATORS, property = sortKeyOperation)
+                    sortKeyOperationComboBox.prefWidth = ATTRIBUTE_OPERATION_COLUMN_WIDTH
                 }
                 textfield(if (isHash) hashKey else sortKey) { }
             }
@@ -236,7 +260,7 @@ class QueryWindowFragment : Fragment("Query...") {
     private fun addFilterRow(queryGridPane: GridPane, queryFilter: QueryFilter? = null) {
         println("grid properties: ${queryGridPane.properties}")
         queryGridPane.row {
-            label(if (filterKeys.isEmpty()) "Filter" else "And")
+            text(if (filterKeys.isEmpty()) "Filter" else "And")
             val filterKey = SimpleStringProperty()
             filterKeys.add(filterKey)
             if (queryFilter != null) {
@@ -254,7 +278,9 @@ class QueryWindowFragment : Fragment("Query...") {
             if (queryFilter != null) {
                 filterKeyOperation.value = queryFilter.operator
             }
-            combobox(values = FILTER_KEY_AVAILABLE_OPERATORS, property = filterKeyOperation)
+            val filterKeyOperationComboBox = combobox(
+                    values = FILTER_KEY_AVAILABLE_OPERATORS, property = filterKeyOperation)
+            filterKeyOperationComboBox.prefWidth = ATTRIBUTE_OPERATION_COLUMN_WIDTH
             val filterKeyValue = SimpleStringProperty()
             filterKeyValues.add(filterKeyValue)
             if (queryFilter != null) {
