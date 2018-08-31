@@ -17,10 +17,13 @@ import javafx.beans.property.SimpleObjectProperty
 import javafx.beans.property.SimpleStringProperty
 import javafx.geometry.Pos
 import javafx.scene.control.ComboBox
+import javafx.scene.control.Label
 import javafx.scene.control.ScrollPane
+import javafx.scene.control.TextField
 import javafx.scene.control.ToggleGroup
 import javafx.scene.layout.ColumnConstraints
 import javafx.scene.layout.GridPane
+import javafx.scene.layout.HBox
 import tornadofx.*
 
 class QueryWindowFragment : Fragment("Query...") {
@@ -58,7 +61,7 @@ class QueryWindowFragment : Fragment("Query...") {
         const val ATTRIBUTE_NAME_COLUMN_WIDTH = 140.0
         const val ATTRIBUTE_TYPE_COLUMN_WIDTH = 100.0
         const val ATTRIBUTE_OPERATION_COLUMN_WIDTH = 140.0
-        const val ATTRIBUTE_VALUE_COLUMN_WIDTH = 150.0
+        const val ATTRIBUTE_VALUE_COLUMN_WIDTH = 200.0
     }
 
     enum class Mode {
@@ -73,9 +76,13 @@ class QueryWindowFragment : Fragment("Query...") {
     private val queryTypes: List<QueryType>
     private var queryTypeComboBox: ComboBox<QueryType> by singleAssign()
     private var queryGridPane: GridPane by singleAssign()
+    private lateinit var sortKeyTextField: TextField
+    private val sortKeyBetweenHBox: HBox
     private val queryType = SimpleObjectProperty<QueryType>()
     private val hashKey = SimpleStringProperty()
     private val sortKey = SimpleStringProperty()
+    private val sortKeyFrom = SimpleStringProperty()
+    private val sortKeyTo = SimpleStringProperty()
     private val sortKeyOperation = SimpleObjectProperty<Operator>(Operator.EQ)
     private val sort = SimpleStringProperty(DEFAULT_SORT_ORDER)
     private val filterKeys = mutableListOf<SimpleStringProperty>()
@@ -94,6 +101,16 @@ class QueryWindowFragment : Fragment("Query...") {
         queryTypes = listOf(QueryType(description.tableName, description.keySchema, false), *indexQueryStrings.toTypedArray())
         queryType.value = queryTypes[0]
         attributeDefinitions = description.attributeDefinitions.associateBy({ it.attributeName }, { it.attributeType })
+
+        val sortKeyFromTextField = TextField()
+        sortKeyFromTextField.textProperty().bindBidirectional(sortKeyFrom)
+        val sortKeyToTextField = TextField()
+        sortKeyToTextField.textProperty().bindBidirectional(sortKeyTo)
+        val andLabel = Label("And")
+        andLabel.minWidth = 40.0
+        andLabel.alignment = Pos.CENTER
+        sortKeyBetweenHBox = HBox(sortKeyFromTextField, andLabel, sortKeyToTextField)
+        sortKeyBetweenHBox.alignment = Pos.CENTER
     }
 
     override val root = vbox(5.0) {
@@ -115,6 +132,7 @@ class QueryWindowFragment : Fragment("Query...") {
                 }
                 queryGridPane = gridpane {}
                 queryGridPane.hgap = 5.0
+                queryGridPane.vgap = 5.0
                 with(queryGridPane.columnConstraints) {
                     add(ColumnConstraints(KEY_TYPE_COLUMN_WIDTH))
                     add(ColumnConstraints(ATTRIBUTE_NAME_COLUMN_WIDTH))
@@ -251,8 +269,22 @@ class QueryWindowFragment : Fragment("Query...") {
                     val sortKeyOperationComboBox = combobox(
                             values = SORT_KEY_AVAILABLE_OPERATORS, property = sortKeyOperation)
                     sortKeyOperationComboBox.prefWidth = ATTRIBUTE_OPERATION_COLUMN_WIDTH
+                    sortKeyOperationComboBox.valueProperty().addListener { _, oldValue, newValue ->
+                        if (newValue == Operator.BETWEEN) {
+                            val columnIndex = GridPane.getColumnIndex(sortKeyTextField)
+                            val rowIndex = GridPane.getRowIndex(sortKeyTextField)
+                            queryGridPane.add(sortKeyBetweenHBox, columnIndex, rowIndex)
+                            queryGridPane.children.remove(sortKeyTextField)
+                        }
+                        if (oldValue == Operator.BETWEEN) {
+                            // TODO: has to restore back the sortKeyTextField
+                        }
+                    }
                 }
-                textfield(if (isHash) hashKey else sortKey) { }
+                val keyTextField = textfield(if (isHash) hashKey else sortKey) { }
+                if (!isHash) {
+                    sortKeyTextField = keyTextField
+                }
             }
         }
     }
