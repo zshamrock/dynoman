@@ -270,14 +270,17 @@ class QueryWindowFragment : Fragment("Query...") {
                             values = SORT_KEY_AVAILABLE_OPERATORS, property = sortKeyOperation)
                     sortKeyOperationComboBox.prefWidth = ATTRIBUTE_OPERATION_COLUMN_WIDTH
                     sortKeyOperationComboBox.valueProperty().addListener { _, oldValue, newValue ->
-                        if (newValue == Operator.BETWEEN) {
+                        if (newValue.isBetween()) {
                             val columnIndex = GridPane.getColumnIndex(sortKeyTextField)
                             val rowIndex = GridPane.getRowIndex(sortKeyTextField)
                             queryGridPane.add(sortKeyBetweenHBox, columnIndex, rowIndex)
                             queryGridPane.children.remove(sortKeyTextField)
                         }
-                        if (oldValue == Operator.BETWEEN) {
-                            // TODO: has to restore back the sortKeyTextField
+                        if (oldValue.isBetween()) {
+                            val columnIndex = GridPane.getColumnIndex(sortKeyBetweenHBox)
+                            val rowIndex = GridPane.getRowIndex(sortKeyBetweenHBox)
+                            queryGridPane.add(sortKeyTextField, columnIndex, rowIndex)
+                            queryGridPane.children.remove(sortKeyBetweenHBox)
                         }
                     }
                 }

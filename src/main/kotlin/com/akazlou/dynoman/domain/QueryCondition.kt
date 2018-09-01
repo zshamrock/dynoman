@@ -33,6 +33,10 @@ enum class Operator(val text: String) {
     NOT_CONTAINS("Not Contains"),
     BEGINS_WITH("Begins with");
 
+    fun isBetween(): Boolean {
+        return this == BETWEEN
+    }
+
     fun apply(attribute: String, type: Type, vararg values: String): QueryFilter {
         val value1: Any? = cast(0, type, values)
         val value2: Any? = cast(1, type, values)
