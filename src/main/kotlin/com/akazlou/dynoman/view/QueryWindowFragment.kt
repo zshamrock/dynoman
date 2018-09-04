@@ -166,7 +166,12 @@ class QueryWindowFragment : Fragment("Query...") {
                         prefWidth = 100.0
                         action {
                             println("Query:")
-                            println("Hash Key = ${hashKey.value}, Sort Key ${sortKeyOperation.value} ${sortKey.value}")
+                            val skOp = sortKeyOperation.value
+                            val skValues = when {
+                                skOp.isBetween() -> listOf(parseValue(sortKeyFrom.value), parseValue(sortKeyTo.value))
+                                else -> listOf(parseValue(sortKey.value))
+                            }
+                            println("Hash Key = ${hashKey.value}, Sort Key $skOp ${sortKey.value}")
                             println("Sort By ${sort.value}")
                             val qt = queryType.value
                             println(qt)
@@ -187,7 +192,7 @@ class QueryWindowFragment : Fragment("Query...") {
                                         parseValue(hashKey.value)!!,
                                         qt.sortKey?.attributeName,
                                         attributeDefinitions[qt.sortKey?.attributeName],
-                                        sortKeyOperation.value,
+                                        skOp,
                                         parseValue(sortKey.value),
                                         sort.value,
                                         conditions)
@@ -205,7 +210,7 @@ class QueryWindowFragment : Fragment("Query...") {
                                             description.tableName,
                                             qt,
                                             hashKey.value,
-                                            sortKeyOperation.value,
+                                            skOp,
                                             sortKey.value,
                                             sort.value,
                                             queryFilters,
