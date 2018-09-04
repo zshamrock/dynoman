@@ -78,6 +78,7 @@ class QueryWindowFragment : Fragment("Query...") {
     private var queryGridPane: GridPane by singleAssign()
     private lateinit var sortKeyTextField: TextField
     private val sortKeyBetweenHBox: HBox
+    // TODO: Create 5 between hbox-es for the filters and reuse them (as we do limit support only up to 5 filters)
     private val queryType = SimpleObjectProperty<QueryType>()
     private val hashKey = SimpleStringProperty()
     private val sortKey = SimpleStringProperty()
@@ -126,6 +127,8 @@ class QueryWindowFragment : Fragment("Query...") {
                         queryGridPane.removeAllRows()
                         hashKey.value = ""
                         sortKey.value = ""
+                        sortKeyFrom.value = ""
+                        sortKeyTo.value = ""
                         sortKeyOperation.value = Operator.EQ
                         addKeySchemaRows(queryGridPane, it!!.keySchema)
                     }
@@ -168,8 +171,18 @@ class QueryWindowFragment : Fragment("Query...") {
                             println("Query:")
                             val skOp = sortKeyOperation.value
                             val skValues = when {
-                                skOp.isBetween() -> listOf(parseValue(sortKeyFrom.value), parseValue(sortKeyTo.value))
-                                else -> listOf(parseValue(sortKey.value))
+                                skOp.isBetween() ->
+                                    if (sortKeyFrom.value == null || sortKeyTo.value == null) {
+                                        emptyList()
+                                    } else {
+                                        listOf(parseValue(sortKeyFrom.value)!!, parseValue(sortKeyTo.value)!!)
+                                    }
+                                else ->
+                                    if (sortKey.value == null) {
+                                        emptyList()
+                                    } else {
+                                        listOf(parseValue(sortKey.value)!!)
+                                    }
                             }
                             println("Hash Key = ${hashKey.value}, Sort Key $skOp ${sortKey.value}")
                             println("Sort By ${sort.value}")
@@ -193,7 +206,7 @@ class QueryWindowFragment : Fragment("Query...") {
                                         qt.sortKey?.attributeName,
                                         attributeDefinitions[qt.sortKey?.attributeName],
                                         skOp,
-                                        parseValue(sortKey.value),
+                                        skValues,
                                         sort.value,
                                         conditions)
                                 if (mode == Mode.MODAL) {
@@ -211,7 +224,7 @@ class QueryWindowFragment : Fragment("Query...") {
                                             qt,
                                             hashKey.value,
                                             skOp,
-                                            sortKey.value,
+                                            skValues,
                                             sort.value,
                                             queryFilters,
                                             result)
@@ -344,7 +357,7 @@ class QueryWindowFragment : Fragment("Query...") {
              queryType: QueryType?,
              hashKey: String?,
              sortKeyOperation: Operator?,
-             sortKey: String?,
+             sortKeyValues: List<String>,
              sort: String?,
              queryFilters: List<QueryFilter>,
              tab: QueryTabFragment) {
@@ -355,7 +368,12 @@ class QueryWindowFragment : Fragment("Query...") {
         queryTypeComboBox.value = queryType
         this.hashKey.value = hashKey
         this.sortKeyOperation.value = sortKeyOperation
-        this.sortKey.value = sortKey
+        if (sortKeyOperation != null && sortKeyOperation.isBetween()) {
+            this.sortKeyFrom.value = sortKeyValues.getOrNull(0)
+            this.sortKeyTo.value = sortKeyValues.getOrNull(1)
+        } else {
+            this.sortKey.value = sortKeyValues.getOrNull(0)
+        }
         this.sort.value = sort
         queryFilters.forEach { addFilterRow(queryGridPane, it) }
     }

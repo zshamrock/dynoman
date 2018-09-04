@@ -46,7 +46,7 @@ class QueryTabFragment : Fragment("Query Tab") {
                         params["queryType"] as QueryType?,
                         params["hashKey"] as String?,
                         params["sortKeyOperation"] as Operator?,
-                        params["sortKey"] as String?,
+                        (params["sortKeyValues"] as? List<*>)?.filterIsInstance<String>() ?: emptyList(),
                         params["sort"] as String?,
                         (queryFilters as? List<*>)?.filterIsInstance<QueryFilter>() ?: emptyList(),
                         this@QueryTabFragment)

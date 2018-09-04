@@ -57,13 +57,14 @@ enum class Operator(val text: String) {
         }
     }
 
-    fun apply(range: RangeKeyCondition, value: Any) {
+    fun apply(range: RangeKeyCondition, vararg values: Any) {
         when (this) {
-            EQ -> range.eq(value)
-            GT -> range.gt(value)
-            GE -> range.ge(value)
-            LT -> range.lt(value)
-            LE -> range.le(value)
+            EQ -> range.eq(values[0])
+            GT -> range.gt(values[0])
+            GE -> range.ge(values[0])
+            LT -> range.lt(values[0])
+            LE -> range.le(values[0])
+            BETWEEN -> range.between(values[0], values[1])
             else -> throw IllegalArgumentException("Unsupported operator for the range key condition: $this")
         }
     }

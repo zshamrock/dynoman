@@ -49,7 +49,7 @@ class DynamoDBOperation(region: Regions, private val offline: Boolean) {
               sortKeyName: String?,
               sortKeyType: String?,
               sortKeyOperation: Operator,
-              sortKeyValue: String?,
+              sortKeyValues: List<String>,
               sortOrder: String,
               conditions: List<QueryCondition>): List<Map<String, Any?>> {
         val spec = QuerySpec()
@@ -57,13 +57,13 @@ class DynamoDBOperation(region: Regions, private val offline: Boolean) {
             "N" -> hashKeyValue.toLong()
             else -> hashKeyValue
         })
-        if (!sortKeyName.isNullOrEmpty() && !sortKeyValue.isNullOrEmpty()) {
+        if (!sortKeyName.isNullOrEmpty() && sortKeyValues.isNotEmpty()) {
             val range = RangeKeyCondition(sortKeyName)
-            val value: Any? = when (sortKeyType) {
-                "N" -> sortKeyValue!!.toLong()
-                else -> sortKeyValue
+            val values: List<Any> = when (sortKeyType) {
+                "N" -> sortKeyValues.map { it.toLong() }
+                else -> sortKeyValues
             }
-            sortKeyOperation.apply(range, value!!)
+            sortKeyOperation.apply(range, *values.toTypedArray())
             spec.withRangeKeyCondition(range)
         }
         spec.withQueryFilters(*(conditions.map { it.toQueryFilter() }.toTypedArray()))

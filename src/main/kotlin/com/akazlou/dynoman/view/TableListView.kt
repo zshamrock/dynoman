@@ -101,7 +101,7 @@ class TableListView : View() {
                         queryType,
                         null,
                         null,
-                        null,
+                        emptyList(),
                         null,
                         emptyList(),
                         result)

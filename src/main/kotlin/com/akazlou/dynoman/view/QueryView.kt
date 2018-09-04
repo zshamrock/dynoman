@@ -103,7 +103,7 @@ class QueryView : View("Query") {
                        queryType: QueryType,
                        hashKey: String?,
                        sortKeyOperation: Operator?,
-                       sortKey: String?,
+                       sortKeyValues: List<String>,
                        sort: String?,
                        queryFilters: List<QueryFilter>,
                        result: List<Map<String, Any?>>) {
@@ -115,7 +115,7 @@ class QueryView : View("Query") {
                         "queryType" to queryType,
                         "hashKey" to hashKey,
                         "sortKeyOperation" to sortKeyOperation,
-                        "sortKey" to sortKey,
+                        "sortKeyValues" to sortKeyValues,
                         "sort" to sort,
                         "queryFilters" to queryFilters))
         tab.setQueryResult(QueryResult(operationType, description, result))
