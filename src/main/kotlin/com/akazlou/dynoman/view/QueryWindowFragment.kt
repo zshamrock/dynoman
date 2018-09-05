@@ -78,6 +78,7 @@ class QueryWindowFragment : Fragment("Query...") {
     private var queryGridPane: GridPane by singleAssign()
     private lateinit var sortKeyTextField: TextField
     private val sortKeyBetweenHBox: HBox
+    private val sortKeyOperationComboBox: ComboBox<Operator>
     // TODO: Create 5 between hbox-es for the filters and reuse them (as we do limit support only up to 5 filters)
     private val queryType = SimpleObjectProperty<QueryType>()
     private val hashKey = SimpleStringProperty()
@@ -112,24 +113,46 @@ class QueryWindowFragment : Fragment("Query...") {
         andLabel.alignment = Pos.CENTER
         sortKeyBetweenHBox = HBox(sortKeyFromTextField, andLabel, sortKeyToTextField)
         sortKeyBetweenHBox.alignment = Pos.CENTER
+
+        sortKeyOperationComboBox = ComboBox<Operator>(SORT_KEY_AVAILABLE_OPERATORS.observable())
+        sortKeyOperationComboBox.bind(sortKeyOperation)
+        sortKeyOperationComboBox.prefWidth = ATTRIBUTE_OPERATION_COLUMN_WIDTH
+        sortKeyOperationComboBox.valueProperty().addListener { _, oldValue, newValue ->
+            if (newValue.isBetween()) {
+                val columnIndex = GridPane.getColumnIndex(sortKeyTextField)
+                val rowIndex = GridPane.getRowIndex(sortKeyTextField)
+                queryGridPane.add(sortKeyBetweenHBox, columnIndex, rowIndex)
+                queryGridPane.children.remove(sortKeyTextField)
+            }
+            if (oldValue.isBetween()) {
+                val columnIndex = GridPane.getColumnIndex(sortKeyBetweenHBox)
+                val rowIndex = GridPane.getRowIndex(sortKeyBetweenHBox)
+                queryGridPane.add(sortKeyTextField, columnIndex, rowIndex)
+                queryGridPane.children.remove(sortKeyBetweenHBox)
+            }
+        }
     }
 
     override val root = vbox(5.0) {
         prefWidth = 750.0
+        if (mode == Mode.MODAL) {
+            prefHeight = 230.0
+        }
         scrollpane {
             vbarPolicy = ScrollPane.ScrollBarPolicy.AS_NEEDED
             hbarPolicy = ScrollPane.ScrollBarPolicy.NEVER
             vbox(5.0) {
-                hbox(5.0) {
+                hbox(5.0, Pos.CENTER) {
                     label("Query")
                     queryTypeComboBox = combobox(values = queryTypes, property = queryType)
+                    queryTypeComboBox.prefWidth = 645.0
                     queryTypeComboBox.valueProperty().onChange {
+                        sortKeyOperation.value = Operator.EQ
                         queryGridPane.removeAllRows()
                         hashKey.value = ""
                         sortKey.value = ""
                         sortKeyFrom.value = ""
                         sortKeyTo.value = ""
-                        sortKeyOperation.value = Operator.EQ
                         addKeySchemaRows(queryGridPane, it!!.keySchema)
                     }
                 }
@@ -284,23 +307,7 @@ class QueryWindowFragment : Fragment("Query...") {
                 if (isHash) {
                     label("=")
                 } else {
-                    val sortKeyOperationComboBox = combobox(
-                            values = SORT_KEY_AVAILABLE_OPERATORS, property = sortKeyOperation)
-                    sortKeyOperationComboBox.prefWidth = ATTRIBUTE_OPERATION_COLUMN_WIDTH
-                    sortKeyOperationComboBox.valueProperty().addListener { _, oldValue, newValue ->
-                        if (newValue.isBetween()) {
-                            val columnIndex = GridPane.getColumnIndex(sortKeyTextField)
-                            val rowIndex = GridPane.getRowIndex(sortKeyTextField)
-                            queryGridPane.add(sortKeyBetweenHBox, columnIndex, rowIndex)
-                            queryGridPane.children.remove(sortKeyTextField)
-                        }
-                        if (oldValue.isBetween()) {
-                            val columnIndex = GridPane.getColumnIndex(sortKeyBetweenHBox)
-                            val rowIndex = GridPane.getRowIndex(sortKeyBetweenHBox)
-                            queryGridPane.add(sortKeyTextField, columnIndex, rowIndex)
-                            queryGridPane.children.remove(sortKeyBetweenHBox)
-                        }
-                    }
+                    sortKeyOperationComboBox.attachTo(this)
                 }
                 val keyTextField = textfield(if (isHash) hashKey else sortKey) { }
                 if (!isHash) {
