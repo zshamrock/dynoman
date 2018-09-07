@@ -142,8 +142,8 @@ class QueryWindowFragment : Fragment("Query...") {
             vbarPolicy = ScrollPane.ScrollBarPolicy.AS_NEEDED
             hbarPolicy = ScrollPane.ScrollBarPolicy.NEVER
             vbox(5.0) {
-                hbox(5.0, Pos.CENTER) {
-                    label("Query")
+                hbox(5.0, Pos.CENTER_LEFT) {
+                    text("Query")
                     queryTypeComboBox = combobox(values = queryTypes, property = queryType)
                     queryTypeComboBox.prefWidth = 645.0
                     queryTypeComboBox.valueProperty().onChange {
@@ -178,7 +178,7 @@ class QueryWindowFragment : Fragment("Query...") {
                 val sortGroup = ToggleGroup()
                 sortGroup.bind(sort)
                 hbox(5.0) {
-                    label("Sort")
+                    text("Sort")
                     val asc = radiobutton("Ascending", sortGroup, "asc")
                     radiobutton("Descending", sortGroup, "desc")
                     sortGroup.selectToggle(asc)
