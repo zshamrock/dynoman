@@ -86,7 +86,7 @@ class TableListView : View() {
         private val tableMenu: ContextMenu = ContextMenu()
 
         init {
-            val scanMenuItem = MenuItem("Scan...")
+            val scanMenuItem = MenuItem("Scan")
             scanMenuItem.action {
                 val tableName = treeItem.value.name
                 println("Scan $tableName")
