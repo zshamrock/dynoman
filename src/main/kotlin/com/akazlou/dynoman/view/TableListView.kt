@@ -106,6 +106,17 @@ class TableListView : View() {
                         emptyList(),
                         result)
             }
+            val scanWithOptionsMenuItem = MenuItem("Scan...")
+            scanWithOptionsMenuItem.action {
+                println("Scan ${treeItem.value.name}")
+                val description = (treeItem as DynamoDBTableTreeItem).description
+                find<QueryWindowFragment>(
+                        params = mapOf(
+                                QueryWindowFragment::mode to QueryWindowFragment.Mode.MODAL,
+                                QueryWindowFragment::operationType to OperationType.SCAN,
+                                QueryWindowFragment::description to description,
+                                QueryWindowFragment::operation to operation)).openModal()
+            }
             val queryMenuItem = MenuItem("Query...")
             queryMenuItem.action {
                 println("Query ${treeItem.value.name}")
@@ -113,10 +124,11 @@ class TableListView : View() {
                 find<QueryWindowFragment>(
                         params = mapOf(
                                 QueryWindowFragment::mode to QueryWindowFragment.Mode.MODAL,
+                                QueryWindowFragment::operationType to OperationType.QUERY,
                                 QueryWindowFragment::description to description,
                                 QueryWindowFragment::operation to operation)).openModal()
             }
-            tableMenu.items.addAll(scanMenuItem, queryMenuItem)
+            tableMenu.items.addAll(scanMenuItem, scanWithOptionsMenuItem, queryMenuItem)
         }
 
         override fun updateItem(item: DynamoDBTable?, empty: Boolean) {

@@ -70,8 +70,11 @@ class QueryWindowFragment : Fragment("Query...") {
     }
 
     val mode: Mode by param()
+    val operationType: OperationType by param()
     val operation: DynamoDBOperation by param()
     val description: TableDescription by param()
+    private val operationTypes: List<OperationType> = listOf(OperationType.SCAN, OperationType.QUERY)
+    private val operationTypeProperty = SimpleObjectProperty<OperationType>(operationType)
     private val attributeDefinitions: Map<String, String>
     private val queryTypes: List<QueryType>
     private var queryTypeComboBox: ComboBox<QueryType> by singleAssign()
@@ -143,9 +146,12 @@ class QueryWindowFragment : Fragment("Query...") {
             hbarPolicy = ScrollPane.ScrollBarPolicy.NEVER
             vbox(5.0) {
                 hbox(5.0, Pos.CENTER_LEFT) {
-                    text("Query")
+                    combobox(values = operationTypes, property = operationTypeProperty) {
+                        prefWidth = 100.0
+                    }
+                    // TODO: handle the change - clean the query area, and update the button text
                     queryTypeComboBox = combobox(values = queryTypes, property = queryType)
-                    queryTypeComboBox.prefWidth = 645.0
+                    queryTypeComboBox.prefWidth = 585.0
                     queryTypeComboBox.valueProperty().onChange {
                         sortKeyOperation.value = Operator.EQ
                         queryGridPane.removeAllRows()
@@ -186,7 +192,7 @@ class QueryWindowFragment : Fragment("Query...") {
                 separator()
                 hbox(5.0) {
                     alignment = Pos.CENTER
-                    button("Query") {
+                    button(operationTypeProperty.value.toString()) {
                         // TODO: Extract the sizes into the constant, so allow ease of modification just in one place
                         //setPrefSize(100.0, 40.0)
                         prefWidth = 100.0
