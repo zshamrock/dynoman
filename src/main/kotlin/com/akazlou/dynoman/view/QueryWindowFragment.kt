@@ -75,6 +75,7 @@ class QueryWindowFragment : Fragment("Query...") {
     val description: TableDescription by param()
     private val operationTypes: List<OperationType> = listOf(OperationType.SCAN, OperationType.QUERY)
     private val operationTypeProperty = SimpleObjectProperty<OperationType>(operationType)
+    private val operationTypeButtonTextProperty = SimpleStringProperty(operationType.toString())
     private val attributeDefinitions: Map<String, String>
     private val queryTypes: List<QueryType>
     private var queryTypeComboBox: ComboBox<QueryType> by singleAssign()
@@ -148,6 +149,9 @@ class QueryWindowFragment : Fragment("Query...") {
                 hbox(5.0, Pos.CENTER_LEFT) {
                     combobox(values = operationTypes, property = operationTypeProperty) {
                         prefWidth = 100.0
+                        valueProperty().onChange {
+                            operationTypeButtonTextProperty.value = it.toString()
+                        }
                     }
                     // TODO: handle the change - clean the query area, and update the button text
                     queryTypeComboBox = combobox(values = queryTypes, property = queryType)
@@ -192,7 +196,7 @@ class QueryWindowFragment : Fragment("Query...") {
                 separator()
                 hbox(5.0) {
                     alignment = Pos.CENTER
-                    button(operationTypeProperty.value.toString()) {
+                    button(operationTypeButtonTextProperty) {
                         // TODO: Extract the sizes into the constant, so allow ease of modification just in one place
                         //setPrefSize(100.0, 40.0)
                         prefWidth = 100.0
