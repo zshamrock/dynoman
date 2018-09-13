@@ -31,9 +31,6 @@ class TableListView : View() {
         button("Connect") {
             //setPrefSize(100.0, 40.0)
             prefWidth = 100.0
-            vboxConstraints {
-                prefHeight = 45.0
-            }
             action {
                 find(ConnectRegionFragment::class).openModal(block = true)
                 val region = getRegion()
