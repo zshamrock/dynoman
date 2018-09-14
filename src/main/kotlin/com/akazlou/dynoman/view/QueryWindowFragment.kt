@@ -215,7 +215,7 @@ class QueryWindowFragment : Fragment("Query...") {
                                         listOf(parseValue(sortKeyFrom.value)!!, parseValue(sortKeyTo.value)!!)
                                     }
                                 else ->
-                                    if (sortKey.value == null) {
+                                    if (sortKey.value.isNullOrEmpty()) {
                                         emptyList()
                                     } else {
                                         listOf(parseValue(sortKey.value)!!)
