@@ -163,6 +163,10 @@ class QueryWindowFragment : Fragment("Query...") {
                         sortKey.value = ""
                         sortKeyFrom.value = ""
                         sortKeyTo.value = ""
+                        filterKeys.clear()
+                        filterKeyTypes.clear()
+                        filterKeyOperations.clear()
+                        filterKeyValues.clear()
                         addKeySchemaRows(queryGridPane, it!!.keySchema)
                     }
                 }
