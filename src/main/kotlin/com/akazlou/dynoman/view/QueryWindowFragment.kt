@@ -15,6 +15,8 @@ import com.amazonaws.services.dynamodbv2.model.KeyType
 import com.amazonaws.services.dynamodbv2.model.TableDescription
 import javafx.beans.property.SimpleObjectProperty
 import javafx.beans.property.SimpleStringProperty
+import javafx.beans.value.ChangeListener
+import javafx.beans.value.ObservableValue
 import javafx.geometry.Pos
 import javafx.scene.control.ComboBox
 import javafx.scene.control.Label
@@ -80,7 +82,7 @@ class QueryWindowFragment : Fragment("Query...") {
     private val queryTypes: List<QueryType>
     private var queryTypeComboBox: ComboBox<QueryType> by singleAssign()
     private var queryGridPane: GridPane by singleAssign()
-    private lateinit var sortKeyTextField: TextField
+    private var sortKeyTextField: TextField by singleAssign()
     private val sortKeyBetweenHBox: HBox
     private val sortKeyOperationComboBox: ComboBox<Operator>
     // TODO: Create 5 between hbox-es for the filters and reuse them (as we do limit support only up to 5 filters)
@@ -115,26 +117,16 @@ class QueryWindowFragment : Fragment("Query...") {
         val andLabel = Label("And")
         andLabel.minWidth = 40.0
         andLabel.alignment = Pos.CENTER
+        sortKeyTextField = TextField()
+        sortKeyTextField.bind(sortKey)
         sortKeyBetweenHBox = HBox(sortKeyFromTextField, andLabel, sortKeyToTextField)
         sortKeyBetweenHBox.alignment = Pos.CENTER
 
         sortKeyOperationComboBox = ComboBox<Operator>(SORT_KEY_AVAILABLE_OPERATORS.observable())
         sortKeyOperationComboBox.bind(sortKeyOperation)
         sortKeyOperationComboBox.prefWidth = ATTRIBUTE_OPERATION_COLUMN_WIDTH
-        sortKeyOperationComboBox.valueProperty().addListener { _, oldValue, newValue ->
-            if (newValue.isBetween()) {
-                val columnIndex = GridPane.getColumnIndex(sortKeyTextField)
-                val rowIndex = GridPane.getRowIndex(sortKeyTextField)
-                queryGridPane.add(sortKeyBetweenHBox, columnIndex, rowIndex)
-                queryGridPane.children.remove(sortKeyTextField)
-            }
-            if (oldValue.isBetween()) {
-                val columnIndex = GridPane.getColumnIndex(sortKeyBetweenHBox)
-                val rowIndex = GridPane.getRowIndex(sortKeyBetweenHBox)
-                queryGridPane.add(sortKeyTextField, columnIndex, rowIndex)
-                queryGridPane.children.remove(sortKeyBetweenHBox)
-            }
-        }
+        sortKeyOperationComboBox.valueProperty()
+                .addListener(this.BetweenChangeListener(sortKeyTextField, sortKeyBetweenHBox))
     }
 
     override val root = vbox(5.0) {
@@ -253,6 +245,8 @@ class QueryWindowFragment : Fragment("Query...") {
                                                 filterKeyOperations[index].value,
                                                 filterKeyValues[index]?.value)
                                     }
+                                    println("skValues: $skValues")
+                                    println(sortKey)
                                     find(QueryView::class).setQueryResult(
                                             operation,
                                             description,
@@ -323,9 +317,10 @@ class QueryWindowFragment : Fragment("Query...") {
                 } else {
                     sortKeyOperationComboBox.attachTo(this)
                 }
-                val keyTextField = textfield(if (isHash) hashKey else sortKey) { }
-                if (!isHash) {
-                    sortKeyTextField = keyTextField
+                if (isHash) {
+                    textfield(hashKey) { }
+                } else {
+                    sortKeyTextField.attachTo(this)
                 }
             }
         }
@@ -386,6 +381,7 @@ class QueryWindowFragment : Fragment("Query...") {
         if (operationType == OperationType.SCAN) {
             return
         }
+        println("Sort key values: $sortKeyValues")
         queryTypeComboBox.value = queryType
         this.hashKey.value = hashKey
         this.sortKeyOperation.value = sortKeyOperation
@@ -397,6 +393,24 @@ class QueryWindowFragment : Fragment("Query...") {
         }
         this.sort.value = sort
         queryFilters.forEach { addFilterRow(queryGridPane, it) }
+    }
+
+    inner class BetweenChangeListener(private val textField: TextField,
+                                      private val betweenHBox: HBox) : ChangeListener<Operator> {
+        override fun changed(observable: ObservableValue<out Operator>, oldValue: Operator, newValue: Operator) {
+            if (newValue.isBetween()) {
+                val columnIndex = GridPane.getColumnIndex(textField)
+                val rowIndex = GridPane.getRowIndex(textField)
+                queryGridPane.add(betweenHBox, columnIndex, rowIndex)
+                queryGridPane.children.remove(textField)
+            }
+            if (oldValue.isBetween()) {
+                val columnIndex = GridPane.getColumnIndex(betweenHBox)
+                val rowIndex = GridPane.getRowIndex(betweenHBox)
+                queryGridPane.add(textField, columnIndex, rowIndex)
+                queryGridPane.children.remove(betweenHBox)
+            }
+        }
     }
 }
 
