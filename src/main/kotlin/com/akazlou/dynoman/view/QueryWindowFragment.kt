@@ -97,6 +97,7 @@ class QueryWindowFragment : Fragment("Query...") {
     private val filterKeyTypes = mutableListOf<SimpleObjectProperty<Type>>()
     private val filterKeyOperations = mutableListOf<SimpleObjectProperty<Operator>>()
     private val filterKeyValues = mutableListOf<SimpleStringProperty?>()
+    private val filterKeyBetweenValues = mutableListOf<Pair<SimpleStringProperty, SimpleStringProperty>>()
     private var keysRowsCount = 0
     private val functions = Functions.getAvailableFunctions()
     private var tab: QueryTabFragment? = null
@@ -159,6 +160,7 @@ class QueryWindowFragment : Fragment("Query...") {
                         filterKeyTypes.clear()
                         filterKeyOperations.clear()
                         filterKeyValues.clear()
+                        filterKeyBetweenValues.clear()
                         addKeySchemaRows(queryGridPane, it!!.keySchema)
                     }
                 }
@@ -355,7 +357,22 @@ class QueryWindowFragment : Fragment("Query...") {
             if (queryFilter != null) {
                 filterKeyValue.value = queryFilter.value
             }
-            textfield(filterKeyValue) { }
+            val filterKeyValueTextField = textfield(filterKeyValue) { }
+            val filterKeyFromTextField = TextField()
+            val filterKeyFrom = SimpleStringProperty()
+            filterKeyFromTextField.textProperty().bindBidirectional(filterKeyFrom)
+            val filterKeyToTextField = TextField()
+            val filterKeyTo = SimpleStringProperty()
+            filterKeyToTextField.textProperty().bindBidirectional(filterKeyTo)
+            val andLabel = Label("And")
+            andLabel.minWidth = 40.0
+            andLabel.alignment = Pos.CENTER
+            val filterKeyBetweenHBox = HBox(filterKeyFromTextField, andLabel, filterKeyToTextField)
+            filterKeyBetweenHBox.alignment = Pos.CENTER
+            filterKeyBetweenValues.add(Pair(filterKeyFrom, filterKeyTo))
+            filterKeyOperationComboBox.valueProperty()
+                    .addListener(this@QueryWindowFragment.BetweenChangeListener(
+                            filterKeyValueTextField, filterKeyBetweenHBox))
             button("x") {
                 action {
                     val rowIndex = queryGridPane.removeRow(this)
@@ -364,6 +381,7 @@ class QueryWindowFragment : Fragment("Query...") {
                     filterKeyTypes.removeAt(index)
                     filterKeyOperations.removeAt(index)
                     filterKeyValues.removeAt(index)
+                    filterKeyBetweenValues.removeAt(index)
                 }
             }
         }
