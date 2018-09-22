@@ -221,12 +221,17 @@ class QueryWindowFragment : Fragment("Query...") {
                             println(qt)
                             if (!hashKey.value.isNullOrBlank()) {
                                 val conditions = filterKeys.mapIndexed { index, filterKey ->
+                                    val filterKeyOperation = filterKeyOperations[index].value
                                     QueryCondition(
                                             filterKey.value,
                                             filterKeyTypes[index].value,
-                                            filterKeyOperations[index].value,
-                                            // TODO: Actually have to correctly handle when the value is missing
-                                            filterKeyValues[index]!!.value)
+                                            filterKeyOperation,
+                                            if (filterKeyOperation.isBetween()) {
+                                                val betweenPair = filterKeyBetweenValues[index]
+                                                listOf(betweenPair.first.value, betweenPair.second.value)
+                                            } else {
+                                                listOf(filterKeyValues[index]!!.value)
+                                            })
                                 }
                                 val result = operation.query(
                                         description.tableName,
