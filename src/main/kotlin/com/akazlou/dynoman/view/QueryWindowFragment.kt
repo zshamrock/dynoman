@@ -247,10 +247,16 @@ class QueryWindowFragment : Fragment("Query...") {
                                         conditions)
                                 if (mode == Mode.MODAL) {
                                     val queryFilters = filterKeys.mapIndexed { index, property ->
+                                        val filterKeyOperation = filterKeyOperations[index].value
                                         QueryFilter(property.value,
                                                 filterKeyTypes[index].value,
-                                                filterKeyOperations[index].value,
-                                                filterKeyValues[index]?.value)
+                                                filterKeyOperation,
+                                                if (filterKeyOperation.isBetween()) {
+                                                    val betweenPair = filterKeyBetweenValues[index]
+                                                    listOf(betweenPair.first.value, betweenPair.second.value)
+                                                } else {
+                                                    listOf(filterKeyValues[index]?.value)
+                                                })
                                     }
                                     println("skValues: $skValues")
                                     println(sortKey)
@@ -337,32 +343,21 @@ class QueryWindowFragment : Fragment("Query...") {
         println("grid properties: ${queryGridPane.properties}")
         queryGridPane.row {
             text(if (filterKeys.isEmpty()) "Filter" else "And")
-            val filterKey = SimpleStringProperty()
+            val filterKey = SimpleStringProperty(queryFilter?.name)
             filterKeys.add(filterKey)
-            if (queryFilter != null) {
-                filterKey.value = queryFilter.name
-            }
             textfield(filterKey) { }
-            val filterKeyType = SimpleObjectProperty<Type>(Type.STRING)
+            val filterKeyType = SimpleObjectProperty<Type>(queryFilter?.type?:Type.STRING)
             filterKeyTypes.add(filterKeyType)
-            if (queryFilter != null) {
-                filterKeyType.value = queryFilter.type
-            }
             combobox(values = FILTER_KEY_TYPES, property = filterKeyType)
-            val filterKeyOperation = SimpleObjectProperty<Operator>(Operator.EQ)
+            val filterKeyOperation = SimpleObjectProperty<Operator>(queryFilter?.operator?:Operator.EQ)
             filterKeyOperations.add(filterKeyOperation)
-            if (queryFilter != null) {
-                filterKeyOperation.value = queryFilter.operator
-            }
             val filterKeyOperationComboBox = combobox(
                     values = FILTER_KEY_AVAILABLE_OPERATORS, property = filterKeyOperation)
             filterKeyOperationComboBox.prefWidth = ATTRIBUTE_OPERATION_COLUMN_WIDTH
             val filterKeyValue = SimpleStringProperty()
             filterKeyValues.add(filterKeyValue)
-            if (queryFilter != null) {
-                filterKeyValue.value = queryFilter.value
-            }
-            val filterKeyValueTextField = textfield(filterKeyValue) { }
+            val filterKeyValueTextField = TextField()
+            filterKeyValueTextField.bind(filterKeyValue)
             val filterKeyFromTextField = TextField()
             val filterKeyFrom = SimpleStringProperty()
             filterKeyFromTextField.textProperty().bindBidirectional(filterKeyFrom)
@@ -378,6 +373,14 @@ class QueryWindowFragment : Fragment("Query...") {
             filterKeyOperationComboBox.valueProperty()
                     .addListener(this@QueryWindowFragment.BetweenChangeListener(
                             filterKeyValueTextField, filterKeyBetweenHBox))
+            if (filterKeyOperation.value.isBetween()) {
+                filterKeyFrom.value = queryFilter?.values?.get(0)
+                filterKeyTo.value = queryFilter?.values?.get(1)
+                filterKeyBetweenHBox.attachTo(this)
+            } else {
+                filterKeyValue.value = queryFilter?.values?.get(0)
+                filterKeyValueTextField.attachTo(this)
+            }
             button("x") {
                 action {
                     val rowIndex = queryGridPane.removeRow(this)
