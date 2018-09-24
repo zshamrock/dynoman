@@ -120,16 +120,17 @@ class QueryTabFragment : Fragment("Query Tab") {
 
     fun setQueryResult(qr: QueryResult) {
         queryArea.text = if (qr.operationType == OperationType.SCAN) "SELECT * FROM ${qr.getTable()}" else ""
-        if (qr.result.isEmpty()) {
-            return
-        }
         val results = qr.result.map { ResultData(it, qr.getTableHashKey(), qr.getTableSortKey()) }
-        val columns = results.first().getKeys().map { attributeName ->
-            val column = TableColumn<ResultData, String>(attributeName)
-            column.cellValueFactory = Callback<TableColumn.CellDataFeatures<ResultData, String>, ObservableValue<String>> {
-                SimpleStringProperty(it.value.getValue(attributeName))
+        val columns = if (results.isEmpty()) {
+            emptyList()
+        } else {
+            results.first().getKeys().map { attributeName ->
+                val column = TableColumn<ResultData, String>(attributeName)
+                column.cellValueFactory = Callback<TableColumn.CellDataFeatures<ResultData, String>, ObservableValue<String>> {
+                    SimpleStringProperty(it.value.getValue(attributeName))
+                }
+                column
             }
-            column
         }
         resultTable.columns.setAll(columns)
         resultTable.items = FXCollections.observableList(results)
