@@ -194,7 +194,7 @@ class QueryWindowFragment : Fragment("Query...") {
                 separator()
                 hbox(5.0) {
                     alignment = Pos.CENTER
-                    button(operationTypeButtonTextProperty) {
+                    button("Search") {
                         // TODO: Extract the sizes into the constant, so allow ease of modification just in one place
                         //setPrefSize(100.0, 40.0)
                         prefWidth = 100.0
