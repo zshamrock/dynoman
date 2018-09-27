@@ -28,6 +28,7 @@ import javafx.scene.layout.GridPane
 import javafx.scene.layout.HBox
 import tornadofx.*
 
+// TODO: For some reason when changing the operation for the filter.sirt key, i.e. =/Between the values are not cleaned
 class QueryWindowFragment : Fragment("Query...") {
     companion object {
         @JvmField
@@ -127,7 +128,8 @@ class QueryWindowFragment : Fragment("Query...") {
         sortKeyOperationComboBox.bind(sortKeyOperation)
         sortKeyOperationComboBox.prefWidth = ATTRIBUTE_OPERATION_COLUMN_WIDTH
         sortKeyOperationComboBox.valueProperty()
-                .addListener(this.BetweenChangeListener(sortKeyTextField, sortKeyBetweenHBox))
+                .addListener(this.BetweenChangeListener(
+                        sortKeyTextField, sortKey, sortKeyBetweenHBox, sortKeyFrom, sortKeyTo))
     }
 
     override val root = vbox(5.0) {
@@ -346,10 +348,10 @@ class QueryWindowFragment : Fragment("Query...") {
             val filterKey = SimpleStringProperty(queryFilter?.name)
             filterKeys.add(filterKey)
             textfield(filterKey) { }
-            val filterKeyType = SimpleObjectProperty<Type>(queryFilter?.type?:Type.STRING)
+            val filterKeyType = SimpleObjectProperty<Type>(queryFilter?.type ?: Type.STRING)
             filterKeyTypes.add(filterKeyType)
             combobox(values = FILTER_KEY_TYPES, property = filterKeyType)
-            val filterKeyOperation = SimpleObjectProperty<Operator>(queryFilter?.operator?:Operator.EQ)
+            val filterKeyOperation = SimpleObjectProperty<Operator>(queryFilter?.operator ?: Operator.EQ)
             filterKeyOperations.add(filterKeyOperation)
             val filterKeyOperationComboBox = combobox(
                     values = FILTER_KEY_AVAILABLE_OPERATORS, property = filterKeyOperation)
@@ -372,7 +374,7 @@ class QueryWindowFragment : Fragment("Query...") {
             filterKeyBetweenValues.add(Pair(filterKeyFrom, filterKeyTo))
             filterKeyOperationComboBox.valueProperty()
                     .addListener(this@QueryWindowFragment.BetweenChangeListener(
-                            filterKeyValueTextField, filterKeyBetweenHBox))
+                            filterKeyValueTextField, filterKeyValue, filterKeyBetweenHBox, filterKeyFrom, filterKeyTo))
             if (filterKeyOperation.value.isBetween()) {
                 filterKeyFrom.value = queryFilter?.values?.get(0)
                 filterKeyTo.value = queryFilter?.values?.get(1)
@@ -422,19 +424,25 @@ class QueryWindowFragment : Fragment("Query...") {
     }
 
     inner class BetweenChangeListener(private val textField: TextField,
-                                      private val betweenHBox: HBox) : ChangeListener<Operator> {
+                                      private val textFieldValue: SimpleStringProperty,
+                                      private val betweenHBox: HBox,
+                                      private val textFieldFrom: SimpleStringProperty,
+                                      private val textFieldTo: SimpleStringProperty) : ChangeListener<Operator> {
         override fun changed(observable: ObservableValue<out Operator>, oldValue: Operator, newValue: Operator) {
             if (newValue.isBetween()) {
                 val columnIndex = GridPane.getColumnIndex(textField)
                 val rowIndex = GridPane.getRowIndex(textField)
                 queryGridPane.add(betweenHBox, columnIndex, rowIndex)
                 queryGridPane.children.remove(textField)
+                textFieldValue.value = null
             }
             if (oldValue.isBetween()) {
                 val columnIndex = GridPane.getColumnIndex(betweenHBox)
                 val rowIndex = GridPane.getRowIndex(betweenHBox)
                 queryGridPane.add(textField, columnIndex, rowIndex)
                 queryGridPane.children.remove(betweenHBox)
+                textFieldFrom.value = null
+                textFieldTo.value = null
             }
         }
     }
