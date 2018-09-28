@@ -28,7 +28,6 @@ import javafx.scene.layout.GridPane
 import javafx.scene.layout.HBox
 import tornadofx.*
 
-// TODO: For some reason when changing the operation for the filter.sirt key, i.e. =/Between the values are not cleaned
 class QueryWindowFragment : Fragment("Query...") {
     companion object {
         @JvmField
@@ -78,7 +77,6 @@ class QueryWindowFragment : Fragment("Query...") {
     val description: TableDescription by param()
     private val operationTypes: List<OperationType> = listOf(OperationType.SCAN, OperationType.QUERY)
     private val operationTypeProperty = SimpleObjectProperty<OperationType>(operationType)
-    private val operationTypeButtonTextProperty = SimpleStringProperty(operationType.toString())
     private val attributeDefinitions: Map<String, String>
     private val queryTypes: List<QueryType>
     private var queryTypeComboBox: ComboBox<QueryType> by singleAssign()
@@ -144,11 +142,7 @@ class QueryWindowFragment : Fragment("Query...") {
                 hbox(5.0, Pos.CENTER_LEFT) {
                     combobox(values = operationTypes, property = operationTypeProperty) {
                         prefWidth = 100.0
-                        valueProperty().onChange {
-                            operationTypeButtonTextProperty.value = it.toString()
-                        }
                     }
-                    // TODO: handle the change - clean the query area, and update the button text
                     queryTypeComboBox = combobox(values = queryTypes, property = queryType)
                     queryTypeComboBox.prefWidth = 585.0
                     queryTypeComboBox.valueProperty().onChange {
@@ -201,7 +195,8 @@ class QueryWindowFragment : Fragment("Query...") {
                         //setPrefSize(100.0, 40.0)
                         prefWidth = 100.0
                         action {
-                            println("Query:")
+                            val operationType = operationTypeProperty.value
+                            println("Search: ${operationTypeProperty.value}")
                             val skOp = sortKeyOperation.value
                             val skValues = when {
                                 skOp.isBetween() ->
@@ -221,7 +216,7 @@ class QueryWindowFragment : Fragment("Query...") {
                             println("Sort By ${sort.value}")
                             val qt = queryType.value
                             println(qt)
-                            if (!hashKey.value.isNullOrBlank()) {
+                            if (!hashKey.value.isNullOrBlank() || operationType.isScan()) {
                                 val conditions = filterKeys.mapIndexed { index, filterKey ->
                                     val filterKeyOperation = filterKeyOperations[index].value
                                     QueryCondition(
@@ -235,18 +230,22 @@ class QueryWindowFragment : Fragment("Query...") {
                                                 listOf(filterKeyValues[index]!!.value)
                                             })
                                 }
-                                val result = operation.query(
-                                        description.tableName,
-                                        if (qt.isIndex) qt.name else null,
-                                        qt.hashKey.attributeName,
-                                        attributeDefinitions[qt.hashKey.attributeName]!!,
-                                        parseValue(hashKey.value)!!,
-                                        qt.sortKey?.attributeName,
-                                        attributeDefinitions[qt.sortKey?.attributeName],
-                                        skOp,
-                                        skValues,
-                                        sort.value,
-                                        conditions)
+                                val result = if (operationType.isScan()) {
+                                    operation.scan(description.tableName)
+                                } else {
+                                    operation.query(
+                                            description.tableName,
+                                            if (qt.isIndex) qt.name else null,
+                                            qt.hashKey.attributeName,
+                                            attributeDefinitions[qt.hashKey.attributeName]!!,
+                                            parseValue(hashKey.value)!!,
+                                            qt.sortKey?.attributeName,
+                                            attributeDefinitions[qt.sortKey?.attributeName],
+                                            skOp,
+                                            skValues,
+                                            sort.value,
+                                            conditions)
+                                }
                                 if (mode == Mode.MODAL) {
                                     val queryFilters = filterKeys.mapIndexed { index, property ->
                                         val filterKeyOperation = filterKeyOperations[index].value
@@ -265,7 +264,7 @@ class QueryWindowFragment : Fragment("Query...") {
                                     find(QueryView::class).setQueryResult(
                                             operation,
                                             description,
-                                            OperationType.QUERY,
+                                            operationType,
                                             description.tableName,
                                             qt,
                                             hashKey.value,
@@ -277,7 +276,7 @@ class QueryWindowFragment : Fragment("Query...") {
                                 } else {
                                     tab?.setQueryResult(
                                             QueryResult(
-                                                    OperationType.QUERY,
+                                                    operationType,
                                                     description,
                                                     result))
                                 }

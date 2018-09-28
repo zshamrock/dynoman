@@ -9,4 +9,8 @@ enum class OperationType {
     override fun toString(): String {
         return this.name.toLowerCase(Locale.ROOT).capitalize()
     }
+
+    fun isScan(): Boolean {
+        return this == SCAN
+    }
 }
