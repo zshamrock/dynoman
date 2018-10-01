@@ -127,7 +127,12 @@ class QueryWindowFragment : Fragment("Query...") {
         sortKeyOperationComboBox.prefWidth = ATTRIBUTE_OPERATION_COLUMN_WIDTH
         sortKeyOperationComboBox.valueProperty()
                 .addListener(this.OperatorChangeListener(
-                        sortKeyTextField, sortKey, sortKeyBetweenHBox, sortKeyFrom, sortKeyTo))
+                        sortKeyOperationComboBox,
+                        sortKeyTextField,
+                        sortKey,
+                        sortKeyBetweenHBox,
+                        sortKeyFrom,
+                        sortKeyTo))
     }
 
     override val root = vbox(5.0) {
@@ -373,7 +378,12 @@ class QueryWindowFragment : Fragment("Query...") {
             filterKeyBetweenValues.add(Pair(filterKeyFrom, filterKeyTo))
             filterKeyOperationComboBox.valueProperty()
                     .addListener(this@QueryWindowFragment.OperatorChangeListener(
-                            filterKeyValueTextField, filterKeyValue, filterKeyBetweenHBox, filterKeyFrom, filterKeyTo))
+                            filterKeyOperationComboBox,
+                            filterKeyValueTextField,
+                            filterKeyValue,
+                            filterKeyBetweenHBox,
+                            filterKeyFrom,
+                            filterKeyTo))
             if (filterKeyOperation.value.isBetween()) {
                 filterKeyFrom.value = queryFilter?.values?.get(0)
                 filterKeyTo.value = queryFilter?.values?.get(1)
@@ -422,33 +432,53 @@ class QueryWindowFragment : Fragment("Query...") {
         queryFilters.forEach { addFilterRow(queryGridPane, it) }
     }
 
-    inner class OperatorChangeListener(private val textField: TextField,
+    inner class OperatorChangeListener(private val operators: ComboBox<Operator>,
+                                       private val textField: TextField,
                                        private val textFieldValue: SimpleStringProperty,
-                                       private val betweenHBox: HBox?,
+                                       private val betweenHBox: HBox,
                                        private val textFieldFrom: SimpleStringProperty,
                                        private val textFieldTo: SimpleStringProperty) : ChangeListener<Operator> {
         override fun changed(observable: ObservableValue<out Operator>, oldValue: Operator, newValue: Operator) {
-            if (newValue.isBetween()) {
-                val columnIndex = GridPane.getColumnIndex(textField)
-                val rowIndex = GridPane.getRowIndex(textField)
-                queryGridPane.add(betweenHBox, columnIndex, rowIndex)
-                queryGridPane.children.remove(textField)
-                textFieldValue.value = null
+            when (newValue) {
+                Operator.BETWEEN -> {
+                    val columnIndex = GridPane.getColumnIndex(textField)
+                    val rowIndex = GridPane.getRowIndex(textField)
+                    queryGridPane.add(betweenHBox, columnIndex, rowIndex)
+                    queryGridPane.children.remove(textField)
+                    textFieldValue.value = null
+                }
+                Operator.EXISTS, Operator.NOT_EXISTS -> {
+                    if (oldValue.isNoArg()) {
+                        // The textfield then has been already removed
+                        return
+                    }
+                    queryGridPane.children.remove(textField)
+                    textFieldValue.value = null
+                }
+                else -> {
+                    // noop
+                }
             }
-            if (newValue == Operator.EXISTS) {
-                queryGridPane.children.remove(textField)
-                textFieldValue.value = null
-            }
-            if (oldValue.isBetween()) {
-                val columnIndex = GridPane.getColumnIndex(betweenHBox)
-                val rowIndex = GridPane.getRowIndex(betweenHBox)
-                queryGridPane.add(textField, columnIndex, rowIndex)
-                queryGridPane.children.remove(betweenHBox)
-                textFieldFrom.value = null
-                textFieldTo.value = null
-            }
-            if (oldValue == Operator.EXISTS) {
-                // TODO: Put the textfield back
+            when (oldValue) {
+                Operator.BETWEEN -> {
+                    val columnIndex = GridPane.getColumnIndex(betweenHBox)
+                    val rowIndex = GridPane.getRowIndex(betweenHBox)
+                    queryGridPane.add(textField, columnIndex, rowIndex)
+                    queryGridPane.children.remove(betweenHBox)
+                    textFieldFrom.value = null
+                    textFieldTo.value = null
+                }
+                Operator.EXISTS, Operator.NOT_EXISTS -> {
+                    if (newValue.isNoArg()) {
+                        return
+                    }
+                    val columnIndex = GridPane.getColumnIndex(operators)
+                    val rowIndex = GridPane.getRowIndex(operators)
+                    queryGridPane.add(textField, columnIndex + 1, rowIndex)
+                }
+                else -> {
+                    // noop
+                }
             }
         }
     }
