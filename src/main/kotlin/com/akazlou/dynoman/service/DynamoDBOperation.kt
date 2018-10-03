@@ -10,6 +10,8 @@ import com.amazonaws.services.dynamodbv2.document.RangeKeyCondition
 import com.amazonaws.services.dynamodbv2.document.Table
 import com.amazonaws.services.dynamodbv2.document.spec.QuerySpec
 import com.amazonaws.services.dynamodbv2.document.spec.ScanSpec
+import java.util.concurrent.TimeUnit
+import kotlin.system.measureTimeMillis
 
 class DynamoDBOperation(region: Regions, private val offline: Boolean) {
     private val dynamodb: DynamoDB?
@@ -69,12 +71,19 @@ class DynamoDBOperation(region: Regions, private val offline: Boolean) {
         spec.withQueryFilters(*(conditions.map { it.toQueryFilter() }.toTypedArray()))
         spec.withScanIndexForward(sortOrder == "asc")
         spec.withMaxResultSize(50)
-        val table = getTable(tableName)
-        val result = if (indexName != null) {
-            table.getIndex(indexName).query(spec)
-        } else {
-            table.query(spec)
+        println("Run query")
+        var data: List<Map<String, Any?>> = emptyList()
+        val runTime = measureTimeMillis {
+            val table = getTable(tableName)
+            val result = if (indexName != null) {
+                table.getIndex(indexName).query(spec)
+            } else {
+                table.query(spec)
+            }
+            data = result.map { it.asMap() }
         }
-        return result.map { it.asMap() }
+        println("Query run $runTime ms, and ${TimeUnit.MILLISECONDS.toSeconds(runTime)} secs")
+        println("Total data size is ${data.size} records")
+        return data
     }
 }
