@@ -388,7 +388,7 @@ class QueryWindowFragment : Fragment("Query...") {
                 filterKeyFrom.value = queryFilter?.values?.get(0)
                 filterKeyTo.value = queryFilter?.values?.get(1)
                 filterKeyBetweenHBox.attachTo(this)
-            } else {
+            } else if (!filterKeyOperation.value.isNoArg()) {
                 filterKeyValue.value = queryFilter?.values?.get(0)
                 filterKeyValueTextField.attachTo(this)
             }
