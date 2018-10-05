@@ -70,7 +70,7 @@ class DynamoDBOperation(region: Regions, private val offline: Boolean) {
         }
         spec.withQueryFilters(*(conditions.map { it.toQueryFilter() }.toTypedArray()))
         spec.withScanIndexForward(sortOrder == "asc")
-        spec.withMaxResultSize(50)
+        spec.withMaxPageSize(100)
         println("Run query")
         var data: List<Map<String, Any?>> = emptyList()
         val runTime = measureTimeMillis {
@@ -80,7 +80,7 @@ class DynamoDBOperation(region: Regions, private val offline: Boolean) {
             } else {
                 table.query(spec)
             }
-            data = result.map { it.asMap() }
+            data = result.firstPage().map { it.asMap() }
         }
         println("Query run $runTime ms, and ${TimeUnit.MILLISECONDS.toSeconds(runTime)} secs")
         println("Total data size is ${data.size} records")
