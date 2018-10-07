@@ -24,22 +24,28 @@ class QueryTabFragment : Fragment("Query Tab") {
     val operationType: OperationType by param()
     private var queryArea: TextArea by singleAssign()
     private var resultTable: TableView<ResultData> by singleAssign()
+    private var pageNum = 1
+    private var hasMorePages = true
     override val root = vbox {
         hbox(alignment = Pos.CENTER_RIGHT) {
             prefHeight = 150.0
             textflow {
                 spacing = 10.0
                 text("<") {
+                    isVisible = pageNum > 1
                     setOnMouseClicked {
                         println("Clicked <")
+                        pageNum--
                     }
                     cursor = Cursor.HAND
                 }
                 text("Viewing 101 to 200 items") {
                 }
                 text(">") {
+                    isVisible = hasMorePages
                     setOnMouseClicked {
                         println("Clicked >")
+                        pageNum++
                     }
                     cursor = Cursor.HAND
                 }

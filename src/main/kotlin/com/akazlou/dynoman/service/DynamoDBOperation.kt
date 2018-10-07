@@ -6,6 +6,9 @@ import com.amazonaws.auth.DefaultAWSCredentialsProviderChain
 import com.amazonaws.regions.Regions
 import com.amazonaws.services.dynamodbv2.AmazonDynamoDBClient
 import com.amazonaws.services.dynamodbv2.document.DynamoDB
+import com.amazonaws.services.dynamodbv2.document.Item
+import com.amazonaws.services.dynamodbv2.document.Page
+import com.amazonaws.services.dynamodbv2.document.QueryOutcome
 import com.amazonaws.services.dynamodbv2.document.RangeKeyCondition
 import com.amazonaws.services.dynamodbv2.document.Table
 import com.amazonaws.services.dynamodbv2.document.spec.QuerySpec
@@ -72,7 +75,7 @@ class DynamoDBOperation(region: Regions, private val offline: Boolean) {
         spec.withScanIndexForward(sortOrder == "asc")
         spec.withMaxPageSize(100)
         println("Run query")
-        var data: List<Map<String, Any?>> = emptyList()
+        var page: Page<Item, QueryOutcome>? = null
         val runTime = measureTimeMillis {
             val table = getTable(tableName)
             val result = if (indexName != null) {
@@ -80,10 +83,9 @@ class DynamoDBOperation(region: Regions, private val offline: Boolean) {
             } else {
                 table.query(spec)
             }
-            data = result.firstPage().map { it.asMap() }
+            page = result.firstPage()
         }
         println("Query run $runTime ms, and ${TimeUnit.MILLISECONDS.toSeconds(runTime)} secs")
-        println("Total data size is ${data.size} records")
-        return data
+        return page!!.map { it.asMap() }
     }
 }
