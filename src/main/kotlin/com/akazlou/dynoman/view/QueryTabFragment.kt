@@ -26,10 +26,11 @@ class QueryTabFragment : Fragment("Query Tab") {
     private var queryArea: TextArea by singleAssign()
     private var resultTable: TableView<ResultData> by singleAssign()
     private var pageNum = 1
-    private var hasMorePages = true
     private val prevPageVisibleProperty = SimpleBooleanProperty(false)
     private val nextPageVisibleProperty = SimpleBooleanProperty(false)
-    private val data = mutableListOf<List<ResultData>>()
+    private val paginationTextProperty = SimpleStringProperty("")
+    private val data = FXCollections.observableArrayList<ResultData>()
+    private var queryResult: QueryResult? = null
     override val root = vbox {
         hbox(alignment = Pos.CENTER_RIGHT) {
             prefHeight = 150.0
@@ -40,16 +41,23 @@ class QueryTabFragment : Fragment("Query Tab") {
                     setOnMouseClicked {
                         println("Clicked <")
                         pageNum--
+                        data.setAll(queryResult!!.getData(pageNum))
+                        prevPageVisibleProperty.value = pageNum > 1
+                        nextPageVisibleProperty.value = queryResult!!.hasMoreData(pageNum)
+                        updatePaginationTextProperty(pageNum)
                     }
                     cursor = Cursor.HAND
                 }
-                text("Viewing 101 to 200 items") {
-                }
+                text(paginationTextProperty)
                 text(">") {
                     visibleWhen(nextPageVisibleProperty)
                     setOnMouseClicked {
                         println("Clicked >")
                         pageNum++
+                        data.setAll(queryResult!!.getData(pageNum))
+                        prevPageVisibleProperty.value = pageNum > 1
+                        nextPageVisibleProperty.value = queryResult!!.hasMoreData(pageNum)
+                        updatePaginationTextProperty(pageNum)
                     }
                     cursor = Cursor.HAND
                 }
@@ -88,7 +96,7 @@ class QueryTabFragment : Fragment("Query Tab") {
                 }
             }
             fold("Data", expanded = true) {
-                resultTable = tableview {
+                resultTable = tableview(data) {
                     vboxConstraints {
                         prefHeight = 335.0
                         vGrow = Priority.ALWAYS
@@ -153,8 +161,10 @@ class QueryTabFragment : Fragment("Query Tab") {
     }
 
     fun setQueryResult(qr: QueryResult) {
+        this.queryResult = qr
         queryArea.text = if (qr.operationType == OperationType.SCAN) "SELECT * FROM ${qr.getTable()}" else ""
-        val results = qr.page.map { ResultData(it.asMap(), qr.getTableHashKey(), qr.getTableSortKey()) }
+        this.pageNum = 1
+        val results = qr.getData(pageNum)
         val columns = if (results.isEmpty()) {
             emptyList()
         } else {
@@ -166,10 +176,16 @@ class QueryTabFragment : Fragment("Query Tab") {
                 column
             }
         }
-        data.add(results)
-        nextPageVisibleProperty.value = qr.page.hasNextPage()
+        prevPageVisibleProperty.value = false
+        nextPageVisibleProperty.value = qr.hasMoreData(pageNum)
+        updatePaginationTextProperty(pageNum)
         resultTable.columns.setAll(columns)
-        resultTable.items = FXCollections.observableList(results)
+        data.setAll(results)
+    }
+
+    private fun updatePaginationTextProperty(pageNum: Int) {
+        val (from, to) = queryResult!!.getCurrentDataRange(pageNum)
+        paginationTextProperty.value = "Viewing ${from} to ${to} items"
     }
 }
 
