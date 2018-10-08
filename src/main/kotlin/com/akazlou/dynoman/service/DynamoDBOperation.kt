@@ -10,6 +10,7 @@ import com.amazonaws.services.dynamodbv2.document.Item
 import com.amazonaws.services.dynamodbv2.document.Page
 import com.amazonaws.services.dynamodbv2.document.QueryOutcome
 import com.amazonaws.services.dynamodbv2.document.RangeKeyCondition
+import com.amazonaws.services.dynamodbv2.document.ScanOutcome
 import com.amazonaws.services.dynamodbv2.document.Table
 import com.amazonaws.services.dynamodbv2.document.spec.QuerySpec
 import com.amazonaws.services.dynamodbv2.document.spec.ScanSpec
@@ -17,6 +18,10 @@ import java.util.concurrent.TimeUnit
 import kotlin.system.measureTimeMillis
 
 class DynamoDBOperation(region: Regions, private val offline: Boolean) {
+    companion object {
+        const val MAX_PAGE_RESULT_SIZE = 100
+    }
+
     private val dynamodb: DynamoDB?
 
     init {
@@ -35,11 +40,11 @@ class DynamoDBOperation(region: Regions, private val offline: Boolean) {
         return if (offline) emptyList() else dynamodb!!.listTables().map { it.tableName }
     }
 
-    fun scan(table: String): List<Map<String, Any?>> {
+    fun scan(table: String): Page<Item, ScanOutcome> {
         val spec = ScanSpec()
-                .withMaxResultSize(50)
+                .withMaxPageSize(MAX_PAGE_RESULT_SIZE)
         val result = getTable(table).scan(spec)
-        return result.map { it.asMap() }
+        return result.firstPage()
     }
 
     fun getTable(name: String): Table {
@@ -56,7 +61,7 @@ class DynamoDBOperation(region: Regions, private val offline: Boolean) {
               sortKeyOperation: Operator,
               sortKeyValues: List<String>,
               sortOrder: String,
-              conditions: List<QueryCondition>): List<Map<String, Any?>> {
+              conditions: List<QueryCondition>): Page<Item, QueryOutcome> {
         val spec = QuerySpec()
         spec.withHashKey(hashKeyName, when (hashKeyType) {
             "N" -> hashKeyValue.toLong()
@@ -73,7 +78,7 @@ class DynamoDBOperation(region: Regions, private val offline: Boolean) {
         }
         spec.withQueryFilters(*(conditions.map { it.toQueryFilter() }.toTypedArray()))
         spec.withScanIndexForward(sortOrder == "asc")
-        spec.withMaxPageSize(100)
+        spec.withMaxPageSize(MAX_PAGE_RESULT_SIZE)
         println("Run query")
         var page: Page<Item, QueryOutcome>? = null
         val runTime = measureTimeMillis {
@@ -86,6 +91,6 @@ class DynamoDBOperation(region: Regions, private val offline: Boolean) {
             page = result.firstPage()
         }
         println("Query run $runTime ms, and ${TimeUnit.MILLISECONDS.toSeconds(runTime)} secs")
-        return page!!.map { it.asMap() }
+        return page!!
     }
 }

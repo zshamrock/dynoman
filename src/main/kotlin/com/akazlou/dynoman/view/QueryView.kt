@@ -7,6 +7,8 @@ import com.akazlou.dynoman.domain.QueryFilter
 import com.akazlou.dynoman.domain.QueryResult
 import com.akazlou.dynoman.service.DynamoDBOperation
 import com.amazonaws.regions.Regions
+import com.amazonaws.services.dynamodbv2.document.Item
+import com.amazonaws.services.dynamodbv2.document.Page
 import com.amazonaws.services.dynamodbv2.model.TableDescription
 import javafx.beans.property.SimpleStringProperty
 import javafx.geometry.Pos
@@ -106,7 +108,7 @@ class QueryView : View("Query") {
                        sortKeyValues: List<String>,
                        sort: String?,
                        queryFilters: List<QueryFilter>,
-                       result: List<Map<String, Any?>>) {
+                       page: Page<Item, out Any>) {
         val tab = find<QueryTabFragment>(
                 params = mapOf(
                         QueryTabFragment::operationType to operationType,
@@ -118,7 +120,7 @@ class QueryView : View("Query") {
                         "sortKeyValues" to sortKeyValues,
                         "sort" to sort,
                         "queryFilters" to queryFilters))
-        tab.setQueryResult(QueryResult(operationType, description, result))
+        tab.setQueryResult(QueryResult(operationType, description, page))
         queries.tab("$operationType $table", tab.root)
         queries.selectionModel.selectLast()
     }

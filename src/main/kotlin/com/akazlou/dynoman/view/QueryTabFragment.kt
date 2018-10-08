@@ -5,6 +5,7 @@ import com.akazlou.dynoman.domain.Operator
 import com.akazlou.dynoman.domain.QueryFilter
 import com.akazlou.dynoman.domain.QueryResult
 import com.amazonaws.services.dynamodbv2.model.KeySchemaElement
+import javafx.beans.property.SimpleBooleanProperty
 import javafx.beans.property.SimpleStringProperty
 import javafx.beans.value.ObservableValue
 import javafx.collections.FXCollections
@@ -26,13 +27,16 @@ class QueryTabFragment : Fragment("Query Tab") {
     private var resultTable: TableView<ResultData> by singleAssign()
     private var pageNum = 1
     private var hasMorePages = true
+    private val prevPageVisibleProperty = SimpleBooleanProperty(false)
+    private val nextPageVisibleProperty = SimpleBooleanProperty(false)
+    private val data = mutableListOf<List<ResultData>>()
     override val root = vbox {
         hbox(alignment = Pos.CENTER_RIGHT) {
             prefHeight = 150.0
             textflow {
                 spacing = 10.0
                 text("<") {
-                    isVisible = pageNum > 1
+                    visibleWhen(prevPageVisibleProperty)
                     setOnMouseClicked {
                         println("Clicked <")
                         pageNum--
@@ -42,7 +46,7 @@ class QueryTabFragment : Fragment("Query Tab") {
                 text("Viewing 101 to 200 items") {
                 }
                 text(">") {
-                    isVisible = hasMorePages
+                    visibleWhen(nextPageVisibleProperty)
                     setOnMouseClicked {
                         println("Clicked >")
                         pageNum++
@@ -150,7 +154,7 @@ class QueryTabFragment : Fragment("Query Tab") {
 
     fun setQueryResult(qr: QueryResult) {
         queryArea.text = if (qr.operationType == OperationType.SCAN) "SELECT * FROM ${qr.getTable()}" else ""
-        val results = qr.result.map { ResultData(it, qr.getTableHashKey(), qr.getTableSortKey()) }
+        val results = qr.page.map { ResultData(it.asMap(), qr.getTableHashKey(), qr.getTableSortKey()) }
         val columns = if (results.isEmpty()) {
             emptyList()
         } else {
@@ -162,6 +166,8 @@ class QueryTabFragment : Fragment("Query Tab") {
                 column
             }
         }
+        data.add(results)
+        nextPageVisibleProperty.value = qr.page.hasNextPage()
         resultTable.columns.setAll(columns)
         resultTable.items = FXCollections.observableList(results)
     }
