@@ -1,6 +1,5 @@
-package function
+package com.akazlou.dynoman.function
 
-import com.akazlou.dynoman.function.ParseUUIDFunction
 import io.kotlintest.shouldBe
 import io.kotlintest.specs.StringSpec
 
