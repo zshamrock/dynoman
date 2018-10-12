@@ -41,17 +41,10 @@ class QueryResultSpec : StringSpec({
     }
 })
 
-class EmptyPage : Page<Item, Any>(emptyList(), "") {
-    override fun hasNextPage(): Boolean {
-        return false
-    }
+class EmptyPage : PageList(listOf(emptyList()))
 
-    override fun nextPage(): Page<Item, Any> {
-        throw NoSuchElementException()
-    }
-}
-
-class PageList(private val pages: List<List<Item>>, private var page: Int = 1) : Page<Item, Any>(pages[page - 1], "") {
+open class PageList(private val pages: List<List<Item>>, private var page: Int = 1)
+    : Page<Item, Any>(pages[page - 1], "") {
     override fun hasNextPage(): Boolean {
         return page < pages.size
     }
