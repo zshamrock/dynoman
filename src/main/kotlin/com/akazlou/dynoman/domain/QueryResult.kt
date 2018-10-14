@@ -7,7 +7,7 @@ import com.amazonaws.services.dynamodbv2.document.Page
 import com.amazonaws.services.dynamodbv2.model.KeySchemaElement
 import com.amazonaws.services.dynamodbv2.model.TableDescription
 
-data class QueryResult(val operationType: OperationType,
+data class QueryResult(val searchType: SearchType,
                        private val description: TableDescription,
                        private var page: Page<Item, out Any>) {
     private var data = mutableListOf<List<ResultData>>()

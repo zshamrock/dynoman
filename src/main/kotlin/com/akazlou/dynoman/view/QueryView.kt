@@ -1,10 +1,10 @@
 package com.akazlou.dynoman.view
 
 import com.akazlou.dynoman.controller.RunQueryController
-import com.akazlou.dynoman.domain.OperationType
 import com.akazlou.dynoman.domain.Operator
 import com.akazlou.dynoman.domain.QueryFilter
 import com.akazlou.dynoman.domain.QueryResult
+import com.akazlou.dynoman.domain.SearchType
 import com.akazlou.dynoman.service.DynamoDBOperation
 import com.amazonaws.regions.Regions
 import com.amazonaws.services.dynamodbv2.document.Item
@@ -100,7 +100,7 @@ class QueryView : View("Query") {
 
     fun setQueryResult(operation: DynamoDBOperation,
                        description: TableDescription,
-                       operationType: OperationType,
+                       searchType: SearchType,
                        table: String,
                        queryType: QueryType,
                        hashKey: String?,
@@ -111,7 +111,7 @@ class QueryView : View("Query") {
                        page: Page<Item, out Any>) {
         val tab = find<QueryTabFragment>(
                 params = mapOf(
-                        QueryTabFragment::operationType to operationType,
+                        QueryTabFragment::searchType to searchType,
                         "description" to description,
                         "operation" to operation,
                         "queryType" to queryType,
@@ -120,8 +120,8 @@ class QueryView : View("Query") {
                         "sortKeyValues" to sortKeyValues,
                         "sort" to sort,
                         "queryFilters" to queryFilters))
-        tab.setQueryResult(QueryResult(operationType, description, page))
-        queries.tab("$operationType $table", tab.root)
+        tab.setQueryResult(QueryResult(searchType, description, page))
+        queries.tab("$searchType $table", tab.root)
         queries.selectionModel.selectLast()
     }
 

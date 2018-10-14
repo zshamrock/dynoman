@@ -1,9 +1,9 @@
 package com.akazlou.dynoman.view
 
-import com.akazlou.dynoman.domain.OperationType
 import com.akazlou.dynoman.domain.Operator
 import com.akazlou.dynoman.domain.QueryFilter
 import com.akazlou.dynoman.domain.QueryResult
+import com.akazlou.dynoman.domain.SearchType
 import com.amazonaws.services.dynamodbv2.model.KeySchemaElement
 import javafx.beans.property.SimpleBooleanProperty
 import javafx.beans.property.SimpleStringProperty
@@ -22,7 +22,7 @@ import javafx.util.Callback
 import tornadofx.*
 
 class QueryTabFragment : Fragment("Query Tab") {
-    val operationType: OperationType by param()
+    val searchType: SearchType by param()
     private var queryArea: TextArea by singleAssign()
     private var resultTable: TableView<ResultData> by singleAssign()
     private var pageNum = 1
@@ -79,12 +79,12 @@ class QueryTabFragment : Fragment("Query Tab") {
                     val qwf = find<QueryWindowFragment>(
                             params = mapOf(
                                     QueryWindowFragment::mode to QueryWindowFragment.Mode.INLINE,
-                                    QueryWindowFragment::operationType to operationType,
+                                    QueryWindowFragment::searchType to searchType,
                                     QueryWindowFragment::description to params["description"],
                                     QueryWindowFragment::operation to params["operation"]))
                     val editor = tab("EDITOR", qwf.root)
                     val queryFilters = params["queryFilters"]
-                    qwf.init(operationType,
+                    qwf.init(searchType,
                             params["queryType"] as QueryType?,
                             params["hashKey"] as String?,
                             params["sortKeyOperation"] as Operator?,
@@ -162,7 +162,7 @@ class QueryTabFragment : Fragment("Query Tab") {
 
     fun setQueryResult(qr: QueryResult) {
         this.queryResult = qr
-        queryArea.text = if (qr.operationType == OperationType.SCAN) "SELECT * FROM ${qr.getTable()}" else ""
+        queryArea.text = if (qr.searchType == SearchType.SCAN) "SELECT * FROM ${qr.getTable()}" else ""
         this.pageNum = 1
         val results = qr.getData(pageNum)
         val columns = if (results.isEmpty()) {

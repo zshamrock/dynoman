@@ -2,7 +2,7 @@ package com.akazlou.dynoman.view
 
 import com.akazlou.dynoman.controller.MainController
 import com.akazlou.dynoman.domain.DynamoDBTable
-import com.akazlou.dynoman.domain.OperationType
+import com.akazlou.dynoman.domain.SearchType
 import com.akazlou.dynoman.service.DynamoDBOperation
 import com.amazonaws.regions.Regions
 import javafx.collections.ObservableList
@@ -93,7 +93,7 @@ class TableListView : View() {
                 queryView.setQueryResult(
                         operation,
                         description,
-                        OperationType.SCAN,
+                        SearchType.SCAN,
                         tableName,
                         queryType,
                         null,
@@ -110,7 +110,7 @@ class TableListView : View() {
                 find<QueryWindowFragment>(
                         params = mapOf(
                                 QueryWindowFragment::mode to QueryWindowFragment.Mode.MODAL,
-                                QueryWindowFragment::operationType to OperationType.SCAN,
+                                QueryWindowFragment::searchType to SearchType.SCAN,
                                 QueryWindowFragment::description to description,
                                 QueryWindowFragment::operation to operation)).openModal()
             }
@@ -121,7 +121,7 @@ class TableListView : View() {
                 find<QueryWindowFragment>(
                         params = mapOf(
                                 QueryWindowFragment::mode to QueryWindowFragment.Mode.MODAL,
-                                QueryWindowFragment::operationType to OperationType.QUERY,
+                                QueryWindowFragment::searchType to SearchType.QUERY,
                                 QueryWindowFragment::description to description,
                                 QueryWindowFragment::operation to operation)).openModal()
             }

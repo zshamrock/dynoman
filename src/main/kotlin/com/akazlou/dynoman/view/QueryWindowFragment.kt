@@ -1,10 +1,12 @@
 package com.akazlou.dynoman.view
 
-import com.akazlou.dynoman.domain.OperationType
 import com.akazlou.dynoman.domain.Operator
+import com.akazlou.dynoman.domain.Order
 import com.akazlou.dynoman.domain.QueryCondition
 import com.akazlou.dynoman.domain.QueryFilter
 import com.akazlou.dynoman.domain.QueryResult
+import com.akazlou.dynoman.domain.QuerySearch
+import com.akazlou.dynoman.domain.SearchType
 import com.akazlou.dynoman.domain.Type
 import com.akazlou.dynoman.ext.removeAllRows
 import com.akazlou.dynoman.ext.removeRow
@@ -27,6 +29,7 @@ import javafx.scene.layout.ColumnConstraints
 import javafx.scene.layout.GridPane
 import javafx.scene.layout.HBox
 import tornadofx.*
+import java.util.Locale
 
 class QueryWindowFragment : Fragment("Query...") {
     companion object {
@@ -72,12 +75,12 @@ class QueryWindowFragment : Fragment("Query...") {
     }
 
     val mode: Mode by param()
-    val operationType: OperationType by param()
+    val searchType: SearchType by param()
     val operation: DynamoDBOperation by param()
     val description: TableDescription by param()
-    private val operationTypes: List<OperationType> = listOf(OperationType.SCAN, OperationType.QUERY)
-    private val operationTypeProperty = SimpleObjectProperty<OperationType>(operationType)
-    private val attributeDefinitions: Map<String, String>
+    private val searchTypes: List<SearchType> = listOf(SearchType.SCAN, SearchType.QUERY)
+    private val operationTypeProperty = SimpleObjectProperty<SearchType>(searchType)
+    private val attributeDefinitionTypes: Map<String, Type>
     private val queryTypes: List<QueryType>
     private var queryTypeComboBox: ComboBox<QueryType> by singleAssign()
     private var queryGridPane: GridPane by singleAssign()
@@ -108,7 +111,7 @@ class QueryWindowFragment : Fragment("Query...") {
         }.sorted()
         queryTypes = listOf(QueryType(description.tableName, description.keySchema, false), *indexQueryStrings.toTypedArray())
         queryType.value = queryTypes[0]
-        attributeDefinitions = description.attributeDefinitions.associateBy({ it.attributeName }, { it.attributeType })
+        attributeDefinitionTypes = description.attributeDefinitions.associateBy({ it.attributeName }, { Type.fromString(it.attributeType) })
 
         val sortKeyFromTextField = TextField()
         sortKeyFromTextField.textProperty().bindBidirectional(sortKeyFrom)
@@ -145,7 +148,7 @@ class QueryWindowFragment : Fragment("Query...") {
             hbarPolicy = ScrollPane.ScrollBarPolicy.NEVER
             vbox(5.0) {
                 hbox(5.0, Pos.CENTER_LEFT) {
-                    combobox(values = operationTypes, property = operationTypeProperty) {
+                    combobox(values = searchTypes, property = operationTypeProperty) {
                         prefWidth = 100.0
                     }
                     queryTypeComboBox = combobox(values = queryTypes, property = queryType)
@@ -238,18 +241,32 @@ class QueryWindowFragment : Fragment("Query...") {
                                 val result = if (operationType.isScan()) {
                                     operation.scan(description.tableName)
                                 } else {
-                                    operation.query(
+                                    val hashKey = QueryCondition(
+                                            qt.hashKey.attributeName,
+                                            attributeDefinitionTypes[qt.hashKey.attributeName]!!,
+                                            Operator.EQ,
+                                            listOf(parseValue(hashKey.value)!!))
+                                    val rangeKey = if (skValues.isEmpty()) {
+                                        null
+                                    } else {
+                                        QueryCondition(
+                                                qt.sortKey?.attributeName!!,
+                                                attributeDefinitionTypes[qt.sortKey.attributeName]!!,
+                                                skOp,
+                                                skValues)
+                                    }
+                                    val search = QuerySearch(
                                             description.tableName,
                                             if (qt.isIndex) qt.name else null,
-                                            qt.hashKey.attributeName,
-                                            attributeDefinitions[qt.hashKey.attributeName]!!,
-                                            parseValue(hashKey.value)!!,
-                                            qt.sortKey?.attributeName,
-                                            attributeDefinitions[qt.sortKey?.attributeName],
-                                            skOp,
-                                            skValues,
-                                            sort.value,
-                                            conditions)
+                                            if (rangeKey == null) {
+                                                listOf(hashKey)
+                                            } else {
+                                                listOf(hashKey, rangeKey)
+                                            },
+                                            conditions,
+                                            Order.valueOf(sort.value.toUpperCase(Locale.ROOT))
+                                    )
+                                    operation.query(search)
                                 }
                                 if (mode == Mode.MODAL) {
                                     val queryFilters = filterKeys.mapIndexed { index, property ->
@@ -325,10 +342,10 @@ class QueryWindowFragment : Fragment("Query...") {
                 val isHash = it.keyType == KeyType.HASH.name
                 text(if (isHash) "Partition Key" else "Sort Key")
                 label(it.attributeName)
-                label(when (attributeDefinitions[it.attributeName]) {
-                    "S" -> "String"
-                    "N" -> "Number"
-                    "B" -> "Binary"
+                label(when (attributeDefinitionTypes[it.attributeName]) {
+                    Type.STRING -> "String"
+                    Type.NUMBER -> "Number"
+                    Type.BINARY -> "Binary"
                     else -> "?"
                 })
                 if (isHash) {
@@ -406,7 +423,7 @@ class QueryWindowFragment : Fragment("Query...") {
         }
     }
 
-    fun init(operationType: OperationType,
+    fun init(searchType: SearchType,
              queryType: QueryType?,
              hashKey: String?,
              sortKeyOperation: Operator?,
@@ -415,7 +432,7 @@ class QueryWindowFragment : Fragment("Query...") {
              queryFilters: List<QueryFilter>,
              tab: QueryTabFragment) {
         this.tab = tab
-        if (operationType == OperationType.SCAN) {
+        if (searchType == SearchType.SCAN) {
             return
         }
         println("Sort key values: $sortKeyValues")

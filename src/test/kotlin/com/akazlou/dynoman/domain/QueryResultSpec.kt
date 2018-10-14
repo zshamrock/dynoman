@@ -12,7 +12,7 @@ import io.kotlintest.tables.row
 
 class QueryResultSpec : StringSpec({
     "get current data range for empty page" {
-        val qr = QueryResult(OperationType.QUERY, TableDescription(), EmptyPage())
+        val qr = QueryResult(SearchType.QUERY, TableDescription(), EmptyPage())
         qr.getData(1)
         val (from, to) = qr.getCurrentDataRange(1)
         from shouldBe 0
@@ -23,7 +23,7 @@ class QueryResultSpec : StringSpec({
         val description = TableDescription()
         description.setKeySchema(listOf(KeySchemaElement("Id", KeyType.HASH)))
         val qr = QueryResult(
-                OperationType.QUERY,
+                SearchType.QUERY,
                 description,
                 PageList(listOf(
                         listOf(Item()),

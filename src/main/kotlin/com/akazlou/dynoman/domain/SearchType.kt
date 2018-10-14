@@ -2,7 +2,7 @@ package com.akazlou.dynoman.domain
 
 import java.util.Locale
 
-enum class OperationType {
+enum class SearchType {
     SCAN,
     QUERY;
 

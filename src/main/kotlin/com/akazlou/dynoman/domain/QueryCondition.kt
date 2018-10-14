@@ -12,11 +12,27 @@ data class QueryCondition(val name: String, val type: Type, val operator: Operat
 
 enum class Type {
     STRING,
-    NUMBER;
+    NUMBER,
+    BINARY;
+
+    companion object {
+        fun fromString(s: String): Type {
+            return when (s) {
+                "S" -> Type.STRING
+                "N" -> Type.NUMBER
+                else -> throw UnsupportedOperationException("Unsupported $s type")
+            }
+        }
+    }
 
     override fun toString(): String {
         return name.toLowerCase(Locale.ROOT).capitalize()
     }
+}
+
+enum class Order {
+    ASC,
+    DESC;
 }
 
 enum class Operator(val text: String) {
