@@ -210,15 +210,15 @@ class QueryTabFragment : Fragment("Query Tab") {
                 val item = MenuItem(key)
                 item.setOnAction {
                     println("Copy All by Field $key")
-                    val content = data.map { it.data[key] }
+                    val content = data.asSequence()
+                            .map { it.data[key] }
                             .flatMap {
-                                it as? List<*> ?: listOf(it)
+                                (it as? List<*> ?: listOf(it)).asSequence()
                             }
-                            .asSequence()
-                            .distinct()
                             .filterNotNull()
                             .map { it.toString() }
                             .filter { it.isNotBlank() }
+                            .distinct()
                             .joinToString("\n")
                     clipboard.putString(content)
                 }
@@ -229,7 +229,7 @@ class QueryTabFragment : Fragment("Query Tab") {
 
     private fun updatePaginationTextProperty(pageNum: Int) {
         val (from, to) = queryResult!!.getCurrentDataRange(pageNum)
-        paginationTextProperty.value = "Viewing ${from} to ${to} items"
+        paginationTextProperty.value = "Viewing $from to $to items"
     }
 }
 
