@@ -11,6 +11,8 @@ import javafx.beans.value.ObservableValue
 import javafx.collections.FXCollections
 import javafx.geometry.Pos
 import javafx.scene.Cursor
+import javafx.scene.control.Menu
+import javafx.scene.control.MenuItem
 import javafx.scene.control.SelectionMode
 import javafx.scene.control.TabPane
 import javafx.scene.control.TableColumn
@@ -31,6 +33,7 @@ class QueryTabFragment : Fragment("Query Tab") {
     private val paginationTextProperty = SimpleStringProperty("")
     private val data = FXCollections.observableArrayList<ResultData>()
     private var queryResult: QueryResult? = null
+    private var copyAllByFieldMenu: Menu? = null
     override val root = vbox {
         hbox(alignment = Pos.CENTER_RIGHT) {
             prefHeight = 150.0
@@ -166,21 +169,7 @@ class QueryTabFragment : Fragment("Query Tab") {
                                 println("Copy All (with names)")
                             }
                         }
-                        // Looks like dynaming menu doesn't work
-                        menu("Copy All by Field") {
-                            if (selectedItem != null) {
-                                val keys = (selectedItem as ResultData).getKeys()
-                                println("Using keys $keys")
-                                listOf("x", "y", "z").forEach { key ->
-                                    println("Adding sub item $key")
-                                    item(key) {
-                                        setOnAction {
-                                            println("Copy All by Field $key")
-                                        }
-                                    }
-                                }
-                            }
-                        }
+                        copyAllByFieldMenu = menu("Copy All by Field")
                     }
                 }
                 with(resultTable.selectionModel) {
@@ -216,6 +205,26 @@ class QueryTabFragment : Fragment("Query Tab") {
         updatePaginationTextProperty(pageNum)
         resultTable.columns.setAll(columns)
         data.setAll(results)
+        if (copyAllByFieldMenu!!.items.isEmpty() && data.isNotEmpty()) {
+            data[0].getKeys().forEach { key ->
+                val item = MenuItem(key)
+                item.setOnAction {
+                    println("Copy All by Field $key")
+                    val content = data.map { it.data[key] }
+                            .flatMap {
+                                it as? List<*> ?: listOf(it)
+                            }
+                            .asSequence()
+                            .distinct()
+                            .filterNotNull()
+                            .map { it.toString() }
+                            .filter { it.isNotBlank() }
+                            .joinToString("\n")
+                    clipboard.putString(content)
+                }
+                copyAllByFieldMenu!!.items.add(item)
+            }
+        }
     }
 
     private fun updatePaginationTextProperty(pageNum: Int) {
