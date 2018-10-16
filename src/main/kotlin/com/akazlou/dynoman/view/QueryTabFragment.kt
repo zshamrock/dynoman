@@ -146,6 +146,41 @@ class QueryTabFragment : Fragment("Query Tab") {
                                 println(selectedValue)
                             }
                         }
+                        separator()
+                        item("Copy All") {
+                            setOnAction {
+                                val content = data.map { it.getValues().joinToString { "'$it'" } }.joinToString("\n")
+                                clipboard.putString(content)
+                                println("Copy All")
+                            }
+                        }
+                        item("Copy All (with names)") {
+                            setOnAction {
+                                if (selectedItem != null) {
+                                    val resultData = selectedItem as ResultData
+                                    val content = (resultData.getKeys().joinToString { it }
+                                            + "\n"
+                                            + data.map { it.getValues().joinToString { "'$it'" } }.joinToString("\n"))
+                                    clipboard.putString(content)
+                                }
+                                println("Copy All (with names)")
+                            }
+                        }
+                        // Looks like dynaming menu doesn't work
+                        menu("Copy All by Field") {
+                            if (selectedItem != null) {
+                                val keys = (selectedItem as ResultData).getKeys()
+                                println("Using keys $keys")
+                                listOf("x", "y", "z").forEach { key ->
+                                    println("Adding sub item $key")
+                                    item(key) {
+                                        setOnAction {
+                                            println("Copy All by Field $key")
+                                        }
+                                    }
+                                }
+                            }
+                        }
                     }
                 }
                 with(resultTable.selectionModel) {
