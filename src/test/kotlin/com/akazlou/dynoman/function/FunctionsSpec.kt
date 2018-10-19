@@ -6,6 +6,6 @@ import io.kotlintest.specs.StringSpec
 class FunctionsSpec : StringSpec({
     "should get all available functions" {
         val functions = Functions.getAvailableFunctions()
-        functions.size shouldBe 3
+        functions.size shouldBe 4
     }
 })

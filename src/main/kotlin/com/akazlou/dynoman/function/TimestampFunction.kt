@@ -9,6 +9,10 @@ class TimestampFunction : Function<Long>() {
         return "timestamp"
     }
 
+    override fun desc(): String {
+        return "Parse datetime into the timestamp"
+    }
+
     override fun run(vararg args: Any): Long {
         val offset = if (args.size == 2) {
             parseOffset(args[1].toString())

@@ -68,5 +68,6 @@ abstract class Function<T> {
     }
 
     abstract fun name(): String
-    protected abstract fun run(vararg args: Any): T
+    protected open fun desc(): String = ""
+    abstract fun run(vararg args: Any): T
 }

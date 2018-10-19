@@ -4,6 +4,7 @@ import com.akazlou.dynoman.domain.Operator
 import com.akazlou.dynoman.domain.QueryFilter
 import com.akazlou.dynoman.domain.QueryResult
 import com.akazlou.dynoman.domain.SearchType
+import com.akazlou.dynoman.function.Functions
 import com.amazonaws.services.dynamodbv2.model.KeySchemaElement
 import javafx.beans.property.SimpleBooleanProperty
 import javafx.beans.property.SimpleStringProperty
@@ -16,6 +17,7 @@ import javafx.scene.control.MenuItem
 import javafx.scene.control.SelectionMode
 import javafx.scene.control.TabPane
 import javafx.scene.control.TableColumn
+import javafx.scene.control.TablePosition
 import javafx.scene.control.TableView
 import javafx.scene.control.TextArea
 import javafx.scene.input.KeyCombination
@@ -170,6 +172,24 @@ class QueryTabFragment : Fragment("Query Tab") {
                             }
                         }
                         copyAllByFieldMenu = menu("Copy All by Field")
+                        separator()
+                        menu("Apply Function") {
+                            Functions.getAvailableFunctions().sortedBy { it.name() }.forEach { function ->
+                                item(function.name()) {
+                                    setOnAction {
+                                        if (selectedCell != null && selectedColumn != null && data.isNotEmpty()) {
+                                            val attributeName = (selectedColumn as TableColumn<ResultData, *>).text
+                                            val column = TableColumn<ResultData, String>("${function.name()}($attributeName)")
+                                            column.cellValueFactory = Callback<TableColumn.CellDataFeatures<ResultData, String>, ObservableValue<String>> {
+                                                SimpleStringProperty(function.run(it.value.getValue(attributeName)).toString())
+                                            }
+                                            resultTable.columns.add(
+                                                    (selectedCell as TablePosition<ResultData, *>).column + 1, column)
+                                        }
+                                    }
+                                }
+                            }
+                        }
                     }
                 }
                 with(resultTable.selectionModel) {
