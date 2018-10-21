@@ -80,7 +80,7 @@ class QueryWindowFragment : Fragment("Query...") {
     val operation: DynamoDBOperation by param()
     val description: TableDescription by param()
     private val searchTypes: List<SearchType> = listOf(SearchType.SCAN, SearchType.QUERY)
-    private val operationTypeProperty = SimpleObjectProperty<SearchType>(searchType)
+    private val searchTypeProperty = SimpleObjectProperty<SearchType>(searchType)
     private val attributeDefinitionTypes: Map<String, Type>
     private val queryTypes: List<QueryType>
     private var queryTypeComboBox: ComboBox<QueryType> by singleAssign()
@@ -89,13 +89,13 @@ class QueryWindowFragment : Fragment("Query...") {
     private val sortKeyBetweenHBox: HBox
     private val sortKeyOperationComboBox: ComboBox<Operator>
     // TODO: Create 5 between hbox-es for the filters and reuse them (as we do limit support only up to 5 filters)
-    private val queryType = SimpleObjectProperty<QueryType>()
+    private val queryTypeProperty = SimpleObjectProperty<QueryType>()
     private val hashKey = SimpleStringProperty()
     private val sortKey = SimpleStringProperty()
     private val sortKeyFrom = SimpleStringProperty()
     private val sortKeyTo = SimpleStringProperty()
     private val sortKeyOperation = SimpleObjectProperty<Operator>(Operator.EQ)
-    private val sort = SimpleStringProperty(DEFAULT_SORT_ORDER)
+    private val sortProperty = SimpleStringProperty(DEFAULT_SORT_ORDER)
     private val filterKeys = mutableListOf<SimpleStringProperty>()
     private val filterKeyTypes = mutableListOf<SimpleObjectProperty<Type>>()
     private val filterKeyOperations = mutableListOf<SimpleObjectProperty<Operator>>()
@@ -111,7 +111,7 @@ class QueryWindowFragment : Fragment("Query...") {
             QueryType(index.indexName, index.keySchema, true)
         }.sorted()
         queryTypes = listOf(QueryType(description.tableName, description.keySchema, false), *indexQueryStrings.toTypedArray())
-        queryType.value = queryTypes[0]
+        queryTypeProperty.value = queryTypes[0]
         attributeDefinitionTypes = description.attributeDefinitions.associateBy({ it.attributeName }, { Type.fromString(it.attributeType) })
 
         val sortKeyFromTextField = TextField()
@@ -149,24 +149,31 @@ class QueryWindowFragment : Fragment("Query...") {
             hbarPolicy = ScrollPane.ScrollBarPolicy.NEVER
             vbox(5.0) {
                 hbox(5.0, Pos.CENTER_LEFT) {
-                    combobox(values = searchTypes, property = operationTypeProperty) {
+                    combobox(values = searchTypes, property = searchTypeProperty) {
                         prefWidth = 100.0
+                        valueProperty().onChange { searchType ->
+                            when (searchType) {
+                                SearchType.QUERY -> {
+                                    val filters = cleanQueryGridPane()
+                                    addKeySchemaRows(searchType, queryGridPane, queryTypeProperty.value.keySchema)
+                                    filters.forEach { filter ->
+                                        addFilterRow(queryGridPane, filter)
+                                    }
+                                }
+                                SearchType.SCAN -> {
+                                    val filters = cleanQueryGridPane()
+                                    filters.forEach { filter ->
+                                        addFilterRow(queryGridPane, filter)
+                                    }
+                                }
+                            }
+                        }
                     }
-                    queryTypeComboBox = combobox(values = queryTypes, property = queryType)
+                    queryTypeComboBox = combobox(values = queryTypes, property = queryTypeProperty)
                     queryTypeComboBox.prefWidth = 585.0
                     queryTypeComboBox.valueProperty().onChange {
-                        sortKeyOperation.value = Operator.EQ
-                        queryGridPane.removeAllRows()
-                        hashKey.value = ""
-                        sortKey.value = ""
-                        sortKeyFrom.value = ""
-                        sortKeyTo.value = ""
-                        filterKeys.clear()
-                        filterKeyTypes.clear()
-                        filterKeyOperations.clear()
-                        filterKeyValues.clear()
-                        filterKeyBetweenValues.clear()
-                        addKeySchemaRows(queryGridPane, it!!.keySchema)
+                        cleanQueryGridPane()
+                        addKeySchemaRows(searchTypeProperty.value, queryGridPane, it!!.keySchema)
                     }
                 }
                 queryGridPane = gridpane {}
@@ -179,7 +186,7 @@ class QueryWindowFragment : Fragment("Query...") {
                     add(ColumnConstraints(ATTRIBUTE_OPERATION_COLUMN_WIDTH))
                     add(ColumnConstraints(ATTRIBUTE_VALUE_COLUMN_WIDTH))
                 }
-                addKeySchemaRows(queryGridPane, queryTypes[0].keySchema)
+                addKeySchemaRows(searchTypeProperty.value, queryGridPane, queryTypes[0].keySchema)
                 button("Add filter") {
                     //setPrefSize(100.0, 40.0)
                     prefWidth = 100.0
@@ -187,9 +194,10 @@ class QueryWindowFragment : Fragment("Query...") {
                         addFilterRow(queryGridPane)
                     }
                 }
+                // TODO: Sorting indeed doesn't apply to the SCAN or if it is then we can keep it
                 separator()
                 val sortGroup = ToggleGroup()
-                sortGroup.bind(sort)
+                sortGroup.bind(sortProperty)
                 hbox(5.0) {
                     text("Sort")
                     val asc = radiobutton("Ascending", sortGroup, "asc")
@@ -204,8 +212,8 @@ class QueryWindowFragment : Fragment("Query...") {
                         //setPrefSize(100.0, 40.0)
                         prefWidth = 100.0
                         action {
-                            val operationType = operationTypeProperty.value
-                            println("Search: ${operationTypeProperty.value}")
+                            val operationType = searchTypeProperty.value
+                            println("Search: ${searchTypeProperty.value}")
                             val skOp = sortKeyOperation.value
                             val skValues = when {
                                 skOp.isBetween() ->
@@ -222,8 +230,8 @@ class QueryWindowFragment : Fragment("Query...") {
                                     }
                             }
                             println("Hash Key = ${hashKey.value}, Sort Key $skOp ${sortKey.value}")
-                            println("Sort By ${sort.value}")
-                            val qt = queryType.value
+                            println("Sort By ${sortProperty.value}")
+                            val qt = queryTypeProperty.value
                             println(qt)
                             if (!hashKey.value.isNullOrBlank() || operationType.isScan()) {
                                 val conditions = filterKeys.mapIndexed { index, filterKey ->
@@ -266,7 +274,7 @@ class QueryWindowFragment : Fragment("Query...") {
                                                 listOf(hashKey, rangeKey)
                                             },
                                             conditions,
-                                            Order.valueOf(sort.value.toUpperCase(Locale.ROOT))
+                                            Order.valueOf(sortProperty.value.toUpperCase(Locale.ROOT))
                                     )
                                     operation.query(search)
                                 }
@@ -294,7 +302,7 @@ class QueryWindowFragment : Fragment("Query...") {
                                             hashKey.value,
                                             skOp,
                                             skValues,
-                                            sort.value,
+                                            sortProperty.value,
                                             queryFilters,
                                             result)
                                 } else {
@@ -324,6 +332,34 @@ class QueryWindowFragment : Fragment("Query...") {
         }
     }
 
+    private fun cleanQueryGridPane(): List<QueryFilter> {
+        sortKeyOperation.value = Operator.EQ
+        queryGridPane.removeAllRows()
+        hashKey.value = ""
+        sortKey.value = ""
+        sortKeyFrom.value = ""
+        sortKeyTo.value = ""
+        filterKeys.clear()
+        filterKeyTypes.clear()
+        filterKeyOperations.clear()
+        filterKeyValues.clear()
+        filterKeyBetweenValues.clear()
+
+        // TODO: Collect the current filters and return it back to restore if necessary
+/*
+val filters = mutableListOf<QueryFilter>()
+                                    filterKeys.forEachIndexed { index, filterKey ->
+                                        val filterKeyOperator = filterKeyOperations[index].value
+                                        filters.add(QueryFilter(
+                                                filterKey.value,
+                                                filterKeyTypes[index].value,
+                                                filterKeyOperator,
+                                                when (filterKeyOperator)))
+                                    }
+ */
+        return emptyList()
+    }
+
     private fun parseValue(value: String?): String? {
         if (value == null) {
             return null
@@ -336,7 +372,10 @@ class QueryWindowFragment : Fragment("Query...") {
         return value
     }
 
-    private fun addKeySchemaRows(queryGridPane: GridPane, keySchema: List<KeySchemaElement>) {
+    private fun addKeySchemaRows(searchType: SearchType, queryGridPane: GridPane, keySchema: List<KeySchemaElement>) {
+        if (searchType == SearchType.SCAN) {
+            return
+        }
         keysRowsCount = 0
         keySchema.forEach {
             queryGridPane.row {
@@ -447,7 +486,7 @@ class QueryWindowFragment : Fragment("Query...") {
         } else {
             this.sortKey.value = sortKeyValues.getOrNull(0)
         }
-        this.sort.value = sort
+        this.sortProperty.value = sort
         queryFilters.forEach { addFilterRow(queryGridPane, it) }
     }
 
