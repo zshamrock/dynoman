@@ -6,6 +6,7 @@ import com.akazlou.dynoman.domain.QueryCondition
 import com.akazlou.dynoman.domain.QueryFilter
 import com.akazlou.dynoman.domain.QueryResult
 import com.akazlou.dynoman.domain.QuerySearch
+import com.akazlou.dynoman.domain.ScanSearch
 import com.akazlou.dynoman.domain.SearchType
 import com.akazlou.dynoman.domain.Type
 import com.akazlou.dynoman.ext.removeAllRows
@@ -239,7 +240,8 @@ class QueryWindowFragment : Fragment("Query...") {
                                             })
                                 }
                                 val result = if (operationType.isScan()) {
-                                    operation.scan(description.tableName)
+                                    // TODO: Provide proper index value and scan filters
+                                    operation.scan(ScanSearch(description.tableName, null, emptyList()))
                                 } else {
                                     val hashKey = QueryCondition(
                                             qt.hashKey.attributeName,

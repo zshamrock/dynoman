@@ -1,6 +1,7 @@
 package com.akazlou.dynoman.service
 
 import com.akazlou.dynoman.domain.QuerySearch
+import com.akazlou.dynoman.domain.ScanSearch
 import com.amazonaws.auth.DefaultAWSCredentialsProviderChain
 import com.amazonaws.regions.Regions
 import com.amazonaws.services.dynamodbv2.AmazonDynamoDBClient
@@ -10,7 +11,6 @@ import com.amazonaws.services.dynamodbv2.document.Page
 import com.amazonaws.services.dynamodbv2.document.QueryOutcome
 import com.amazonaws.services.dynamodbv2.document.ScanOutcome
 import com.amazonaws.services.dynamodbv2.document.Table
-import com.amazonaws.services.dynamodbv2.document.spec.ScanSpec
 import java.util.concurrent.TimeUnit
 import kotlin.system.measureTimeMillis
 
@@ -37,10 +37,14 @@ class DynamoDBOperation(region: Regions, private val offline: Boolean) {
         return if (offline) emptyList() else dynamodb!!.listTables().map { it.tableName }
     }
 
-    fun scan(table: String): Page<Item, ScanOutcome> {
-        val spec = ScanSpec()
-                .withMaxPageSize(MAX_PAGE_RESULT_SIZE)
-        val result = getTable(table).scan(spec)
+    fun scan(search: ScanSearch): Page<Item, ScanOutcome> {
+        val spec = search.toScanSpec(MAX_PAGE_RESULT_SIZE)
+        val table = getTable(search.table)
+        val result = if (search.index != null) {
+            table.getIndex(search.index).scan(spec)
+        } else {
+            table.scan(spec)
+        }
         return result.firstPage()
     }
 

@@ -2,6 +2,7 @@ package com.akazlou.dynoman.view
 
 import com.akazlou.dynoman.controller.MainController
 import com.akazlou.dynoman.domain.DynamoDBTable
+import com.akazlou.dynoman.domain.ScanSearch
 import com.akazlou.dynoman.domain.SearchType
 import com.akazlou.dynoman.service.DynamoDBOperation
 import com.amazonaws.regions.Regions
@@ -89,7 +90,8 @@ class TableListView : View() {
                 println("Scan $tableName")
                 val description = (treeItem as DynamoDBTableTreeItem).description
                 val queryType = QueryType(tableName, description.keySchema, false)
-                val result = operation.scan(tableName)
+                // TODO: Provide proper index value and scan filters
+                val result = operation.scan(ScanSearch(tableName, null, emptyList()))
                 queryView.setQueryResult(
                         operation,
                         description,

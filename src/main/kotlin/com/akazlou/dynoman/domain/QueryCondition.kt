@@ -2,11 +2,17 @@ package com.akazlou.dynoman.domain
 
 import com.amazonaws.services.dynamodbv2.document.QueryFilter
 import com.amazonaws.services.dynamodbv2.document.RangeKeyCondition
+import com.amazonaws.services.dynamodbv2.document.ScanFilter
+import com.amazonaws.services.dynamodbv2.document.internal.Filter
 import java.util.Locale
 
 data class QueryCondition(val name: String, val type: Type, val operator: Operator, val values: List<String>) {
     fun toQueryFilter(): QueryFilter {
-        return operator.apply(name, type, *values.toTypedArray())
+        return operator.toQueryFilter(name, type, *values.toTypedArray())
+    }
+
+    fun toScanFilter(): ScanFilter {
+        return operator.toScanFilter(name, type, *values.toTypedArray())
     }
 }
 
@@ -57,7 +63,7 @@ enum class Operator(val text: String) {
         return this == EXISTS || this == NOT_EXISTS
     }
 
-    fun apply(attribute: String, type: Type, vararg values: String): QueryFilter {
+    fun toQueryFilter(attribute: String, type: Type, vararg values: String): QueryFilter {
         val value1: Any? = cast(0, type, values)
         val value2: Any? = cast(1, type, values)
         val filter = QueryFilter(attribute)
@@ -75,6 +81,21 @@ enum class Operator(val text: String) {
             NOT_CONTAINS -> filter.notContains(value1)
             BEGINS_WITH -> filter.beginsWith(value1.toString())
         }
+    }
+
+    fun toScanFilter(attribute: String, type: Type, vararg values: String): ScanFilter {
+        val filter = ScanFilter(attribute)
+        return toFilter(filter, attribute, type, values) as ScanFilter
+    }
+
+    // TODO: Properly build the filters for the scan, although Filter class is internal, so better switch to the Condition
+    private fun <T: Filter<T>> toFilter(filter: Filter<T>,
+                                        attribute: String,
+                                        type: Type,
+                                        values: Array<out String>): Filter<T> {
+        val value1: Any? = cast(0, type, values)
+        val value2: Any? = cast(1, type, values)
+        return filter
     }
 
     fun apply(range: RangeKeyCondition, vararg values: Any) {

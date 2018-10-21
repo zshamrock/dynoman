@@ -2,6 +2,7 @@ package com.akazlou.dynoman.domain
 
 import com.amazonaws.services.dynamodbv2.document.RangeKeyCondition
 import com.amazonaws.services.dynamodbv2.document.spec.QuerySpec
+import com.amazonaws.services.dynamodbv2.document.spec.ScanSpec
 
 abstract class Search(private var searchType: SearchType,
                       val table: String,
@@ -53,7 +54,7 @@ class QuerySearch(table: String,
         return rangeKey!!.operator
     }
 
-    fun toQuerySpec(maxPageResultSize: Int = 0): QuerySpec {
+    fun toQuerySpec(maxPageSize: Int = 0): QuerySpec {
         val spec = QuerySpec()
         spec.withHashKey(getHashKeyName(), getHashKeyValue())
         if (!getRangeKeyName().isNullOrEmpty() && getRangeKeyValues().isNotEmpty()) {
@@ -67,8 +68,8 @@ class QuerySearch(table: String,
         }
         spec.withQueryFilters(*(filters.map { it.toQueryFilter() }.toTypedArray()))
         spec.withScanIndexForward(isAscOrdered())
-        if (maxPageResultSize != 0) {
-            spec.withMaxPageSize(maxPageResultSize)
+        if (maxPageSize != 0) {
+            spec.withMaxPageSize(maxPageSize)
         }
         return spec
     }
@@ -76,6 +77,14 @@ class QuerySearch(table: String,
 
 class ScanSearch(table: String,
                  index: String?,
-                 filters: List<QueryCondition>,
-                 order: Order) :
-        Search(SearchType.SCAN, table, index, filters, order)
+                 filters: List<QueryCondition>) :
+        Search(SearchType.SCAN, table, index, filters, Order.ASC) {
+    fun toScanSpec(maxPageSize: Int = 0): ScanSpec {
+        val spec = ScanSpec()
+        spec.withScanFilters(*(filters.map { it.toScanFilter() }.toTypedArray()))
+        if (maxPageSize != 0) {
+            spec.withMaxPageSize(maxPageSize)
+        }
+        return spec
+    }
+}
