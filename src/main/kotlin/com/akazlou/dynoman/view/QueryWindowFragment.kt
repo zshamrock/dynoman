@@ -335,6 +335,7 @@ class QueryWindowFragment : Fragment("Query...") {
     private fun cleanQueryGridPane(): List<QueryFilter> {
         sortKeyOperation.value = Operator.EQ
         queryGridPane.removeAllRows()
+        keysRowsCount = 0
         hashKey.value = ""
         sortKey.value = ""
         sortKeyFrom.value = ""
@@ -344,12 +345,12 @@ class QueryWindowFragment : Fragment("Query...") {
         filterKeys.forEachIndexed { index, filterKey ->
             val filterKeyOperator = filterKeyOperations[index].value
             filters.add(QueryFilter(
-                    filterKey.value,
+                    filterKey.value.orEmpty(),
                     filterKeyTypes[index].value,
                     filterKeyOperator,
                     when {
                         filterKeyOperator.isNoArg() -> emptyList<String>()
-                        filterKeyOperator.isBetween() -> filterKeyBetweenValues[index].toList().map { it.value }
+                        filterKeyOperator.isBetween() -> filterKeyBetweenValues[index].toList().map { it.value.orEmpty() }
                         else -> listOf(filterKeyValues[index]?.value.orEmpty())
                     }))
         }
@@ -374,10 +375,10 @@ class QueryWindowFragment : Fragment("Query...") {
     }
 
     private fun addKeySchemaRows(searchType: SearchType, queryGridPane: GridPane, keySchema: List<KeySchemaElement>) {
+        keysRowsCount = 0
         if (searchType == SearchType.SCAN) {
             return
         }
-        keysRowsCount = 0
         keySchema.forEach {
             queryGridPane.row {
                 keysRowsCount++
