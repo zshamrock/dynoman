@@ -339,25 +339,26 @@ class QueryWindowFragment : Fragment("Query...") {
         sortKey.value = ""
         sortKeyFrom.value = ""
         sortKeyTo.value = ""
+        // Collect current filters into the QueryFilter-s before clean them up
+        val filters = mutableListOf<QueryFilter>()
+        filterKeys.forEachIndexed { index, filterKey ->
+            val filterKeyOperator = filterKeyOperations[index].value
+            filters.add(QueryFilter(
+                    filterKey.value,
+                    filterKeyTypes[index].value,
+                    filterKeyOperator,
+                    when {
+                        filterKeyOperator.isNoArg() -> emptyList<String>()
+                        filterKeyOperator.isBetween() -> filterKeyBetweenValues[index].toList().map { it.value }
+                        else -> listOf(filterKeyValues[index]?.value.orEmpty())
+                    }))
+        }
         filterKeys.clear()
         filterKeyTypes.clear()
         filterKeyOperations.clear()
         filterKeyValues.clear()
         filterKeyBetweenValues.clear()
-
-        // TODO: Collect the current filters and return it back to restore if necessary
-/*
-val filters = mutableListOf<QueryFilter>()
-                                    filterKeys.forEachIndexed { index, filterKey ->
-                                        val filterKeyOperator = filterKeyOperations[index].value
-                                        filters.add(QueryFilter(
-                                                filterKey.value,
-                                                filterKeyTypes[index].value,
-                                                filterKeyOperator,
-                                                when (filterKeyOperator)))
-                                    }
- */
-        return emptyList()
+        return filters
     }
 
     private fun parseValue(value: String?): String? {
