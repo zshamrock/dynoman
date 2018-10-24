@@ -2,8 +2,8 @@ package com.akazlou.dynoman.view
 
 import com.amazonaws.services.dynamodbv2.model.KeySchemaElement
 
-data class QueryType(val name: String, val keySchema: List<KeySchemaElement>, val isIndex: Boolean) :
-        Comparable<QueryType> {
+data class SearchSource(val name: String, val keySchema: List<KeySchemaElement>, val isIndex: Boolean) :
+        Comparable<SearchSource> {
 
     val hashKey: KeySchemaElement = keySchema[0]
     val sortKey: KeySchemaElement? = keySchema.getOrNull(1)
@@ -16,7 +16,7 @@ data class QueryType(val name: String, val keySchema: List<KeySchemaElement>, va
         return keySchema.joinToString { it.attributeName }
     }
 
-    override fun compareTo(other: QueryType): Int {
+    override fun compareTo(other: SearchSource): Int {
         if (isIndex && other.isIndex) {
             return name.compareTo(other.name)
         }

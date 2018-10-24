@@ -82,14 +82,14 @@ class QueryWindowFragment : Fragment("Query...") {
     private val searchTypes: List<SearchType> = listOf(SearchType.SCAN, SearchType.QUERY)
     private val searchTypeProperty = SimpleObjectProperty<SearchType>(searchType)
     private val attributeDefinitionTypes: Map<String, Type>
-    private val queryTypes: List<QueryType>
-    private var queryTypeComboBox: ComboBox<QueryType> by singleAssign()
+    private val searchSources: List<SearchSource>
+    private var searchSourceComboBox: ComboBox<SearchSource> by singleAssign()
     private var queryGridPane: GridPane by singleAssign()
     private var sortKeyTextField: TextField by singleAssign()
     private val sortKeyBetweenHBox: HBox
     private val sortKeyOperationComboBox: ComboBox<Operator>
     // TODO: Create 5 between hbox-es for the filters and reuse them (as we do limit support only up to 5 filters)
-    private val queryTypeProperty = SimpleObjectProperty<QueryType>()
+    private val searchSourceProperty = SimpleObjectProperty<SearchSource>()
     private val hashKey = SimpleStringProperty()
     private val sortKey = SimpleStringProperty()
     private val sortKeyFrom = SimpleStringProperty()
@@ -108,10 +108,10 @@ class QueryWindowFragment : Fragment("Query...") {
     init {
         val gsi = description.globalSecondaryIndexes.orEmpty()
         val indexQueryStrings = gsi.map { index ->
-            QueryType(index.indexName, index.keySchema, true)
+            SearchSource(index.indexName, index.keySchema, true)
         }.sorted()
-        queryTypes = listOf(QueryType(description.tableName, description.keySchema, false), *indexQueryStrings.toTypedArray())
-        queryTypeProperty.value = queryTypes[0]
+        searchSources = listOf(SearchSource(description.tableName, description.keySchema, false), *indexQueryStrings.toTypedArray())
+        searchSourceProperty.value = searchSources[0]
         attributeDefinitionTypes = description.attributeDefinitions.associateBy({ it.attributeName }, { Type.fromString(it.attributeType) })
 
         val sortKeyFromTextField = TextField()
@@ -155,7 +155,7 @@ class QueryWindowFragment : Fragment("Query...") {
                             when (searchType) {
                                 SearchType.QUERY -> {
                                     val filters = cleanQueryGridPane()
-                                    addKeySchemaRows(searchType, queryGridPane, queryTypeProperty.value.keySchema)
+                                    addKeySchemaRows(searchType, queryGridPane, searchSourceProperty.value.keySchema)
                                     filters.forEach { filter ->
                                         addFilterRow(queryGridPane, filter)
                                     }
@@ -169,9 +169,9 @@ class QueryWindowFragment : Fragment("Query...") {
                             }
                         }
                     }
-                    queryTypeComboBox = combobox(values = queryTypes, property = queryTypeProperty)
-                    queryTypeComboBox.prefWidth = 585.0
-                    queryTypeComboBox.valueProperty().onChange {
+                    searchSourceComboBox = combobox(values = searchSources, property = searchSourceProperty)
+                    searchSourceComboBox.prefWidth = 585.0
+                    searchSourceComboBox.valueProperty().onChange {
                         cleanQueryGridPane()
                         addKeySchemaRows(searchTypeProperty.value, queryGridPane, it!!.keySchema)
                     }
@@ -186,7 +186,7 @@ class QueryWindowFragment : Fragment("Query...") {
                     add(ColumnConstraints(ATTRIBUTE_OPERATION_COLUMN_WIDTH))
                     add(ColumnConstraints(ATTRIBUTE_VALUE_COLUMN_WIDTH))
                 }
-                addKeySchemaRows(searchTypeProperty.value, queryGridPane, queryTypes[0].keySchema)
+                addKeySchemaRows(searchTypeProperty.value, queryGridPane, searchSources[0].keySchema)
                 button("Add filter") {
                     //setPrefSize(100.0, 40.0)
                     prefWidth = 100.0
@@ -231,7 +231,7 @@ class QueryWindowFragment : Fragment("Query...") {
                             }
                             println("Hash Key = ${hashKey.value}, Sort Key $skOp ${sortKey.value}")
                             println("Sort By ${sortProperty.value}")
-                            val qt = queryTypeProperty.value
+                            val qt = searchSourceProperty.value
                             println(qt)
                             if (!hashKey.value.isNullOrBlank() || operationType.isScan()) {
                                 val conditions = filterKeys.mapIndexed { index, filterKey ->
@@ -248,8 +248,10 @@ class QueryWindowFragment : Fragment("Query...") {
                                             })
                                 }
                                 val result = if (operationType.isScan()) {
-                                    // TODO: Provide proper index value and scan filters
-                                    operation.scan(ScanSearch(description.tableName, null, emptyList()))
+                                    operation.scan(ScanSearch(
+                                            description.tableName,
+                                            if (qt.isIndex) qt.name else null,
+                                            conditions))
                                 } else {
                                     val hashKey = QueryCondition(
                                             qt.hashKey.attributeName,
@@ -467,7 +469,7 @@ class QueryWindowFragment : Fragment("Query...") {
     }
 
     fun init(searchType: SearchType,
-             queryType: QueryType?,
+             searchSource: SearchSource?,
              hashKey: String?,
              sortKeyOperation: Operator?,
              sortKeyValues: List<String>,
@@ -479,7 +481,7 @@ class QueryWindowFragment : Fragment("Query...") {
             return
         }
         println("Sort key values: $sortKeyValues")
-        queryTypeComboBox.value = queryType
+        searchSourceComboBox.value = searchSource
         this.hashKey.value = hashKey
         this.sortKeyOperation.value = sortKeyOperation
         if (sortKeyOperation != null && sortKeyOperation.isBetween()) {

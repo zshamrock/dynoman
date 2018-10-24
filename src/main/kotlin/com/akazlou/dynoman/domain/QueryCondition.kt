@@ -64,9 +64,21 @@ enum class Operator(val text: String) {
     }
 
     fun toQueryFilter(attribute: String, type: Type, vararg values: String): QueryFilter {
+        val filter = QueryFilter(attribute)
+        return toFilter(filter, type, values) as QueryFilter
+    }
+
+    fun toScanFilter(attribute: String, type: Type, vararg values: String): ScanFilter {
+        val filter = ScanFilter(attribute)
+        return toFilter(filter, type, values) as ScanFilter
+    }
+
+    // TODO: Filter is the internal class switch to use Condition-s instead
+    private fun <T : Filter<T>> toFilter(filter: Filter<T>,
+                                         type: Type,
+                                         values: Array<out String>): Filter<T> {
         val value1: Any? = cast(0, type, values)
         val value2: Any? = cast(1, type, values)
-        val filter = QueryFilter(attribute)
         return when (this) {
             EQ -> filter.eq(value1)
             LT -> filter.lt(value1)
@@ -81,21 +93,6 @@ enum class Operator(val text: String) {
             NOT_CONTAINS -> filter.notContains(value1)
             BEGINS_WITH -> filter.beginsWith(value1.toString())
         }
-    }
-
-    fun toScanFilter(attribute: String, type: Type, vararg values: String): ScanFilter {
-        val filter = ScanFilter(attribute)
-        return toFilter(filter, attribute, type, values) as ScanFilter
-    }
-
-    // TODO: Properly build the filters for the scan, although Filter class is internal, so better switch to the Condition
-    private fun <T: Filter<T>> toFilter(filter: Filter<T>,
-                                        attribute: String,
-                                        type: Type,
-                                        values: Array<out String>): Filter<T> {
-        val value1: Any? = cast(0, type, values)
-        val value2: Any? = cast(1, type, values)
-        return filter
     }
 
     fun apply(range: RangeKeyCondition, vararg values: Any) {
