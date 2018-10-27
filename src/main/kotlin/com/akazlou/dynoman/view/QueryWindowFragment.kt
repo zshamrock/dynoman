@@ -220,13 +220,13 @@ class QueryWindowFragment : Fragment("Query...") {
                                     if (sortKeyFrom.value == null || sortKeyTo.value == null) {
                                         emptyList()
                                     } else {
-                                        listOf(parseValue(sortKeyFrom.value)!!, parseValue(sortKeyTo.value)!!)
+                                        listOf(parseValue(sortKeyFrom.value), parseValue(sortKeyTo.value))
                                     }
                                 else ->
                                     if (sortKey.value.isNullOrEmpty()) {
                                         emptyList()
                                     } else {
-                                        listOf(parseValue(sortKey.value)!!)
+                                        listOf(parseValue(sortKey.value))
                                     }
                             }
                             println("Hash Key = ${hashKey.value}, Sort Key $skOp ${sortKey.value}")
@@ -242,9 +242,10 @@ class QueryWindowFragment : Fragment("Query...") {
                                             filterKeyOperation,
                                             if (filterKeyOperation.isBetween()) {
                                                 val betweenPair = filterKeyBetweenValues[index]
-                                                listOf(betweenPair.first.value, betweenPair.second.value)
+                                                listOf(parseValue(betweenPair.first.value),
+                                                        parseValue(betweenPair.second.value))
                                             } else {
-                                                listOf(filterKeyValues[index]!!.value)
+                                                listOf(parseValue(filterKeyValues[index]!!.value))
                                             })
                                 }
                                 val result = if (operationType.isScan()) {
@@ -257,7 +258,7 @@ class QueryWindowFragment : Fragment("Query...") {
                                             qt.hashKey.attributeName,
                                             attributeDefinitionTypes[qt.hashKey.attributeName]!!,
                                             Operator.EQ,
-                                            listOf(parseValue(hashKey.value)!!))
+                                            listOf(parseValue(hashKey.value)))
                                     val rangeKey = if (skValues.isEmpty()) {
                                         null
                                     } else {
@@ -288,9 +289,10 @@ class QueryWindowFragment : Fragment("Query...") {
                                                 filterKeyOperation,
                                                 if (filterKeyOperation.isBetween()) {
                                                     val betweenPair = filterKeyBetweenValues[index]
-                                                    listOf(betweenPair.first.value, betweenPair.second.value)
+                                                    listOf(parseValue(betweenPair.first.value),
+                                                            parseValue(betweenPair.second.value))
                                                 } else {
-                                                    listOf(filterKeyValues[index]?.value)
+                                                    listOf(parseValue(filterKeyValues[index]?.value))
                                                 })
                                     }
                                     println("skValues: $skValues")
@@ -301,7 +303,7 @@ class QueryWindowFragment : Fragment("Query...") {
                                             operationType,
                                             description.tableName,
                                             qt,
-                                            hashKey.value,
+                                            parseValue(hashKey.value),
                                             skOp,
                                             skValues,
                                             sortProperty.value,
@@ -364,9 +366,9 @@ class QueryWindowFragment : Fragment("Query...") {
         return filters
     }
 
-    private fun parseValue(value: String?): String? {
+    private fun parseValue(value: String?): String {
         if (value == null) {
-            return null
+            return ""
         }
         functions.forEach { function ->
             if (value.startsWith(function.name())) {
