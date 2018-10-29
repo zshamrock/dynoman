@@ -1,10 +1,17 @@
 package com.akazlou.dynoman.function
 
 import java.time.LocalDateTime
-import java.time.ZoneOffset
+import java.time.ZoneId
 import java.time.format.DateTimeFormatter
+import java.time.format.DateTimeFormatterBuilder
+import java.util.Locale
 
 class TimestampFunction : Function<Long>() {
+    companion object {
+        @JvmField
+        val UTC_ZONE: ZoneId = ZoneId.of("UTC")
+    }
+
     override fun name(): String {
         return "timestamp"
     }
@@ -14,28 +21,28 @@ class TimestampFunction : Function<Long>() {
     }
 
     override fun run(vararg args: Any): Long {
-        val offset = if (args.size == 2) {
-            parseOffset(args[1].toString())
+        val zone = if (args.size == 2) {
+            parseZone(args[1].toString())
         } else {
-            ZoneOffset.UTC
+            UTC_ZONE
         }
-        return apply(args[0].toString(), offset)
+        return apply(args[0].toString(), zone)
     }
 
-    private fun parseOffset(text: String): ZoneOffset {
-        val parts = text.split(':')
-        val hours = parts[0].toInt()
-        val mins = parts[1].toInt()
-        return ZoneOffset.ofHoursMinutes(hours, mins)
+    private fun parseZone(text: String): ZoneId {
+        return ZoneId.of(text)
     }
 
-    private fun apply(text: String, offset: ZoneOffset = ZoneOffset.UTC): Long {
+    private fun apply(text: String, zone: ZoneId = UTC_ZONE): Long {
         val dtf = if (text.contains("am", true) || text.contains("pm", true)) {
-            DateTimeFormatter.ofPattern("yyyy-MM-dd hh:mm:ss")
+            DateTimeFormatterBuilder()
+                    .parseCaseInsensitive()
+                    .appendPattern("yyyy-MM-dd h:mm:ssa[O]")
+                    .toFormatter(Locale.ROOT)
         } else {
-            DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")
+            DateTimeFormatter.ofPattern("yyyy-MM-dd [HH:mm:ss][O]")
         }
         val dateTime = LocalDateTime.parse(text, dtf)
-        return dateTime.atOffset(offset).toInstant().toEpochMilli()
+        return dateTime.atZone(zone).toInstant().toEpochMilli()
     }
 }
