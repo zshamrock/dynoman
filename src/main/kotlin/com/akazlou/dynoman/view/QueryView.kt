@@ -69,21 +69,6 @@ class QueryView : View("Query") {
         }
         hbox(5.0) {
             vboxConstraints {
-                maxHeight = 45.0
-            }
-            alignment = Pos.CENTER
-            button("Run") {
-                //setPrefSize(100.0, 40.0)
-                prefWidth = 100.0
-                shortcut("Ctrl+R")
-                action {
-                    //val result = controller.run(getQuery())
-                    // setQueryResult(result)
-                }
-            }
-        }
-        hbox(5.0) {
-            vboxConstraints {
                 maxHeight = 35.0
             }
             textflow {
