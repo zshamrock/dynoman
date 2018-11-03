@@ -49,13 +49,9 @@ class TimestampFunctionSpec : StringSpec({
         }
     }
 
-    "should parse text without am/pm into the proper timestamp with the time zone inlined" {
+    "f:should parse text without time section into the proper timestamp" {
         val function = TimestampFunction()
-        forall(
-                row("2018-07-03 22:51:20+05:00", 1530640280000L),
-                row("2018-07-03 22:51:20UTC+05:00", 1530640280000L)
-        ) { dt, timestamp ->
-            function.parse("timestamp(\"$dt\")") shouldBe timestamp
-        }
+        val timestamp = function.parse("timestamp(\"2018-07-03\")")
+        timestamp shouldBe 1530658280000L
     }
 })
