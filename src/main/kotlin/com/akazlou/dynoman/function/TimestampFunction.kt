@@ -10,6 +10,9 @@ class TimestampFunction : Function<Long>() {
     companion object {
         @JvmField
         val UTC_ZONE: ZoneId = ZoneId.of("UTC")
+
+        @JvmField
+        val DATE_ONLY_REGEX = Regex("^(?<year>\\d{4})-(?<month>\\d{1,2})-(?<day>\\d{1,2})$")
     }
 
     override fun name(): String {
@@ -34,6 +37,10 @@ class TimestampFunction : Function<Long>() {
     }
 
     private fun apply(text: String, zone: ZoneId = UTC_ZONE): Long {
+        if (DATE_ONLY_REGEX.matches(text)) {
+            val (year, month, day) = DATE_ONLY_REGEX.find(text)!!.destructured
+            println("year: $year, month: $month, day: $day")
+        }
         val dtf = if (text.contains("am", true) || text.contains("pm", true)) {
             DateTimeFormatterBuilder()
                     .parseCaseInsensitive()
