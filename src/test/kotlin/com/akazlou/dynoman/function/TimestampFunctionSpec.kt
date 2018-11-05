@@ -49,9 +49,9 @@ class TimestampFunctionSpec : StringSpec({
         }
     }
 
-    "f:should parse text without time section into the proper timestamp" {
+    "should parse text without time section into the proper timestamp with time being all zeros" {
         val function = TimestampFunction()
         val timestamp = function.parse("timestamp(\"2018-07-03\")")
-        timestamp shouldBe 1530658280000L
+        timestamp shouldBe 1530576000000L
     }
 })

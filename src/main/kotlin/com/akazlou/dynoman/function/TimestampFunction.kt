@@ -1,7 +1,9 @@
 package com.akazlou.dynoman.function
 
 import java.time.LocalDateTime
+import java.time.OffsetDateTime
 import java.time.ZoneId
+import java.time.ZoneOffset
 import java.time.format.DateTimeFormatter
 import java.time.format.DateTimeFormatterBuilder
 import java.util.Locale
@@ -39,7 +41,8 @@ class TimestampFunction : Function<Long>() {
     private fun apply(text: String, zone: ZoneId = UTC_ZONE): Long {
         if (DATE_ONLY_REGEX.matches(text)) {
             val (year, month, day) = DATE_ONLY_REGEX.find(text)!!.destructured
-            println("year: $year, month: $month, day: $day")
+            val offset = OffsetDateTime.of(year.toInt(), month.toInt(), day.toInt(), 0, 0, 0, 0, ZoneOffset.UTC)
+            return offset.toInstant().toEpochMilli()
         }
         val dtf = if (text.contains("am", true) || text.contains("pm", true)) {
             DateTimeFormatterBuilder()
