@@ -2,8 +2,13 @@ package com.akazlou.dynoman.view
 
 import com.akazlou.dynoman.controller.MainController
 import com.akazlou.dynoman.domain.DynamoDBTable
+import com.akazlou.dynoman.domain.Operator
+import com.akazlou.dynoman.domain.Order
+import com.akazlou.dynoman.domain.QueryCondition
+import com.akazlou.dynoman.domain.QuerySearch
 import com.akazlou.dynoman.domain.ScanSearch
 import com.akazlou.dynoman.domain.SearchType
+import com.akazlou.dynoman.domain.Type
 import com.akazlou.dynoman.service.DynamoDBOperation
 import com.amazonaws.regions.Regions
 import javafx.collections.ObservableList
@@ -13,6 +18,7 @@ import javafx.scene.control.TreeCell
 import javafx.scene.control.TreeItem
 import javafx.scene.control.TreeView
 import javafx.scene.control.cell.TextFieldTreeCell
+import javafx.scene.input.Clipboard
 import javafx.scene.layout.Priority
 import javafx.util.Callback
 import javafx.util.StringConverter
@@ -126,7 +132,45 @@ class TableListView : View() {
                                 QueryWindowFragment::description to description,
                                 QueryWindowFragment::operation to operation)).openModal()
             }
-            tableMenu.items.addAll(scanMenuItem, scanWithOptionsMenuItem, queryMenuItem)
+            // TODO: Check whether it is possible to enable this item only when there is the data in the clipboard, and
+            // it can represented as String
+            val queryMenuItemClipboard = MenuItem("Query (clipboard)")
+            queryMenuItemClipboard.action {
+                println("Query (clipboard) ${treeItem.value.name}")
+                val tableName = treeItem.value.name
+                val description = (treeItem as DynamoDBTableTreeItem).description
+                val primaryKey = description.keySchema[0]
+                val hashKeyValue = Clipboard.getSystemClipboard().string
+                // TODO: Optimize/refactor
+                val attributeDefinitionTypes = description.attributeDefinitions.associateBy(
+                        { it.attributeName }, { Type.fromString(it.attributeType) })
+                val primaryKeyCondition = QueryCondition(
+                        primaryKey.attributeName,
+                        attributeDefinitionTypes[primaryKey.attributeName]!!,
+                        Operator.EQ,
+                        listOf(hashKeyValue))
+                val querySearch = QuerySearch(
+                        tableName,
+                        null,
+                        listOf(primaryKeyCondition),
+                        emptyList(),
+                        Order.ASC)
+                val result = operation.query(querySearch)
+                val searchSource = SearchSource(tableName, description.keySchema, false)
+                queryView.setQueryResult(
+                        operation,
+                        description,
+                        SearchType.QUERY,
+                        tableName,
+                        searchSource,
+                        hashKeyValue,
+                        null,
+                        emptyList(),
+                        Order.ASC.name,
+                        emptyList(),
+                        result)
+            }
+            tableMenu.items.addAll(scanMenuItem, scanWithOptionsMenuItem, queryMenuItem, queryMenuItemClipboard)
         }
 
         override fun updateItem(item: DynamoDBTable?, empty: Boolean) {

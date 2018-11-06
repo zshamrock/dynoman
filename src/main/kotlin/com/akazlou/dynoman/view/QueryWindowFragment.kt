@@ -90,7 +90,7 @@ class QueryWindowFragment : Fragment("Query...") {
     private val sortKeyOperationComboBox: ComboBox<Operator>
     // TODO: Create 5 between hbox-es for the filters and reuse them (as we do limit support only up to 5 filters)
     private val searchSourceProperty = SimpleObjectProperty<SearchSource>()
-    private val hashKey = SimpleStringProperty()
+    private val hashKeyValue = SimpleStringProperty()
     private val sortKey = SimpleStringProperty()
     private val sortKeyFrom = SimpleStringProperty()
     private val sortKeyTo = SimpleStringProperty()
@@ -229,11 +229,11 @@ class QueryWindowFragment : Fragment("Query...") {
                                         listOf(parseValue(sortKey.value))
                                     }
                             }
-                            println("Hash Key = ${hashKey.value}, Sort Key $skOp ${sortKey.value}")
+                            println("Hash Key = ${hashKeyValue.value}, Sort Key $skOp ${sortKey.value}")
                             println("Sort By ${sortProperty.value}")
                             val qt = searchSourceProperty.value
                             println(qt)
-                            if (!hashKey.value.isNullOrBlank() || operationType.isScan()) {
+                            if (!hashKeyValue.value.isNullOrBlank() || operationType.isScan()) {
                                 val conditions = filterKeys.mapIndexed { index, filterKey ->
                                     val filterKeyOperation = filterKeyOperations[index].value
                                     QueryCondition(
@@ -258,7 +258,7 @@ class QueryWindowFragment : Fragment("Query...") {
                                             qt.hashKey.attributeName,
                                             attributeDefinitionTypes[qt.hashKey.attributeName]!!,
                                             Operator.EQ,
-                                            listOf(parseValue(hashKey.value)))
+                                            listOf(parseValue(hashKeyValue.value)))
                                     val rangeKey = if (skValues.isEmpty()) {
                                         null
                                     } else {
@@ -303,7 +303,7 @@ class QueryWindowFragment : Fragment("Query...") {
                                             operationType,
                                             description.tableName,
                                             qt,
-                                            parseValue(hashKey.value),
+                                            parseValue(hashKeyValue.value),
                                             skOp,
                                             skValues,
                                             sortProperty.value,
@@ -340,7 +340,7 @@ class QueryWindowFragment : Fragment("Query...") {
         sortKeyOperation.value = Operator.EQ
         queryGridPane.removeAllRows()
         keysRowsCount = 0
-        hashKey.value = ""
+        hashKeyValue.value = ""
         sortKey.value = ""
         sortKeyFrom.value = ""
         sortKeyTo.value = ""
@@ -401,7 +401,7 @@ class QueryWindowFragment : Fragment("Query...") {
                     sortKeyOperationComboBox.attachTo(this)
                 }
                 if (isHash) {
-                    textfield(hashKey) { }
+                    textfield(hashKeyValue) { }
                 } else {
                     sortKeyTextField.attachTo(this)
                 }
@@ -472,7 +472,7 @@ class QueryWindowFragment : Fragment("Query...") {
 
     fun init(searchType: SearchType,
              searchSource: SearchSource?,
-             hashKey: String?,
+             hashKeyValue: String?,
              sortKeyOperation: Operator?,
              sortKeyValues: List<String>,
              sort: String?,
@@ -484,7 +484,7 @@ class QueryWindowFragment : Fragment("Query...") {
         }
         println("Sort key values: $sortKeyValues")
         searchSourceComboBox.value = searchSource
-        this.hashKey.value = hashKey
+        this.hashKeyValue.value = hashKeyValue
         this.sortKeyOperation.value = sortKeyOperation
         if (sortKeyOperation != null && sortKeyOperation.isBetween()) {
             this.sortKeyFrom.value = sortKeyValues.getOrNull(0)

@@ -91,7 +91,7 @@ class QueryTabFragment : Fragment("Query Tab") {
                     val queryFilters = params["queryFilters"]
                     qwf.init(searchType,
                             params["searchSource"] as SearchSource?,
-                            params["hashKey"] as String?,
+                            params["hashKeyValue"] as String?,
                             params["sortKeyOperation"] as Operator?,
                             (params["sortKeyValues"] as? List<*>)?.filterIsInstance<String>() ?: emptyList(),
                             params["sort"] as String?,
