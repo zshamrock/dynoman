@@ -164,9 +164,9 @@ class TableListView : View() {
                         tableName,
                         searchSource,
                         hashKeyValue,
-                        null,
+                        Operator.EQ,
                         emptyList(),
-                        Order.ASC.name,
+                        Order.ASC,
                         emptyList(),
                         result)
             }

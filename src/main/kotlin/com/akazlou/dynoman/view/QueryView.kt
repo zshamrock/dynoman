@@ -2,6 +2,7 @@ package com.akazlou.dynoman.view
 
 import com.akazlou.dynoman.controller.RunQueryController
 import com.akazlou.dynoman.domain.Operator
+import com.akazlou.dynoman.domain.Order
 import com.akazlou.dynoman.domain.QueryFilter
 import com.akazlou.dynoman.domain.QueryResult
 import com.akazlou.dynoman.domain.SearchType
@@ -89,9 +90,9 @@ class QueryView : View("Query") {
                        table: String,
                        searchSource: SearchSource,
                        hashKeyValue: String?,
-                       sortKeyOperation: Operator?,
+                       sortKeyOperator: Operator?,
                        sortKeyValues: List<String>,
-                       sort: String?,
+                       order: Order?,
                        queryFilters: List<QueryFilter>,
                        page: Page<Item, out Any>) {
         val tab = find<QueryTabFragment>(
@@ -101,9 +102,9 @@ class QueryView : View("Query") {
                         "operation" to operation,
                         "searchSource" to searchSource,
                         "hashKeyValue" to hashKeyValue,
-                        "sortKeyOperation" to sortKeyOperation,
+                        "sortKeyOperator" to sortKeyOperator,
                         "sortKeyValues" to sortKeyValues,
-                        "sort" to sort,
+                        "order" to order,
                         "queryFilters" to queryFilters))
         tab.setQueryResult(QueryResult(searchType, description, page))
         queries.tab("$searchType $table", tab.root)

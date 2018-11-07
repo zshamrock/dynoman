@@ -30,7 +30,6 @@ import javafx.scene.layout.ColumnConstraints
 import javafx.scene.layout.GridPane
 import javafx.scene.layout.HBox
 import tornadofx.*
-import java.util.Locale
 
 class QueryWindowFragment : Fragment("Query...") {
     companion object {
@@ -61,8 +60,6 @@ class QueryWindowFragment : Fragment("Query...") {
         @JvmField
         val FILTER_KEY_TYPES: List<Type> = listOf(Type.STRING, Type.NUMBER)
 
-        const val DEFAULT_SORT_ORDER = "asc"
-
         const val KEY_TYPE_COLUMN_WIDTH = 90.0
         const val ATTRIBUTE_NAME_COLUMN_WIDTH = 140.0
         const val ATTRIBUTE_TYPE_COLUMN_WIDTH = 100.0
@@ -87,15 +84,15 @@ class QueryWindowFragment : Fragment("Query...") {
     private var queryGridPane: GridPane by singleAssign()
     private var sortKeyTextField: TextField by singleAssign()
     private val sortKeyBetweenHBox: HBox
-    private val sortKeyOperationComboBox: ComboBox<Operator>
+    private val sortKeyOperatorComboBox: ComboBox<Operator>
     // TODO: Create 5 between hbox-es for the filters and reuse them (as we do limit support only up to 5 filters)
     private val searchSourceProperty = SimpleObjectProperty<SearchSource>()
     private val hashKeyValue = SimpleStringProperty()
     private val sortKey = SimpleStringProperty()
     private val sortKeyFrom = SimpleStringProperty()
     private val sortKeyTo = SimpleStringProperty()
-    private val sortKeyOperation = SimpleObjectProperty<Operator>(Operator.EQ)
-    private val sortProperty = SimpleStringProperty(DEFAULT_SORT_ORDER)
+    private val sortKeyOperatorProperty = SimpleObjectProperty<Operator>(Operator.EQ)
+    private val orderProperty = SimpleObjectProperty<Order>(Order.ASC)
     private val filterKeys = mutableListOf<SimpleStringProperty>()
     private val filterKeyTypes = mutableListOf<SimpleObjectProperty<Type>>()
     private val filterKeyOperations = mutableListOf<SimpleObjectProperty<Operator>>()
@@ -126,12 +123,12 @@ class QueryWindowFragment : Fragment("Query...") {
         sortKeyBetweenHBox = HBox(sortKeyFromTextField, andLabel, sortKeyToTextField)
         sortKeyBetweenHBox.alignment = Pos.CENTER
 
-        sortKeyOperationComboBox = ComboBox<Operator>(SORT_KEY_AVAILABLE_OPERATORS.observable())
-        sortKeyOperationComboBox.bind(sortKeyOperation)
-        sortKeyOperationComboBox.prefWidth = ATTRIBUTE_OPERATION_COLUMN_WIDTH
-        sortKeyOperationComboBox.valueProperty()
+        sortKeyOperatorComboBox = ComboBox<Operator>(SORT_KEY_AVAILABLE_OPERATORS.observable())
+        sortKeyOperatorComboBox.bind(sortKeyOperatorProperty)
+        sortKeyOperatorComboBox.prefWidth = ATTRIBUTE_OPERATION_COLUMN_WIDTH
+        sortKeyOperatorComboBox.valueProperty()
                 .addListener(this.OperatorChangeListener(
-                        sortKeyOperationComboBox,
+                        sortKeyOperatorComboBox,
                         sortKeyTextField,
                         sortKey,
                         sortKeyBetweenHBox,
@@ -196,13 +193,13 @@ class QueryWindowFragment : Fragment("Query...") {
                 }
                 // TODO: Sorting indeed doesn't apply to the SCAN or if it is then we can keep it
                 separator()
-                val sortGroup = ToggleGroup()
-                sortGroup.bind(sortProperty)
+                val orderGroup = ToggleGroup()
+                orderGroup.bind(orderProperty)
                 hbox(5.0) {
                     text("Sort")
-                    val asc = radiobutton("Ascending", sortGroup, "asc")
-                    radiobutton("Descending", sortGroup, "desc")
-                    sortGroup.selectToggle(asc)
+                    val asc = radiobutton("Ascending", orderGroup, Order.ASC)
+                    radiobutton("Descending", orderGroup, Order.DESC)
+                    orderGroup.selectToggle(asc)
                 }
                 separator()
                 hbox(5.0) {
@@ -214,7 +211,7 @@ class QueryWindowFragment : Fragment("Query...") {
                         action {
                             val operationType = searchTypeProperty.value
                             println("Search: ${searchTypeProperty.value}")
-                            val skOp = sortKeyOperation.value
+                            val skOp = sortKeyOperatorProperty.value
                             val skValues = when {
                                 skOp.isBetween() ->
                                     if (sortKeyFrom.value == null || sortKeyTo.value == null) {
@@ -230,7 +227,7 @@ class QueryWindowFragment : Fragment("Query...") {
                                     }
                             }
                             println("Hash Key = ${hashKeyValue.value}, Sort Key $skOp ${sortKey.value}")
-                            println("Sort By ${sortProperty.value}")
+                            println("Sort By ${orderProperty.value}")
                             val qt = searchSourceProperty.value
                             println(qt)
                             if (!hashKeyValue.value.isNullOrBlank() || operationType.isScan()) {
@@ -277,7 +274,7 @@ class QueryWindowFragment : Fragment("Query...") {
                                                 listOf(hashKey, rangeKey)
                                             },
                                             conditions,
-                                            Order.valueOf(sortProperty.value.toUpperCase(Locale.ROOT))
+                                            orderProperty.value
                                     )
                                     operation.query(search)
                                 }
@@ -306,7 +303,7 @@ class QueryWindowFragment : Fragment("Query...") {
                                             parseValue(hashKeyValue.value),
                                             skOp,
                                             skValues,
-                                            sortProperty.value,
+                                            orderProperty.value,
                                             queryFilters,
                                             result)
                                 } else {
@@ -337,7 +334,7 @@ class QueryWindowFragment : Fragment("Query...") {
     }
 
     private fun cleanQueryGridPane(): List<QueryFilter> {
-        sortKeyOperation.value = Operator.EQ
+        sortKeyOperatorProperty.value = Operator.EQ
         queryGridPane.removeAllRows()
         keysRowsCount = 0
         hashKeyValue.value = ""
@@ -398,7 +395,7 @@ class QueryWindowFragment : Fragment("Query...") {
                 if (isHash) {
                     label("=")
                 } else {
-                    sortKeyOperationComboBox.attachTo(this)
+                    sortKeyOperatorComboBox.attachTo(this)
                 }
                 if (isHash) {
                     textfield(hashKeyValue) { }
@@ -473,9 +470,9 @@ class QueryWindowFragment : Fragment("Query...") {
     fun init(searchType: SearchType,
              searchSource: SearchSource?,
              hashKeyValue: String?,
-             sortKeyOperation: Operator?,
+             sortKeyOperator: Operator?,
              sortKeyValues: List<String>,
-             sort: String?,
+             order: Order?,
              queryFilters: List<QueryFilter>,
              tab: QueryTabFragment) {
         this.tab = tab
@@ -485,14 +482,14 @@ class QueryWindowFragment : Fragment("Query...") {
         println("Sort key values: $sortKeyValues")
         searchSourceComboBox.value = searchSource
         this.hashKeyValue.value = hashKeyValue
-        this.sortKeyOperation.value = sortKeyOperation
-        if (sortKeyOperation != null && sortKeyOperation.isBetween()) {
+        this.sortKeyOperatorProperty.value = sortKeyOperator
+        if (sortKeyOperator != null && sortKeyOperator.isBetween()) {
             this.sortKeyFrom.value = sortKeyValues.getOrNull(0)
             this.sortKeyTo.value = sortKeyValues.getOrNull(1)
         } else {
             this.sortKey.value = sortKeyValues.getOrNull(0)
         }
-        this.sortProperty.value = sort
+        this.orderProperty.value = order
         queryFilters.forEach { addFilterRow(queryGridPane, it) }
     }
 

@@ -1,6 +1,7 @@
 package com.akazlou.dynoman.view
 
 import com.akazlou.dynoman.domain.Operator
+import com.akazlou.dynoman.domain.Order
 import com.akazlou.dynoman.domain.QueryFilter
 import com.akazlou.dynoman.domain.QueryResult
 import com.akazlou.dynoman.domain.SearchType
@@ -92,9 +93,9 @@ class QueryTabFragment : Fragment("Query Tab") {
                     qwf.init(searchType,
                             params["searchSource"] as SearchSource?,
                             params["hashKeyValue"] as String?,
-                            params["sortKeyOperation"] as Operator?,
+                            params["sortKeyOperator"] as Operator?,
                             (params["sortKeyValues"] as? List<*>)?.filterIsInstance<String>() ?: emptyList(),
-                            params["sort"] as String?,
+                            params["order"] as Order?,
                             (queryFilters as? List<*>)?.filterIsInstance<QueryFilter>() ?: emptyList(),
                             this@QueryTabFragment)
                     editor.select()
