@@ -4,6 +4,8 @@ import java.util.Locale
 import java.util.UUID
 
 class ParseUUIDFunction : Function<String>() {
+    val SEPARATOR: String = "-"
+
     override fun name(): String {
         return "parse_uuid"
     }
