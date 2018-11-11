@@ -104,10 +104,13 @@ class QueryTabFragment : Fragment("Query Tab") {
                 }
             }
             fold("Data", expanded = true) {
+                useMaxHeight = true
                 resultTable = tableview(data) {
                     fillHeight = true
+                    useMaxHeight = true
                     vboxConstraints {
-                        prefHeight = 335.0
+                        useMaxHeight = true
+                        //prefHeight = 335.0
                         fillHeight = true
                         vGrow = Priority.ALWAYS
                     }
