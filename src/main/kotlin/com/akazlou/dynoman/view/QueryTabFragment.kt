@@ -104,6 +104,7 @@ class QueryTabFragment : Fragment("Query Tab") {
                 }
             }
             fold("Data", expanded = true) {
+                fillHeight = true
                 useMaxHeight = true
                 resultTable = tableview(data) {
                     fillHeight = true
