@@ -41,6 +41,7 @@ class QueryTabFragment : Fragment("Query Tab") {
         hbox(alignment = Pos.CENTER_RIGHT) {
             prefHeight = 30.0
             maxHeight = 30.0
+            minHeight = 30.0
             isFillHeight = false
             textflow {
                 spacing = 10.0
@@ -56,7 +57,9 @@ class QueryTabFragment : Fragment("Query Tab") {
                     }
                     cursor = Cursor.HAND
                 }
+                text(" ")
                 text(paginationTextProperty)
+                text(" ")
                 text(">") {
                     visibleWhen(nextPageVisibleProperty)
                     setOnMouseClicked {
@@ -107,13 +110,7 @@ class QueryTabFragment : Fragment("Query Tab") {
                 }
             }
             fold("Data", expanded = true) {
-                vboxConstraints {
-                    vGrow = Priority.ALWAYS
-                }
                 resultTable = tableview(data) {
-                    vboxConstraints {
-                        vGrow = Priority.ALWAYS
-                    }
                     contextmenu {
                         item("Open Value in Viewer") {
                             setOnAction {
