@@ -39,8 +39,8 @@ class QueryTabFragment : Fragment("Query Tab") {
     private var copyAllByFieldMenu: Menu? = null
     override val root = vbox {
         hbox(alignment = Pos.CENTER_RIGHT) {
-            prefHeight = 40.0
-            maxHeight = 40.0
+            prefHeight = 30.0
+            maxHeight = 30.0
             isFillHeight = false
             textflow {
                 spacing = 10.0
@@ -72,6 +72,9 @@ class QueryTabFragment : Fragment("Query Tab") {
             }
         }
         squeezebox {
+            vboxConstraints {
+                vGrow = Priority.ALWAYS
+            }
             fold("Query", expanded = true) {
                 tabpane {
                     tabClosingPolicy = TabPane.TabClosingPolicy.UNAVAILABLE
@@ -104,15 +107,11 @@ class QueryTabFragment : Fragment("Query Tab") {
                 }
             }
             fold("Data", expanded = true) {
-                fillHeight = true
-                useMaxHeight = true
+                vboxConstraints {
+                    vGrow = Priority.ALWAYS
+                }
                 resultTable = tableview(data) {
-                    fillHeight = true
-                    useMaxHeight = true
                     vboxConstraints {
-                        useMaxHeight = true
-                        //prefHeight = 335.0
-                        fillHeight = true
                         vGrow = Priority.ALWAYS
                     }
                     contextmenu {
