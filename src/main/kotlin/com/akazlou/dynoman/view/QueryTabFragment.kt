@@ -217,13 +217,23 @@ class QueryTabFragment : Fragment("Query Tab") {
         val columns = if (results.isEmpty()) {
             emptyList()
         } else {
-            results.first().getKeys().map { attributeName ->
-                val column = TableColumn<ResultData, String>(attributeName)
-                column.cellValueFactory = Callback<TableColumn.CellDataFeatures<ResultData, String>, ObservableValue<String>> {
-                    SimpleStringProperty(it.value.getValue(attributeName))
-                }
-                column
-            }
+            val allColumns = mutableSetOf<String>()
+            results.asSequence()
+                    .flatMap { it.getKeys().asSequence() }
+                    .map { attributeName ->
+                        if (allColumns.contains(attributeName)) {
+                            null
+                        } else {
+                            val column = TableColumn<ResultData, String>(attributeName)
+                            column.cellValueFactory = Callback<TableColumn.CellDataFeatures<ResultData, String>, ObservableValue<String>> {
+                                SimpleStringProperty(it.value.getValue(attributeName))
+                            }
+                            allColumns.add(attributeName)
+                            column
+                        }
+                    }
+                    .filterNotNull()
+                    .toList()
         }
         prevPageVisibleProperty.value = false
         nextPageVisibleProperty.value = qr.hasMoreData(pageNum)
