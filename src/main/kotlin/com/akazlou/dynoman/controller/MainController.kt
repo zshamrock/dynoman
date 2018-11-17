@@ -9,11 +9,11 @@ class MainController : Controller() {
     private val clients = with(mutableMapOf<Regions, DynamoDBOperation>()) {
         withDefault { region ->
             println("Using default value for the region $region")
-            getOrPut(region, {
+            getOrPut(region) {
                 DynamoDBOperation(
                         region,
                         System.getProperty("offline", "false")!!.toBoolean())
-            })
+            }
         }
     }
 
