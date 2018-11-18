@@ -14,6 +14,7 @@ import com.amazonaws.regions.Regions
 import javafx.collections.ObservableList
 import javafx.scene.control.ContextMenu
 import javafx.scene.control.CustomMenuItem
+import javafx.scene.control.Label
 import javafx.scene.control.MenuItem
 import javafx.scene.control.Tooltip
 import javafx.scene.control.TreeCell
@@ -22,7 +23,6 @@ import javafx.scene.control.TreeView
 import javafx.scene.control.cell.TextFieldTreeCell
 import javafx.scene.input.Clipboard
 import javafx.scene.layout.Priority
-import javafx.scene.text.Text
 import javafx.util.Callback
 import javafx.util.StringConverter
 import tornadofx.*
@@ -179,7 +179,7 @@ class TableListView : View() {
         }
 
         private fun createCustomMenuItem(text: String, tooltip: String = ""): CustomMenuItem {
-            val node = Text(text)
+            val node = Label(text)
             val menuItem = CustomMenuItem(node)
             if (tooltip.isNotEmpty()) {
                 Tooltip.install(node, Tooltip(tooltip))
