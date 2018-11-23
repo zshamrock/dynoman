@@ -90,6 +90,8 @@ class TableListView : View() {
                                     queryView: QueryView,
                                     converter: DynamoDBTableStringConverter) :
             TextFieldTreeCell<DynamoDBTable>(converter) {
+        // TODO: #163 Does it mean that context menu is created for each of the tree cell, would it be possible to use one
+        // instance for all the tree cells?
         private val tableMenu: ContextMenu = ContextMenu()
 
         init {
