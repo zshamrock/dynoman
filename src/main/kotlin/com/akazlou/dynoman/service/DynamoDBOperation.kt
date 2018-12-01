@@ -45,7 +45,9 @@ class DynamoDBOperation(region: Regions, private val offline: Boolean) {
         } else {
             table.scan(spec)
         }
-        return result.firstPage()
+        val page = result.firstPage()
+        println("Size of the page is ${page?.size()}")
+        return page
     }
 
     fun getTable(name: String): Table {
@@ -65,6 +67,7 @@ class DynamoDBOperation(region: Regions, private val offline: Boolean) {
             }
             page = result.firstPage()
         }
+        println("Size of the page is ${page?.size()}")
         println("Query run $runTime ms, and ${TimeUnit.MILLISECONDS.toSeconds(runTime)} secs")
         return page!!
     }
