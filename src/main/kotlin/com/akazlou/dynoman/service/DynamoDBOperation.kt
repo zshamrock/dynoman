@@ -46,7 +46,8 @@ class DynamoDBOperation(region: Regions, private val offline: Boolean) {
             table.scan(spec)
         }
         val page = result.firstPage()
-        println("Size of the page is ${page?.size()}")
+        println("Size of the page is ${page.size()}")
+        println("has next page ${page.hasNextPage()}")
         return page
     }
 
