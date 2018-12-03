@@ -1,5 +1,6 @@
 package com.akazlou.dynoman.service
 
+import com.akazlou.dynoman.domain.QueryResult
 import com.akazlou.dynoman.domain.QuerySearch
 import com.akazlou.dynoman.domain.ScanSearch
 import com.amazonaws.auth.DefaultAWSCredentialsProviderChain
@@ -15,10 +16,6 @@ import java.util.concurrent.TimeUnit
 import kotlin.system.measureTimeMillis
 
 class DynamoDBOperation(region: Regions, private val offline: Boolean) {
-    companion object {
-        const val MAX_PAGE_RESULT_SIZE = 100
-    }
-
     private val dynamodb: DynamoDB?
 
     init {
@@ -38,7 +35,7 @@ class DynamoDBOperation(region: Regions, private val offline: Boolean) {
     }
 
     fun scan(search: ScanSearch): Page<Item, ScanOutcome> {
-        val spec = search.toScanSpec(MAX_PAGE_RESULT_SIZE)
+        val spec = search.toScanSpec(QueryResult.MAX_PAGE_RESULT_SIZE)
         val table = getTable(search.table)
         val result = if (search.index != null) {
             table.getIndex(search.index).scan(spec)
@@ -56,7 +53,7 @@ class DynamoDBOperation(region: Regions, private val offline: Boolean) {
     }
 
     fun query(search: QuerySearch): Page<Item, QueryOutcome> {
-        val spec = search.toQuerySpec(MAX_PAGE_RESULT_SIZE)
+        val spec = search.toQuerySpec(QueryResult.MAX_PAGE_RESULT_SIZE)
         println("Run query")
         var page: Page<Item, QueryOutcome>? = null
         val runTime = measureTimeMillis {
