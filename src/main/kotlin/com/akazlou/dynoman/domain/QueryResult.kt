@@ -14,7 +14,12 @@ data class QueryResult(val searchType: SearchType,
         const val MAX_PAGE_RESULT_SIZE = 100
     }
 
-    private var data = mutableListOf<List<ResultData>>()
+    private val data = mutableListOf<List<ResultData>>()
+    /**
+     * When doing search with filter the accumulated data could contain more than [maxPageSize], so here we keep
+     * the reminder of this data to be used when fetching the data for the next [maxPageSize] page.
+     */
+    private var rem = listOf<ResultData>()
 
     fun getTable(): String {
         return description.tableName
@@ -25,7 +30,26 @@ data class QueryResult(val searchType: SearchType,
             if (pageNum != 1) {
                 page = page.nextPage()
             }
-            data.add(fetchData(page))
+            val acc = mutableListOf<ResultData>()
+            acc.addAll(rem)
+            if (acc.size < maxPageSize) {
+                acc.addAll(fetchData(page))
+            }
+            while (acc.size < maxPageSize) {
+                if (page.hasNextPage()) {
+                    page = page.nextPage()
+                } else {
+                    break
+                }
+                acc.addAll(fetchData(page))
+            }
+            val chunked = if (acc.size > maxPageSize) {
+                acc.chunked(maxPageSize)
+            } else {
+                listOf(acc)
+            }
+            data.add(chunked[0])
+            rem = chunked.getOrNull(1).orEmpty()
         }
         return data[pageNum - 1]
     }
