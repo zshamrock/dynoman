@@ -101,19 +101,22 @@ class TableListView : View() {
                 println("Scan $tableName")
                 val description = (treeItem as DynamoDBTableTreeItem).description
                 val searchSource = SearchSource(tableName, description.keySchema, false)
-                val result = operation.scan(ScanSearch(tableName, null, emptyList()))
-                queryView.setQueryResult(
-                        operation,
-                        description,
-                        SearchType.SCAN,
-                        tableName,
-                        searchSource,
-                        null,
-                        null,
-                        emptyList(),
-                        null,
-                        emptyList(),
-                        result)
+                runAsync {
+                    operation.scan(ScanSearch(tableName, null, emptyList()))
+                } ui { result ->
+                    queryView.setQueryResult(
+                            operation,
+                            description,
+                            SearchType.SCAN,
+                            tableName,
+                            searchSource,
+                            null,
+                            null,
+                            emptyList(),
+                            null,
+                            emptyList(),
+                            result)
+                }
             }
             val scanWithOptionsMenuItem = MenuItem("Scan...")
             scanWithOptionsMenuItem.action {
@@ -162,20 +165,23 @@ class TableListView : View() {
                         listOf(primaryKeyCondition),
                         emptyList(),
                         Order.ASC)
-                val result = operation.query(querySearch)
-                val searchSource = SearchSource(tableName, description.keySchema, false)
-                queryView.setQueryResult(
-                        operation,
-                        description,
-                        SearchType.QUERY,
-                        tableName,
-                        searchSource,
-                        hashKeyValue,
-                        Operator.EQ,
-                        emptyList(),
-                        Order.ASC,
-                        emptyList(),
-                        result)
+                runAsync {
+                    operation.query(querySearch)
+                } ui { result ->
+                    val searchSource = SearchSource(tableName, description.keySchema, false)
+                    queryView.setQueryResult(
+                            operation,
+                            description,
+                            SearchType.QUERY,
+                            tableName,
+                            searchSource,
+                            hashKeyValue,
+                            Operator.EQ,
+                            emptyList(),
+                            Order.ASC,
+                            emptyList(),
+                            result)
+                }
             }
             tableMenu.items.addAll(scanMenuItem, scanWithOptionsMenuItem, queryMenuItem, queryMenuItemClipboard)
         }

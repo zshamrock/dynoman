@@ -245,73 +245,76 @@ class QueryWindowFragment : Fragment("Query...") {
                                                 listOf(parseValue(filterKeyValues[index]!!.value))
                                             })
                                 }
-                                val result = if (operationType.isScan()) {
-                                    operation.scan(ScanSearch(
-                                            description.tableName,
-                                            if (qt.isIndex) qt.name else null,
-                                            conditions))
-                                } else {
-                                    val hashKey = QueryCondition(
-                                            qt.hashKey.attributeName,
-                                            attributeDefinitionTypes[qt.hashKey.attributeName]!!,
-                                            Operator.EQ,
-                                            listOf(parseValue(hashKeyValue.value)))
-                                    val rangeKey = if (skValues.isEmpty()) {
-                                        null
+                                runAsync {
+                                    if (operationType.isScan()) {
+                                        operation.scan(ScanSearch(
+                                                description.tableName,
+                                                if (qt.isIndex) qt.name else null,
+                                                conditions))
                                     } else {
-                                        QueryCondition(
-                                                qt.sortKey?.attributeName!!,
-                                                attributeDefinitionTypes[qt.sortKey.attributeName]!!,
-                                                skOp,
-                                                skValues)
-                                    }
-                                    val search = QuerySearch(
-                                            description.tableName,
-                                            if (qt.isIndex) qt.name else null,
-                                            if (rangeKey == null) {
-                                                listOf(hashKey)
-                                            } else {
-                                                listOf(hashKey, rangeKey)
-                                            },
-                                            conditions,
-                                            orderProperty.value
-                                    )
-                                    operation.query(search)
-                                }
-                                if (mode == Mode.MODAL) {
-                                    val queryFilters = filterKeys.mapIndexed { index, property ->
-                                        val filterKeyOperation = filterKeyOperations[index].value
-                                        QueryFilter(property.value,
-                                                filterKeyTypes[index].value,
-                                                filterKeyOperation,
-                                                if (filterKeyOperation.isBetween()) {
-                                                    val betweenPair = filterKeyBetweenValues[index]
-                                                    listOf(parseValue(betweenPair.first.value),
-                                                            parseValue(betweenPair.second.value))
+                                        val hashKey = QueryCondition(
+                                                qt.hashKey.attributeName,
+                                                attributeDefinitionTypes[qt.hashKey.attributeName]!!,
+                                                Operator.EQ,
+                                                listOf(parseValue(hashKeyValue.value)))
+                                        val rangeKey = if (skValues.isEmpty()) {
+                                            null
+                                        } else {
+                                            QueryCondition(
+                                                    qt.sortKey?.attributeName!!,
+                                                    attributeDefinitionTypes[qt.sortKey.attributeName]!!,
+                                                    skOp,
+                                                    skValues)
+                                        }
+                                        val search = QuerySearch(
+                                                description.tableName,
+                                                if (qt.isIndex) qt.name else null,
+                                                if (rangeKey == null) {
+                                                    listOf(hashKey)
                                                 } else {
-                                                    listOf(parseValue(filterKeyValues[index]?.value))
-                                                })
+                                                    listOf(hashKey, rangeKey)
+                                                },
+                                                conditions,
+                                                orderProperty.value
+                                        )
+                                        operation.query(search)
                                     }
-                                    println("skValues: $skValues")
-                                    println(sortKey)
-                                    find(QueryView::class).setQueryResult(
-                                            operation,
-                                            description,
-                                            operationType,
-                                            description.tableName,
-                                            qt,
-                                            parseValue(hashKeyValue.value),
-                                            skOp,
-                                            skValues,
-                                            orderProperty.value,
-                                            queryFilters,
-                                            result)
-                                } else {
-                                    tab?.setQueryResult(
-                                            QueryResult(
-                                                    operationType,
-                                                    description,
-                                                    result))
+                                } ui { result ->
+                                    if (mode == Mode.MODAL) {
+                                        val queryFilters = filterKeys.mapIndexed { index, property ->
+                                            val filterKeyOperation = filterKeyOperations[index].value
+                                            QueryFilter(property.value,
+                                                    filterKeyTypes[index].value,
+                                                    filterKeyOperation,
+                                                    if (filterKeyOperation.isBetween()) {
+                                                        val betweenPair = filterKeyBetweenValues[index]
+                                                        listOf(parseValue(betweenPair.first.value),
+                                                                parseValue(betweenPair.second.value))
+                                                    } else {
+                                                        listOf(parseValue(filterKeyValues[index]?.value))
+                                                    })
+                                        }
+                                        println("skValues: $skValues")
+                                        println(sortKey)
+                                        find(QueryView::class).setQueryResult(
+                                                operation,
+                                                description,
+                                                operationType,
+                                                description.tableName,
+                                                qt,
+                                                parseValue(hashKeyValue.value),
+                                                skOp,
+                                                skValues,
+                                                orderProperty.value,
+                                                queryFilters,
+                                                result)
+                                    } else {
+                                        tab?.setQueryResult(
+                                                QueryResult(
+                                                        operationType,
+                                                        description,
+                                                        result))
+                                    }
                                 }
                             }
                             if (mode == Mode.MODAL) {

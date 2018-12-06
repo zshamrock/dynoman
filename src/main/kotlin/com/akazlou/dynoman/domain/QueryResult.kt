@@ -25,6 +25,7 @@ data class QueryResult(val searchType: SearchType,
         return description.tableName
     }
 
+    // TODO: Unit test this new way of acc pages
     fun getData(pageNum: Int): List<ResultData> {
         if (pageNum > data.size) {
             if (pageNum != 1) {
