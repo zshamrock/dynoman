@@ -101,7 +101,8 @@ class TableListView : View() {
                 println("Scan $tableName")
                 val description = (treeItem as DynamoDBTableTreeItem).description
                 val searchSource = SearchSource(tableName, description.keySchema, false)
-                runAsync {
+                // TODO: Try also runAsyncWithOverlay (like it is possible to provide the overlay area?)
+                runAsyncWithProgress {
                     operation.scan(ScanSearch(tableName, null, emptyList()))
                 } ui { result ->
                     queryView.setQueryResult(
@@ -165,7 +166,7 @@ class TableListView : View() {
                         listOf(primaryKeyCondition),
                         emptyList(),
                         Order.ASC)
-                runAsync {
+                runAsyncWithProgress {
                     operation.query(querySearch)
                 } ui { result ->
                     val searchSource = SearchSource(tableName, description.keySchema, false)

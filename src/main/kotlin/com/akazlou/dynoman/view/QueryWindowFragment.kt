@@ -245,7 +245,7 @@ class QueryWindowFragment : Fragment("Query...") {
                                                 listOf(parseValue(filterKeyValues[index]!!.value))
                                             })
                                 }
-                                runAsync {
+                                runAsyncWithProgress {
                                     if (operationType.isScan()) {
                                         operation.scan(ScanSearch(
                                                 description.tableName,
