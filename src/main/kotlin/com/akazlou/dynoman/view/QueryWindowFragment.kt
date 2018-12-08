@@ -245,6 +245,8 @@ class QueryWindowFragment : Fragment("Query...") {
                                                 listOf(parseValue(filterKeyValues[index]!!.value))
                                             })
                                 }
+                                // TODO: Is it possible instead to open the tab, and show the loader/spinner there,
+                                //  instead of closing this modal window and display nothing
                                 runAsyncWithProgress {
                                     if (operationType.isScan()) {
                                         operation.scan(ScanSearch(
