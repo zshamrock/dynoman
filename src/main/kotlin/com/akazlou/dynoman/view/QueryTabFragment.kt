@@ -65,10 +65,14 @@ class QueryTabFragment : Fragment("Query Tab") {
                     setOnMouseClicked {
                         println("Clicked >")
                         pageNum++
-                        data.setAll(queryResult!!.getData(pageNum))
-                        prevPageVisibleProperty.value = pageNum > 1
-                        nextPageVisibleProperty.value = queryResult!!.hasMoreData(pageNum)
-                        updatePaginationTextProperty(pageNum)
+                        runAsyncWithProgress {
+                            queryResult!!.getData(pageNum)
+                        } ui { result ->
+                            data.setAll(result)
+                            prevPageVisibleProperty.value = pageNum > 1
+                            nextPageVisibleProperty.value = queryResult!!.hasMoreData(pageNum)
+                            updatePaginationTextProperty(pageNum)
+                        }
                     }
                     cursor = Cursor.HAND
                 }
