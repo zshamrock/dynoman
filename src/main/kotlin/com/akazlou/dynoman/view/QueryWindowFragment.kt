@@ -482,6 +482,7 @@ class QueryWindowFragment : Fragment("Query...") {
              tab: QueryTabFragment) {
         this.tab = tab
         if (searchType == SearchType.SCAN) {
+            queryFilters.forEach { addFilterRow(queryGridPane, it) }
             return
         }
         println("Sort key values: $sortKeyValues")
