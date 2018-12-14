@@ -65,6 +65,9 @@ class QueryWindowFragment : Fragment("Query...") {
         const val ATTRIBUTE_TYPE_COLUMN_WIDTH = 100.0
         const val ATTRIBUTE_OPERATION_COLUMN_WIDTH = 140.0
         const val ATTRIBUTE_VALUE_COLUMN_WIDTH = 200.0
+
+        const val FILTER_PRIMARY_LABEL = "Filter"
+        const val FILTER_SECONDARY_LABEL = "And"
     }
 
     enum class Mode {
@@ -94,6 +97,7 @@ class QueryWindowFragment : Fragment("Query...") {
     private val sortKeyOperatorProperty = SimpleObjectProperty<Operator>(Operator.EQ)
     private val orderProperty = SimpleObjectProperty<Order>(Order.ASC)
     private val filterKeys = mutableListOf<SimpleStringProperty>()
+    private val filterLabels = mutableListOf<SimpleStringProperty>()
     private val filterKeyTypes = mutableListOf<SimpleObjectProperty<Type>>()
     private val filterKeyOperations = mutableListOf<SimpleObjectProperty<Operator>>()
     private val filterKeyValues = mutableListOf<SimpleStringProperty?>()
@@ -360,6 +364,7 @@ class QueryWindowFragment : Fragment("Query...") {
                         else -> listOf(filterKeyValues[index]?.value.orEmpty())
                     }))
         }
+        filterLabels.clear()
         filterKeys.clear()
         filterKeyTypes.clear()
         filterKeyOperations.clear()
@@ -414,7 +419,10 @@ class QueryWindowFragment : Fragment("Query...") {
     private fun addFilterRow(queryGridPane: GridPane, queryFilter: QueryFilter? = null) {
         println("grid properties: ${queryGridPane.properties}")
         queryGridPane.row {
-            text(if (filterKeys.isEmpty()) "Filter" else "And")
+            val filterLabel = SimpleStringProperty(
+                    if (filterKeys.isEmpty()) FILTER_PRIMARY_LABEL else FILTER_SECONDARY_LABEL)
+            filterLabels.add(filterLabel)
+            text(filterLabel)
             val filterKey = SimpleStringProperty(queryFilter?.name)
             filterKeys.add(filterKey)
             textfield(filterKey) { }
@@ -462,11 +470,16 @@ class QueryWindowFragment : Fragment("Query...") {
                 action {
                     val rowIndex = queryGridPane.removeRow(this)
                     val index = rowIndex - keysRowsCount
+                    println("Remove index $index")
+                    filterLabels.removeAt(index)
                     filterKeys.removeAt(index)
                     filterKeyTypes.removeAt(index)
                     filterKeyOperations.removeAt(index)
                     filterKeyValues.removeAt(index)
                     filterKeyBetweenValues.removeAt(index)
+                    if (index == 0 && filterLabels.isNotEmpty()) {
+                        filterLabels[0].value = FILTER_PRIMARY_LABEL
+                    }
                 }
             }
         }
