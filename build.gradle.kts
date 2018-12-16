@@ -2,7 +2,6 @@ import org.gradle.api.plugins.JavaPluginConvention
 import org.gradle.kotlin.dsl.application
 import org.gradle.kotlin.dsl.extra
 import org.gradle.kotlin.dsl.java
-import org.gradle.kotlin.dsl.kotlinModule
 import org.gradle.kotlin.dsl.repositories
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 import org.gradle.api.plugins.ExtensionAware
@@ -10,13 +9,13 @@ import org.gradle.api.tasks.testing.Test
 
 buildscript {
     var kotlin_version: String by extra
-    kotlin_version = "1.2.71"
+    kotlin_version = "1.3.11"
 
     repositories {
         mavenCentral()
     }
     dependencies {
-        classpath(kotlinModule("gradle-plugin", kotlin_version))
+        classpath(kotlin("gradle-plugin", kotlin_version))
         classpath("com.github.jengelman.gradle.plugins:shadow:2.0.4")
     }
 }
@@ -46,7 +45,7 @@ repositories {
 
 // TODO: Upgrade all dependencies
 dependencies {
-    compile(kotlinModule("stdlib-jdk8", kotlin_version))
+    compile(kotlin("stdlib-jdk8", kotlin_version))
     compile("no.tornado", "tornadofx", "1.7.16")
     compile("com.amazonaws", "aws-java-sdk-dynamodb", "1.11.461")
     compile("org.jetbrains.kotlin", "kotlin-reflect", kotlin_version)
