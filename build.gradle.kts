@@ -1,3 +1,5 @@
+import no.tornado.fxlauncher.gradle.FXLauncherExtension
+import no.tornado.fxlauncher.gradle.FXLauncherPlugin
 import org.gradle.api.plugins.JavaPluginConvention
 import org.gradle.kotlin.dsl.application
 import org.gradle.kotlin.dsl.extra
@@ -17,6 +19,7 @@ buildscript {
     dependencies {
         classpath(kotlin("gradle-plugin", kotlin_version))
         classpath("com.github.jengelman.gradle.plugins:shadow:2.0.4")
+        classpath("no.tornado:fxlauncher-gradle-plugin:1.0.20")
     }
 }
 
@@ -35,6 +38,7 @@ version = "1.0.0-SNAPSHOT"
 apply {
     plugin("kotlin")
     plugin("com.github.johnrengelman.shadow")
+    plugin("no.tornado.fxlauncher")
 }
 
 val kotlin_version: String by extra
@@ -55,6 +59,13 @@ dependencies {
 
 configure<JavaPluginConvention> {
     sourceCompatibility = JavaVersion.VERSION_1_8
+}
+
+configure<FXLauncherExtension> {
+    applicationVendor = "Aliaksandr Kazlou (aliaksandr.kazlou@gmail.com)"
+    applicationUrl = "http://com.akazlou.dynoman.s3-website-us-west-2.amazonaws.com"
+    applicationMainClass = "com.akazlou.dynoman.DynomanApp"
+    acceptDowngrade = false
 }
 
 tasks.getByName<Jar>("jar") {
