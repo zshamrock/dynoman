@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<Application ts="1545115937945" uri="http://com.akazlou.dynoman.s3-website-us-west-2.amazonaws.com/" launch="com.akazlou.dynoman.DynomanApp">
+    <lib file="kotlin-reflect.jar" checksum="3307821462" size="2645754"/>
+    <lib file="httpcore.jar" checksum="597102202" size="325500"/>
+    <lib file="javax.json.jar" checksum="1161332358" size="101089"/>
+    <lib file="jackson-core.jar" checksum="3375387477" size="258919"/>
+    <lib file="annotations.jar" checksum="4201984052" size="17536"/>
+    <lib file="javassist.jar" checksum="2411650702" size="734815"/>
+    <lib file="ion-java.jar" checksum="1616542273" size="565410"/>
+    <lib file="jackson-annotations.jar" checksum="106603179" size="46968"/>
+    <lib file="kotlin-stdlib-common.jar" checksum="523423843" size="151024"/>
+    <lib file="aws-java-sdk-dynamodb.jar" checksum="3781954799" size="1627757"/>
+    <lib file="jmespath-java.jar" checksum="801882508" size="26879"/>
+    <lib file="jackson-dataformat-cbor.jar" checksum="3035121969" size="48468"/>
+    <lib file="commons-codec.jar" checksum="13471445" size="284184"/>
+    <lib file="guava.jar" checksum="702213198" size="2442625"/>
+    <lib file="javax.json-api.jar" checksum="4026910835" size="31140"/>
+    <lib file="kotlin-stdlib-jdk7.jar" checksum="1436077759" size="3137"/>
+    <lib file="kotlin-stdlib.jar" checksum="645997778" size="1181291"/>
+    <lib file="httpclient.jar" checksum="2964239276" size="766123"/>
+    <lib file="aws-java-sdk-kms.jar" checksum="3465805059" size="475929"/>
+    <lib file="kotlin-stdlib-jdk8.jar" checksum="3712377989" size="13769"/>
+    <lib file="tornadofx.jar" checksum="2648445250" size="2790897"/>
+    <lib file="commons-logging.jar" checksum="3829945133" size="61829"/>
+    <lib file="dynoman-1.0.0-SNAPSHOT.jar" checksum="618071797" size="309715"/>
+    <lib file="reflections.jar" checksum="1149609415" size="130999"/>
+    <lib file="aws-java-sdk-core.jar" checksum="965834228" size="929011"/>
+    <lib file="joda-time.jar" checksum="1873870471" size="621931"/>
+    <lib file="aws-java-sdk-s3.jar" checksum="1776796819" size="977606"/>
+    <lib file="jackson-databind.jar" checksum="4097966142" size="1171691"/>
+    <updateText>Updating...</updateText>
+    <updateLabelStyle>-fx-font-weight: bold;</updateLabelStyle>
+    <progressBarStyle>-fx-pref-width: 200;</progressBarStyle>
+    <wrapperStyle>-fx-spacing: 10; -fx-padding: 25;</wrapperStyle>
+    <acceptDowngrade>false</acceptDowngrade>
+    <stopOnUpdateErrors>false</stopOnUpdateErrors>
+    <lingeringUpdateScreen>false</lingeringUpdateScreen>
+</Application>
