@@ -35,7 +35,7 @@ class DynamoDBOperation(region: Regions, private val offline: Boolean) {
     }
 
     fun scan(search: ScanSearch): Page<Item, ScanOutcome> {
-        val spec = search.toScanSpec(QueryResult.MAX_PAGE_RESULT_SIZE)
+        val spec = search.toScanSpec(QueryResult.SCAN_MAX_PAGE_RESULT_SIZE)
         val table = getTable(search.table)
         val result = if (search.index != null) {
             table.getIndex(search.index).scan(spec)
@@ -53,7 +53,7 @@ class DynamoDBOperation(region: Regions, private val offline: Boolean) {
     }
 
     fun query(search: QuerySearch): Page<Item, QueryOutcome> {
-        val spec = search.toQuerySpec(QueryResult.MAX_PAGE_RESULT_SIZE)
+        val spec = search.toQuerySpec(QueryResult.QUERY_MAX_PAGE_RESULT_SIZE)
         println("Run query")
         var page: Page<Item, QueryOutcome>? = null
         val runTime = measureTimeMillis {

@@ -9,9 +9,10 @@ import com.amazonaws.services.dynamodbv2.model.TableDescription
 data class QueryResult(val searchType: SearchType,
                        private val description: TableDescription,
                        private var page: Page<Item, out Any>,
-                       private val maxPageSize: Int = MAX_PAGE_RESULT_SIZE) {
+                       private val maxPageSize: Int = QUERY_MAX_PAGE_RESULT_SIZE) {
     companion object {
-        const val MAX_PAGE_RESULT_SIZE = 100
+        const val QUERY_MAX_PAGE_RESULT_SIZE = 100
+        const val SCAN_MAX_PAGE_RESULT_SIZE = 100
     }
 
     private val data = mutableListOf<List<ResultData>>()
