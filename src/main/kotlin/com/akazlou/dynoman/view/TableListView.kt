@@ -191,8 +191,6 @@ class TableListView : View() {
         init {
             val scanMenuItem = MenuItem("Scan")
             scanMenuItem.action {
-                println(this)
-                println(this.parent)
                 val tableName = treeItem.value.name
                 println("Scan $tableName")
                 val description = (treeItem as DynamoDBTableTreeItem).description
