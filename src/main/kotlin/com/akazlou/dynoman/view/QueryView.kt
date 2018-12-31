@@ -22,7 +22,8 @@ import tornadofx.*
 class QueryView : View("Query") {
     private val controller: RunQueryController by inject()
     private var queries: TabPane by singleAssign()
-    private val region = SimpleStringProperty(app.config.string("region").orEmpty())
+    private val region = SimpleStringProperty(Config.getRegion(app.config))
+    private val local = SimpleStringProperty(buildLocalText(Config.isLocal(app.config)))
 
     override val root = vbox(5.0) {
         borderpaneConstraints {
@@ -80,6 +81,9 @@ class QueryView : View("Query") {
                 text(region) {
                     font = Font.font("Verdana")
                 }
+                text(local) {
+                    font = Font.font("Verdana")
+                }
             }
         }
     }
@@ -111,7 +115,10 @@ class QueryView : View("Query") {
         queries.selectionModel.selectLast()
     }
 
-    fun setRegion(region: Regions) {
+    fun setRegion(region: Regions, local: Boolean) {
         this.region.value = region.getName()
+        this.local.value = buildLocalText(local)
     }
+
+    private fun buildLocalText(local: Boolean) = if (local) "(local)" else ""
 }

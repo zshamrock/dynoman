@@ -44,9 +44,10 @@ class TableListView : View() {
             action {
                 find(ConnectRegionFragment::class).openModal(block = true)
                 val region = getRegion()
-                queryView.setRegion(region)
-                val tables = controller.listTables(region)
-                val operation = controller.getClient(region)
+                val local = isLocal()
+                queryView.setRegion(region, local)
+                val tables = controller.listTables(region, local)
+                val operation = controller.getClient(region, local)
                 tablesList.setAll(tables.map { DynamoDBTableTreeItem(it, operation) })
             }
         }
@@ -59,7 +60,7 @@ class TableListView : View() {
             root.isExpanded = true
             isShowRoot = false
             cellFactory = Callback<TreeView<DynamoDBTable>, TreeCell<DynamoDBTable>> {
-                DynamoDBTextFieldTreeCell(controller.getClient(getRegion()), queryView, DynamoDBTableStringConverter())
+                DynamoDBTextFieldTreeCell(controller.getClient(getRegion(), isLocal()), queryView, DynamoDBTableStringConverter())
             }
             tablesList = root.children
         }
@@ -72,7 +73,11 @@ class TableListView : View() {
     }
 
     private fun getRegion(): Regions {
-        return Regions.fromName(app.config.string("region", Regions.US_WEST_2.getName()))
+        return Regions.fromName(Config.getRegion(app.config))
+    }
+
+    private fun isLocal(): Boolean {
+        return Config.isLocal(app.config)
     }
 
     class DynamoDBTableStringConverter : StringConverter<DynamoDBTable>() {

@@ -4,6 +4,7 @@ import com.akazlou.dynoman.domain.QueryResult
 import com.akazlou.dynoman.domain.QuerySearch
 import com.akazlou.dynoman.domain.ScanSearch
 import com.amazonaws.auth.DefaultAWSCredentialsProviderChain
+import com.amazonaws.client.builder.AwsClientBuilder
 import com.amazonaws.regions.Regions
 import com.amazonaws.services.dynamodbv2.AmazonDynamoDBClient
 import com.amazonaws.services.dynamodbv2.document.DynamoDB
@@ -15,17 +16,26 @@ import com.amazonaws.services.dynamodbv2.document.Table
 import java.util.concurrent.TimeUnit
 import kotlin.system.measureTimeMillis
 
-class DynamoDBOperation(region: Regions, private val offline: Boolean) {
+class DynamoDBOperation(region: Regions, local: Boolean, private val offline: Boolean) {
+    companion object {
+        const val LOCAL_ENDPOINT = "http://localhost:8000"
+    }
+
     private val dynamodb: DynamoDB?
 
     init {
         dynamodb = if (offline) {
             null
         } else {
-            val amazonDynamoDB = AmazonDynamoDBClient.builder()
+            val builder = AmazonDynamoDBClient.builder()
                     .withCredentials(DefaultAWSCredentialsProviderChain())
-                    .withRegion(region)
-                    .build()
+            if (local) {
+                builder.withEndpointConfiguration(
+                        AwsClientBuilder.EndpointConfiguration(LOCAL_ENDPOINT, region.getName()))
+            } else {
+                builder.withRegion(region)
+            }
+            val amazonDynamoDB = builder.build()
             DynamoDB(amazonDynamoDB)
         }
     }
