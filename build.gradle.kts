@@ -50,7 +50,7 @@ repositories {
 // TODO: Upgrade all dependencies
 dependencies {
     compile(kotlin("stdlib-jdk8", kotlin_version))
-    compile("no.tornado", "tornadofx", "1.7.16")
+    compile("no.tornado", "tornadofx", "1.7.18")
     compile("com.amazonaws", "aws-java-sdk-dynamodb", "1.11.461")
     compile("org.jetbrains.kotlin", "kotlin-reflect", kotlin_version)
     compile("org.reflections", "reflections", "0.9.11")
