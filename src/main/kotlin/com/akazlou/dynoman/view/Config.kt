@@ -11,6 +11,8 @@ import tornadofx.*
 // (or research on how enable it the global wide similar to the app.config)
 object Config {
     const val REGION = "region"
+    const val ACCESS_KEY = "access_key"
+    const val SECRET_KEY = "secret_key"
     const val PROFILE = "profile"
     @JvmField
     val DEFAULT_REGION = Regions.US_WEST_2
@@ -39,7 +41,20 @@ object Config {
         }
     }
 
+    fun getAccessKey(config: ConfigProperties): String {
+        return config.string(ACCESS_KEY).orEmpty()
+    }
+
+    fun getSecretKey(config: ConfigProperties): String {
+        return config.string(SECRET_KEY).orEmpty()
+    }
+
     fun getConnectionProperties(config: ConfigProperties): ConnectionProperties {
-        return ConnectionProperties(Regions.fromName(getRegion(config)), getProfile(config), isLocal(config))
+        return ConnectionProperties(
+                Regions.fromName(getRegion(config)),
+                getAccessKey(config),
+                getSecretKey(config),
+                getProfile(config),
+                isLocal(config))
     }
 }
