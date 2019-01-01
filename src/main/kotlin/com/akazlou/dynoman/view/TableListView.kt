@@ -10,7 +10,6 @@ import com.akazlou.dynoman.domain.ScanSearch
 import com.akazlou.dynoman.domain.SearchType
 import com.akazlou.dynoman.domain.Type
 import com.akazlou.dynoman.service.DynamoDBOperation
-import com.amazonaws.regions.Regions
 import javafx.collections.ObservableList
 import javafx.scene.control.ContextMenu
 import javafx.scene.control.CustomMenuItem
@@ -43,11 +42,10 @@ class TableListView : View() {
             prefWidth = 100.0
             action {
                 find(ConnectRegionFragment::class).openModal(block = true)
-                val region = getRegion()
-                val local = isLocal()
-                queryView.setRegion(region, local)
-                val tables = controller.listTables(region, local)
-                val operation = controller.getClient(region, local)
+                val properties = Config.getConnectionProperties(app.config)
+                queryView.setRegion(properties.region, properties.local)
+                val tables = controller.listTables(properties)
+                val operation = controller.getClient(properties)
                 tablesList.setAll(tables.map { DynamoDBTableTreeItem(it, operation) })
             }
         }
@@ -60,7 +58,10 @@ class TableListView : View() {
             root.isExpanded = true
             isShowRoot = false
             cellFactory = Callback<TreeView<DynamoDBTable>, TreeCell<DynamoDBTable>> {
-                DynamoDBTextFieldTreeCell(controller.getClient(getRegion(), isLocal()), queryView, DynamoDBTableStringConverter())
+                DynamoDBTextFieldTreeCell(
+                        controller.getClient(Config.getConnectionProperties(app.config)),
+                        queryView,
+                        DynamoDBTableStringConverter())
             }
             tablesList = root.children
         }
@@ -70,14 +71,6 @@ class TableListView : View() {
             }
             isEditable = false
         }
-    }
-
-    private fun getRegion(): Regions {
-        return Regions.fromName(Config.getRegion(app.config))
-    }
-
-    private fun isLocal(): Boolean {
-        return Config.isLocal(app.config)
     }
 
     class DynamoDBTableStringConverter : StringConverter<DynamoDBTable>() {

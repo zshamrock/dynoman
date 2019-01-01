@@ -1,30 +1,27 @@
 package com.akazlou.dynoman.controller
 
+import com.akazlou.dynoman.domain.ConnectionProperties
 import com.akazlou.dynoman.domain.DynamoDBTable
 import com.akazlou.dynoman.service.DynamoDBOperation
-import com.amazonaws.regions.Regions
 import tornadofx.*
 
 class MainController : Controller() {
-    private val clients = with(mutableMapOf<Pair<Regions, Boolean>, DynamoDBOperation>()) {
-        withDefault { pair ->
-            val region = pair.first
-            val local = pair.second
-            println("Using default value for the region $region (local: $local)")
-            getOrPut(pair) {
+    private val clients = with(mutableMapOf<ConnectionProperties, DynamoDBOperation>()) {
+        withDefault { properties ->
+            println("Build DynamoDB connection using $properties")
+            getOrPut(properties) {
                 DynamoDBOperation(
-                        region,
-                        local,
+                        properties,
                         System.getProperty("offline", "false")!!.toBoolean())
             }
         }
     }
 
-    fun listTables(region: Regions, local: Boolean): List<DynamoDBTable> {
-        return getClient(region, local).listTables().map { DynamoDBTable(it) }
+    fun listTables(properties: ConnectionProperties): List<DynamoDBTable> {
+        return getClient(properties).listTables().map { DynamoDBTable(it) }
     }
 
-    fun getClient(region: Regions, local: Boolean): DynamoDBOperation {
-        return clients.getValue(Pair(region, local))
+    fun getClient(properties: ConnectionProperties): DynamoDBOperation {
+        return clients.getValue(properties)
     }
 }

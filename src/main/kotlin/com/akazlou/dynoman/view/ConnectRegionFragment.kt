@@ -8,15 +8,19 @@ import tornadofx.*
 
 class ConnectRegionFragment : Fragment("Connect Region") {
     private val region = SimpleStringProperty(Config.getRegion(app.config))
+    private val profile = SimpleStringProperty(Config.getProfile(app.config))
     private val local = SimpleBooleanProperty(Config.isLocal(app.config))
     override val root = vbox(5.0) {
-        hbox(5.0) {
-            label("Region: ")
+        hbox(10.0, Pos.CENTER_LEFT) {
+            label("Profile:")
+            textfield(profile)
+        }
+        hbox(10.0, Pos.CENTER_LEFT) {
+            label("Region:")
             combobox(region, Regions.values().map { it.getName() })
             checkbox("local", local)
-            alignment = Pos.CENTER
         }
-        hbox(5.0) {
+        hbox(alignment = Pos.CENTER) {
             button("Connect") {
                 //setPrefSize(100.0, 40.0)
                 prefWidth = 100.0
@@ -24,12 +28,12 @@ class ConnectRegionFragment : Fragment("Connect Region") {
                     with(app.config) {
                         set(Config.REGION to region.value)
                         set(Config.LOCAL to local.value)
+                        set(Config.PROFILE to profile.value)
                         save()
                     }
                     close()
                 }
             }
-            alignment = Pos.CENTER
         }
     }
 }
