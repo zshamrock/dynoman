@@ -18,7 +18,7 @@ buildscript {
     }
     dependencies {
         classpath(kotlin("gradle-plugin", kotlin_version))
-        classpath("com.github.jengelman.gradle.plugins:shadow:2.0.4")
+        classpath("com.github.jengelman.gradle.plugins:shadow:4.0.3")
         classpath("no.tornado:fxlauncher-gradle-plugin:1.0.20")
     }
 }
@@ -51,10 +51,10 @@ repositories {
 dependencies {
     compile(kotlin("stdlib-jdk8", kotlin_version))
     compile("no.tornado", "tornadofx", "1.7.18")
-    compile("com.amazonaws", "aws-java-sdk-dynamodb", "1.11.461")
+    compile("com.amazonaws", "aws-java-sdk-dynamodb", "1.11.475")
     compile("org.jetbrains.kotlin", "kotlin-reflect", kotlin_version)
     compile("org.reflections", "reflections", "0.9.11")
-    testCompile("io.kotlintest:kotlintest-runner-junit5:3.1.7")
+    testCompile("io.kotlintest:kotlintest-runner-junit5:3.1.11")
 }
 
 configure<JavaPluginConvention> {
