@@ -41,7 +41,7 @@ class TableListView : View() {
             //setPrefSize(100.0, 40.0)
             prefWidth = 100.0
             action {
-                find(ConnectRegionFragment::class).openModal(block = true)
+                find(ConnectionPropertiesFragment::class).openModal(block = true)
                 val properties = Config.getConnectionProperties(app.config)
                 queryView.setRegion(properties.region, properties.local)
                 val tables = controller.listTables(properties)

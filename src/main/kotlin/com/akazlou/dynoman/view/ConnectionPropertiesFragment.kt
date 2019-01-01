@@ -5,8 +5,7 @@ import javafx.beans.property.SimpleBooleanProperty
 import javafx.beans.property.SimpleStringProperty
 import tornadofx.*
 
-// TODO: Rename
-class ConnectRegionFragment : Fragment("Connection") {
+class ConnectionPropertiesFragment : Fragment("Connection") {
     private val region = SimpleStringProperty(Config.getRegion(app.config))
     private val key = SimpleStringProperty(Config.getAccessKey(app.config))
     private val secret = SimpleStringProperty(Config.getSecretKey(app.config))
