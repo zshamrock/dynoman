@@ -18,7 +18,7 @@ class DynamoDBOperation(properties: ConnectionProperties, private val offline: B
     private val dynamodb: DynamoDB? = if (offline) {
         null
     } else {
-        DynamoDB(properties.buildAmazonDynamoDBClient())
+        properties.buildDynamoDBClient()
     }
 
     fun listTables(): List<String> {

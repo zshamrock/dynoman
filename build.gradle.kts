@@ -47,14 +47,14 @@ repositories {
     mavenCentral()
 }
 
-// TODO: Upgrade all dependencies
 dependencies {
     compile(kotlin("stdlib-jdk8", kotlin_version))
     compile("no.tornado", "tornadofx", "1.7.18")
     compile("com.amazonaws", "aws-java-sdk-dynamodb", "1.11.475")
     compile("org.jetbrains.kotlin", "kotlin-reflect", kotlin_version)
     compile("org.reflections", "reflections", "0.9.11")
-    testCompile("io.kotlintest:kotlintest-runner-junit5:3.1.11")
+    testImplementation("io.kotlintest:kotlintest-runner-junit5:3.1.11")
+    testCompile("org.testcontainers:testcontainers:1.10.4")
 }
 
 configure<JavaPluginConvention> {
@@ -68,7 +68,7 @@ configure<FXLauncherExtension> {
     acceptDowngrade = false
 }
 
-tasks.getByName<Jar>("jar") {
+tasks.getting(Jar::class) {
     manifest {
         attributes(mapOf("Main-Class" to "com.akazlou.dynoman.DynomanApp"))
     }
@@ -78,6 +78,6 @@ tasks.withType<KotlinCompile> {
     kotlinOptions.jvmTarget = "1.8"
 }
 
-tasks.getByName<Test>("test") {
+tasks.getting(Test::class) {
     useJUnitPlatform()
 }

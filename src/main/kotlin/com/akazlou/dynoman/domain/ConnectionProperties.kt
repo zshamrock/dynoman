@@ -7,8 +7,8 @@ import com.amazonaws.auth.DefaultAWSCredentialsProviderChain
 import com.amazonaws.auth.profile.ProfileCredentialsProvider
 import com.amazonaws.client.builder.AwsClientBuilder
 import com.amazonaws.regions.Regions
-import com.amazonaws.services.dynamodbv2.AmazonDynamoDB
 import com.amazonaws.services.dynamodbv2.AmazonDynamoDBClient
+import com.amazonaws.services.dynamodbv2.document.DynamoDB
 
 /**
  * Connection properties used to build {@link AmazonDynamoDBClient}.
@@ -22,7 +22,7 @@ data class ConnectionProperties(val region: Regions,
         private const val LOCAL_ENDPOINT = "http://localhost:8000"
     }
 
-    fun buildAmazonDynamoDBClient(): AmazonDynamoDB {
+    fun buildDynamoDBClient(): DynamoDB {
         val builder = AmazonDynamoDBClient.builder().withCredentials(buildCredentials())
         if (local) {
             builder.withEndpointConfiguration(
@@ -30,7 +30,7 @@ data class ConnectionProperties(val region: Regions,
         } else {
             builder.withRegion(region)
         }
-        return builder.build()
+        return DynamoDB(builder.build())
     }
 
     private fun buildCredentials(): AWSCredentialsProvider {
