@@ -1,6 +1,7 @@
 package com.akazlou.dynoman.view
 
 import com.akazlou.dynoman.controller.MainController
+import com.akazlou.dynoman.domain.ConnectionProperties
 import com.akazlou.dynoman.domain.DynamoDBTable
 import com.akazlou.dynoman.domain.Operator
 import com.akazlou.dynoman.domain.Order
@@ -30,6 +31,21 @@ class TableListView : View() {
     private val controller: MainController by inject()
     private val queryView: QueryView by inject()
     private var tablesList: ObservableList<TreeItem<DynamoDBTable>> by singleAssign()
+    private var tablesTree: TreeView<DynamoDBTable> by singleAssign()
+    // Keep the cellFactory cached to be reused when switching between the connection properties
+    private val cellFactories = with(
+            mutableMapOf<ConnectionProperties, Callback<TreeView<DynamoDBTable>, TreeCell<DynamoDBTable>>>()) {
+        withDefault { properties ->
+            getOrPut(properties) {
+                Callback {
+                    DynamoDBTextFieldTreeCell(
+                            controller.getClient(properties),
+                            queryView,
+                            DynamoDBTableStringConverter())
+                }
+            }
+        }
+    }
 
     override val root = vbox(5.0) {
         borderpaneConstraints {
@@ -46,10 +62,12 @@ class TableListView : View() {
                 queryView.setRegion(properties.region, properties.local)
                 val tables = controller.listTables(properties)
                 val operation = controller.getClient(properties)
+                // Initialize the cellFactory for the tree here in order to get the correct operation reference
+                tablesTree.cellFactory = cellFactories.getValue(properties)
                 tablesList.setAll(tables.map { DynamoDBTableTreeItem(it, operation) })
             }
         }
-        treeview<DynamoDBTable> {
+        tablesTree = treeview {
             vboxConstraints {
                 prefHeight = 480.0
                 vGrow = Priority.ALWAYS
@@ -57,12 +75,6 @@ class TableListView : View() {
             root = TreeItem(DynamoDBTable("Tables"))
             root.isExpanded = true
             isShowRoot = false
-            cellFactory = Callback<TreeView<DynamoDBTable>, TreeCell<DynamoDBTable>> {
-                DynamoDBTextFieldTreeCell(
-                        controller.getClient(Config.getConnectionProperties(app.config)),
-                        queryView,
-                        DynamoDBTableStringConverter())
-            }
             tablesList = root.children
         }
         textarea {
