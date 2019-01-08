@@ -13,17 +13,17 @@ class ConnectionPropertiesFragment : Fragment("Connection") {
     private val credentialsFile = SimpleStringProperty("")
     private val local = SimpleBooleanProperty(Config.isLocal(app.config))
     override val root = form {
-        fieldset("Properties") {
-            field("AWS Access Key:") {
+        fieldset("AWS Properties") {
+            field("Access Key:") {
                 textfield(key)
             }
-            field("AWS Secret Key:") {
+            field("Secret Key:") {
                 textfield(secret)
             }
-            field("AWS Credentials Profile:") {
+            field("Credentials Profile:") {
                 textfield(profile)
             }
-            field("AWS Credentials File:") {
+            field("Credentials File:") {
                 textfield(credentialsFile)
                 button("...") {
                     action {
@@ -32,7 +32,7 @@ class ConnectionPropertiesFragment : Fragment("Connection") {
                     }
                 }
             }
-            field("AWS Region:") {
+            field("Region:") {
                 combobox(region, Regions.values().map { it.getName() })
                 checkbox("local", local)
             }
