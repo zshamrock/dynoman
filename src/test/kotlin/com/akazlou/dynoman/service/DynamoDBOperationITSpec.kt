@@ -18,7 +18,7 @@ class DynamoDBOperationITSpec : StringSpec() {
 
     override fun listeners(): List<TestListener> = listOf(DynamoDBTestContainerListener)
 
-    private val operation = DynamoDBOperation(ConnectionProperties(Regions.US_WEST_2, "", "", "default", true), false)
+    private val operation = DynamoDBOperation(ConnectionProperties(Regions.US_WEST_2, "", "", "default", "", true), false)
 
     override val defaultTestCaseConfig: TestCaseConfig = TestCaseConfig(tags = setOf(IT))
 

@@ -14,6 +14,7 @@ object Config {
     const val ACCESS_KEY = "access_key"
     const val SECRET_KEY = "secret_key"
     const val PROFILE = "profile"
+    const val CREDENTIALS_FILE = "credentials_file"
     @JvmField
     val DEFAULT_REGION = Regions.US_WEST_2
     const val LOCAL = "local"
@@ -49,12 +50,17 @@ object Config {
         return config.string(SECRET_KEY).orEmpty()
     }
 
+    fun getCredentialsFile(config: ConfigProperties): String {
+        return config.string(CREDENTIALS_FILE).orEmpty()
+    }
+
     fun getConnectionProperties(config: ConfigProperties): ConnectionProperties {
         return ConnectionProperties(
                 Regions.fromName(getRegion(config)),
                 getAccessKey(config),
                 getSecretKey(config),
                 getProfile(config),
+                getCredentialsFile(config),
                 isLocal(config))
     }
 }

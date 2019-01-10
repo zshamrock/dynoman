@@ -10,7 +10,7 @@ class ConnectionPropertiesFragment : Fragment("Connection") {
     private val key = SimpleStringProperty(Config.getAccessKey(app.config))
     private val secret = SimpleStringProperty(Config.getSecretKey(app.config))
     private val profile = SimpleStringProperty(Config.getProfile(app.config))
-    private val credentialsFile = SimpleStringProperty("")
+    private val credentialsFile = SimpleStringProperty(Config.getCredentialsFile(app.config))
     private val local = SimpleBooleanProperty(Config.isLocal(app.config))
     override val root = form {
         fieldset("AWS Properties") {
@@ -47,6 +47,7 @@ class ConnectionPropertiesFragment : Fragment("Connection") {
                     set(Config.ACCESS_KEY to key.value)
                     set(Config.SECRET_KEY to secret.value)
                     set(Config.PROFILE to profile.value)
+                    set(Config.CREDENTIALS_FILE to credentialsFile.value)
                     save()
                 }
                 close()

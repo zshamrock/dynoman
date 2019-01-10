@@ -31,7 +31,7 @@ object DynamoDBTestContainerListener : TestListener {
 
     override fun beforeSpec(description: Description, spec: Spec) {
         container.start()
-        val dynamoDB = ConnectionProperties(Regions.US_WEST_2, "", "", "default", true).buildDynamoDBClient()
+        val dynamoDB = ConnectionProperties(Regions.US_WEST_2, "", "", "default", "", true).buildDynamoDBClient()
         setupData(dynamoDB)
     }
 

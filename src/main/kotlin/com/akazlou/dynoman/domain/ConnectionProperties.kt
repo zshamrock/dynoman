@@ -17,6 +17,7 @@ data class ConnectionProperties(val region: Regions,
                                 val key: String,
                                 val secret: String,
                                 val profile: String,
+                                val credentialsFile: String,
                                 val local: Boolean) {
     companion object {
         private const val LOCAL_ENDPOINT = "http://localhost:8000"
@@ -37,7 +38,11 @@ data class ConnectionProperties(val region: Regions,
         return if (key.isNotBlank() && secret.isNotBlank()) {
             AWSStaticCredentialsProvider(BasicAWSCredentials(key, secret))
         } else if (profile.isNotBlank()) {
-            ProfileCredentialsProvider(profile)
+            if (credentialsFile.isNotBlank()) {
+                ProfileCredentialsProvider(credentialsFile, profile)
+            } else {
+                ProfileCredentialsProvider(profile)
+            }
         } else {
             DefaultAWSCredentialsProviderChain()
         }
