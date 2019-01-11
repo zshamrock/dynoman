@@ -37,20 +37,29 @@ class ConnectionPropertiesFragment : Fragment("Connection") {
                 checkbox("local", local)
             }
         }
-        button("Connect") {
-            //setPrefSize(100.0, 40.0)
-            prefWidth = 100.0
-            action {
-                with(app.config) {
-                    set(Config.REGION to region.value)
-                    set(Config.LOCAL to local.value)
-                    set(Config.ACCESS_KEY to key.value)
-                    set(Config.SECRET_KEY to secret.value)
-                    set(Config.PROFILE to profile.value)
-                    set(Config.CREDENTIALS_FILE to credentialsFile.value)
-                    save()
+        // TODO: Investigate on layout and default/cancel buttons
+        // TODO: Try without buttonbar
+        buttonbar {
+            button("Connect") {
+                //setPrefSize(100.0, 40.0)
+                prefWidth = 100.0
+                action {
+                    with(app.config) {
+                        set(Config.REGION to region.value)
+                        set(Config.LOCAL to local.value)
+                        set(Config.ACCESS_KEY to key.value)
+                        set(Config.SECRET_KEY to secret.value)
+                        set(Config.PROFILE to profile.value)
+                        set(Config.CREDENTIALS_FILE to credentialsFile.value)
+                        save()
+                    }
+                    close()
                 }
-                close()
+            }
+            button("Cancel") {
+                action {
+                    close()
+                }
             }
         }
     }
