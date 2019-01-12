@@ -1,5 +1,6 @@
 package com.akazlou.dynoman.view
 
+import com.akazlou.dynoman.controller.MainController
 import com.amazonaws.regions.Regions
 import javafx.beans.property.SimpleBooleanProperty
 import javafx.beans.property.SimpleStringProperty
@@ -12,6 +13,8 @@ class ConnectionPropertiesFragment : Fragment("Connection") {
     private val profile = SimpleStringProperty(Config.getProfile(app.config))
     private val credentialsFile = SimpleStringProperty(Config.getCredentialsFile(app.config))
     private val local = SimpleBooleanProperty(Config.isLocal(app.config))
+    private val tableListView: TableListView by inject()
+    private val controller: MainController by inject()
     override val root = form {
         fieldset("AWS Properties") {
             field("Access Key:") {
@@ -37,23 +40,29 @@ class ConnectionPropertiesFragment : Fragment("Connection") {
                 checkbox("local", local)
             }
         }
-        // TODO: Investigate on layout and default/cancel buttons
-        // TODO: Try without buttonbar
         buttonbar {
             button("Connect") {
                 //setPrefSize(100.0, 40.0)
                 prefWidth = 100.0
                 action {
-                    with(app.config) {
-                        set(Config.REGION to region.value)
-                        set(Config.LOCAL to local.value)
-                        set(Config.ACCESS_KEY to key.value)
-                        set(Config.SECRET_KEY to secret.value)
-                        set(Config.PROFILE to profile.value)
-                        set(Config.CREDENTIALS_FILE to credentialsFile.value)
-                        save()
+                    runAsyncWithProgress {
+                        with(app.config) {
+                            set(Config.REGION to region.value)
+                            set(Config.LOCAL to local.value)
+                            set(Config.ACCESS_KEY to key.value)
+                            set(Config.SECRET_KEY to secret.value)
+                            set(Config.PROFILE to profile.value)
+                            set(Config.CREDENTIALS_FILE to credentialsFile.value)
+                            save()
+                        }
+                        val properties = Config.getConnectionProperties(app.config)
+                        val operation = controller.getClient(properties)
+                        val tables = controller.listTables(properties)
+                        Triple(operation, properties, tables)
+                    } ui { result ->
+                        tableListView.refresh(result.first, result.second, result.third)
+                        close()
                     }
-                    close()
                 }
             }
             button("Cancel") {

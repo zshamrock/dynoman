@@ -58,13 +58,6 @@ class TableListView : View() {
             prefWidth = 100.0
             action {
                 find(ConnectionPropertiesFragment::class).openModal(block = true)
-                val properties = Config.getConnectionProperties(app.config)
-                queryView.setRegion(properties.region, properties.local)
-                val tables = controller.listTables(properties)
-                val operation = controller.getClient(properties)
-                // Initialize the cellFactory for the tree here in order to get the correct operation reference
-                tablesTree.cellFactory = cellFactories.getValue(properties)
-                tablesList.setAll(tables.map { DynamoDBTableTreeItem(it, operation) })
             }
         }
         tablesTree = treeview {
@@ -83,6 +76,13 @@ class TableListView : View() {
             }
             isEditable = false
         }
+    }
+
+    fun refresh(operation: DynamoDBOperation, properties: ConnectionProperties, tables: List<DynamoDBTable>) {
+        queryView.setRegion(properties.region, properties.local)
+        // Initialize the cellFactory for the tree here in order to get the correct operation reference
+        tablesTree.cellFactory = cellFactories.getValue(properties)
+        tablesList.setAll(tables.map { DynamoDBTableTreeItem(it, operation) })
     }
 
     class DynamoDBTableStringConverter : StringConverter<DynamoDBTable>() {
