@@ -37,6 +37,8 @@ class QueryTabFragment : Fragment("Query Tab") {
     private val data = FXCollections.observableArrayList<ResultData>()
     private var queryResult: QueryResult? = null
     private var copyAllByFieldMenu: Menu? = null
+    private val allColumns: MutableSet<String> = mutableSetOf()
+
     override val root = vbox {
         hbox(alignment = Pos.CENTER_RIGHT) {
             prefHeight = 30.0
@@ -163,7 +165,7 @@ class QueryTabFragment : Fragment("Query Tab") {
                         separator()
                         item("Copy All") {
                             setOnAction {
-                                val content = data.map { it.getValues().joinToString { "'$it'" } }.joinToString("\n")
+                                val content = data.joinToString("\n") { it.getValues(allColumns).joinToString { "'$it'" } }
                                 clipboard.putString(content)
                                 println("Copy All")
                             }
@@ -171,10 +173,9 @@ class QueryTabFragment : Fragment("Query Tab") {
                         item("Copy All (with names)") {
                             setOnAction {
                                 if (selectedItem != null) {
-                                    val resultData = selectedItem as ResultData
-                                    val content = (resultData.getKeys().joinToString { it }
+                                    val content = (allColumns.joinToString { it }
                                             + "\n"
-                                            + data.map { it.getValues().joinToString { "'$it'" } }.joinToString("\n"))
+                                            + data.joinToString("\n") { it.getValues(allColumns).joinToString { "'$it'" } })
                                     clipboard.putString(content)
                                 }
                                 println("Copy All (with names)")
@@ -221,7 +222,7 @@ class QueryTabFragment : Fragment("Query Tab") {
         val columns = if (results.isEmpty()) {
             emptyList()
         } else {
-            val allColumns = mutableSetOf<String>()
+            allColumns.clear()
             results.asSequence()
                     .flatMap { it.getKeys().asSequence() }
                     .map { attributeName ->
@@ -286,6 +287,10 @@ data class ResultData(val data: Map<String, Any?>, val hashKey: KeySchemaElement
     }
 
     fun getValues(): List<String> {
-        return getKeys().map { getValue(it) }
+        return getValues(getKeys().toSet())
+    }
+
+    fun getValues(keys: Set<String>): List<String> {
+        return keys.map { getValue(it) }
     }
 }
