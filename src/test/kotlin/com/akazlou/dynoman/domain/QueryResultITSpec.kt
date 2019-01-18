@@ -17,7 +17,7 @@ class QueryResultITSpec : StringSpec() {
     override val defaultTestCaseConfig: TestCaseConfig = TestCaseConfig(tags = setOf(IT))
 
     init {
-        "verify navigate over pages for the scan" {
+        "f:verify navigate over pages for the scan" {
         }
     }
 }
