@@ -6,6 +6,7 @@ import com.akazlou.dynoman.service.DynamoDBOperation
 import com.amazonaws.regions.Regions
 import io.kotlintest.TestCaseConfig
 import io.kotlintest.extensions.TestListener
+import io.kotlintest.shouldBe
 import io.kotlintest.specs.StringSpec
 
 class QueryResultITSpec : StringSpec() {
@@ -18,6 +19,18 @@ class QueryResultITSpec : StringSpec() {
 
     init {
         "verify navigate over pages for the scan" {
+            var result = operation.scan(ScanSearch("Table1", null, emptyList()))
+
+            result.hasNextPage() shouldBe true
+            result.size() shouldBe 100
+
+            result = result.nextPage()
+            result.hasNextPage() shouldBe true
+            result.size() shouldBe 100
+
+            result = result.nextPage()
+            result.hasNextPage() shouldBe false
+            result.size() shouldBe 0
         }
     }
 }
