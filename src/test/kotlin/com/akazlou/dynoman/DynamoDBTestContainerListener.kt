@@ -35,6 +35,7 @@ object DynamoDBTestContainerListener : TestListener {
         setupData(dynamoDB)
     }
 
+    // TODO: Set up more extensive data to use for testing
     private fun setupData(dynamoDB: DynamoDB) {
         val table = dynamoDB.createTable(
                 "Table1",
