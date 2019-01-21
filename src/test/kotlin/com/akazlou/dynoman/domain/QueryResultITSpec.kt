@@ -32,5 +32,18 @@ class QueryResultITSpec : StringSpec() {
             result.hasNextPage() shouldBe false
             result.size() shouldBe 0
         }
+
+        "verify navigate over pages for the query" {
+            var result = operation.query(
+                    QuerySearch(
+                            "Table1",
+                            null,
+                            listOf(QueryCondition("Id1", Type.STRING, Operator.EQ, listOf("Id1-50"))),
+                            emptyList(),
+                            Order.ASC))
+
+            result.hasNextPage() shouldBe false
+            result.size() shouldBe 1
+        }
     }
 }
