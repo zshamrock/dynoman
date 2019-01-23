@@ -35,7 +35,6 @@ object DynamoDBTestContainerListener : TestListener {
         setupData(dynamoDB)
     }
 
-    // TODO: Set up more extensive data to use for testing
     private fun setupData(dynamoDB: DynamoDB) {
         val table = dynamoDB.createTable(
                 "Table1",
@@ -44,7 +43,7 @@ object DynamoDBTestContainerListener : TestListener {
                         AttributeDefinition("Id1", "S"),
                         AttributeDefinition("Timestamp1", "N")),
                 ProvisionedThroughput(10, 5))
-        table.createGSI(CreateGlobalSecondaryIndexAction()
+        val index1 = table.createGSI(CreateGlobalSecondaryIndexAction()
                 .withIndexName("Table1Index")
                 .withKeySchema(
                         listOf(KeySchemaElement("Id2", KeyType.HASH), KeySchemaElement("Timestamp1", KeyType.RANGE)))
@@ -52,12 +51,27 @@ object DynamoDBTestContainerListener : TestListener {
                 .withProvisionedThroughput(ProvisionedThroughput(10, 5)),
                 AttributeDefinition("Id2", "S"),
                 AttributeDefinition("Timestamp1", "N"))
+        index1.waitForActive()
+        val index2 = table.createGSI(CreateGlobalSecondaryIndexAction()
+                .withIndexName("Table2Index")
+                .withKeySchema(
+                        listOf(KeySchemaElement("Num", KeyType.HASH), KeySchemaElement("Timestamp1", KeyType.RANGE)))
+                .withProjection(Projection().withProjectionType(ProjectionType.ALL))
+                .withProvisionedThroughput(ProvisionedThroughput(10, 5)),
+                AttributeDefinition("Num", "N"),
+                AttributeDefinition("Timestamp1", "N"))
+        index2.waitForActive()
 
+        var num = 1
         for (i in 1..200) {
+            if (i >= 150 && num == 1) {
+                num = 2
+            }
             table.putItem(Item()
                     .withPrimaryKey("Id1", "Id1-$i", "Timestamp1", i)
                     .withString("Id2", "Id2-$i")
-                    .withNumber("Timestamp2", i))
+                    .withNumber("Timestamp2", i)
+                    .withNumber("Num", num))
         }
     }
 
