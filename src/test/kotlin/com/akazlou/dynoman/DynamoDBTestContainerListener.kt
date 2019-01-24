@@ -44,7 +44,7 @@ object DynamoDBTestContainerListener : TestListener {
                         AttributeDefinition("Timestamp1", "N")),
                 ProvisionedThroughput(10, 5))
         val index1 = table.createGSI(CreateGlobalSecondaryIndexAction()
-                .withIndexName("Table1Index")
+                .withIndexName("Table1Index1")
                 .withKeySchema(
                         listOf(KeySchemaElement("Id2", KeyType.HASH), KeySchemaElement("Timestamp1", KeyType.RANGE)))
                 .withProjection(Projection().withProjectionType(ProjectionType.ALL))
@@ -53,7 +53,7 @@ object DynamoDBTestContainerListener : TestListener {
                 AttributeDefinition("Timestamp1", "N"))
         index1.waitForActive()
         val index2 = table.createGSI(CreateGlobalSecondaryIndexAction()
-                .withIndexName("Table2Index")
+                .withIndexName("Table1Index2")
                 .withKeySchema(
                         listOf(KeySchemaElement("Num", KeyType.HASH), KeySchemaElement("Timestamp1", KeyType.RANGE)))
                 .withProjection(Projection().withProjectionType(ProjectionType.ALL))
