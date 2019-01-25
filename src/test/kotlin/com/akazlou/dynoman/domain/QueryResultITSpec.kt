@@ -62,5 +62,18 @@ class QueryResultITSpec : StringSpec() {
             result.hasNextPage() shouldBe false
             result.size() shouldBe 50
         }
+
+        "verify navigate over pages for the query on index with filters" {
+            var result = operation.query(
+                    QuerySearch(
+                            "Table1",
+                            "Table1Index2",
+                            listOf(QueryCondition("Num", Type.NUMBER, Operator.EQ, listOf("1"))),
+                            listOf(QueryCondition("Timestamp2", Type.NUMBER, Operator.GE, listOf("100"))),
+                            Order.ASC))
+
+            result.hasNextPage() shouldBe false
+            result.size() shouldBe 50
+        }
     }
 }
