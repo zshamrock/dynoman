@@ -72,8 +72,13 @@ class QueryResultITSpec : StringSpec() {
                             listOf(QueryCondition("Timestamp2", Type.NUMBER, Operator.GE, listOf("150"))),
                             Order.ASC))
 
+            // TODO: Verify whether this is the expected behaviour on the real DynamoDB (doesn't sound like it is)
+            result.hasNextPage() shouldBe true
+            result.size() shouldBe 0
+
+            result = result.nextPage()
             result.hasNextPage() shouldBe false
-            result.size() shouldBe 50
+            result.size() shouldBe 0
         }
     }
 }
