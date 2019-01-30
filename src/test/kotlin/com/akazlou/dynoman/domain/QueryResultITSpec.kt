@@ -64,7 +64,7 @@ class QueryResultITSpec : StringSpec() {
             result.size() shouldBe 49
         }
 
-        "f:verify navigate over pages for the query on index with filters" {
+        "verify navigate over pages for the query on index with filters" {
             var result = operation.query(
                     QuerySearch(
                             "Table1",
