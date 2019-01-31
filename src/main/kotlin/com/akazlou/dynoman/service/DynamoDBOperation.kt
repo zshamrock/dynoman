@@ -4,6 +4,7 @@ import com.akazlou.dynoman.domain.ConnectionProperties
 import com.akazlou.dynoman.domain.QueryResult
 import com.akazlou.dynoman.domain.QuerySearch
 import com.akazlou.dynoman.domain.ScanSearch
+import com.akazlou.dynoman.domain.SearchType
 import com.amazonaws.services.dynamodbv2.document.DynamoDB
 import com.amazonaws.services.dynamodbv2.document.Item
 import com.amazonaws.services.dynamodbv2.document.Page
@@ -33,6 +34,7 @@ class DynamoDBOperation(properties: ConnectionProperties, private val offline: B
         } else {
             table.scan(spec)
         }
+        val qr = QueryResult(SearchType.SCAN, table.description, result.firstPage())
         val page = result.firstPage()
         println("Size of the page is ${page.size()}")
         println("has next page ${page.hasNextPage()}")
