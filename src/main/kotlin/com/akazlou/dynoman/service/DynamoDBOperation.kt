@@ -35,6 +35,7 @@ class DynamoDBOperation(properties: ConnectionProperties, private val offline: B
             table.scan(spec)
         }
         val qr = QueryResult(SearchType.SCAN, table.description, result.firstPage())
+
         val page = result.firstPage()
         println("Size of the page is ${page.size()}")
         println("has next page ${page.hasNextPage()}")
