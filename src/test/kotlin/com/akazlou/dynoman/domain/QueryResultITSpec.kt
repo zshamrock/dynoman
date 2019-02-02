@@ -21,6 +21,8 @@ class QueryResultITSpec : StringSpec() {
     init {
         "verify navigate over pages for the scan" {
             var result = operation.scan(ScanSearch("Table1", null, emptyList()))
+            val table = operation.getTable("Table1")
+            val qr = QueryResult(SearchType.SCAN, table.description, result)
 
             result.hasNextPage() shouldBe true
             result.size() shouldBe 100
