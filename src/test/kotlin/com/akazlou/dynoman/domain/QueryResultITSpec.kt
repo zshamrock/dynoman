@@ -23,6 +23,13 @@ class QueryResultITSpec : StringSpec() {
             var result = operation.scan(ScanSearch("Table1", null, emptyList()))
             val table = operation.getTable("Table1")
             val qr = QueryResult(SearchType.SCAN, table.description, result)
+            qr.hasMoreData(1) shouldBe true
+            qr.getData(1).size shouldBe 100
+
+            qr.hasMoreData(2) shouldBe true
+            qr.getData(2).size shouldBe 100
+
+            qr.hasMoreData(3) shouldBe false
 
             result.hasNextPage() shouldBe true
             result.size() shouldBe 100
