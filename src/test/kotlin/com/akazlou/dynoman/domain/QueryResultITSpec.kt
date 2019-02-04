@@ -51,6 +51,8 @@ class QueryResultITSpec : StringSpec() {
                             listOf(QueryCondition("Id1", Type.STRING, Operator.EQ, listOf("Id1-50"))),
                             emptyList(),
                             Order.ASC))
+            val table = operation.getTable("Table1")
+            val qr = QueryResult(SearchType.QUERY, table.description, result)
 
             result.hasNextPage() shouldBe false
             result.size() shouldBe 1
