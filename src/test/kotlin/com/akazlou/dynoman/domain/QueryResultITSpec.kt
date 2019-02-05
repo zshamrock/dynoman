@@ -54,6 +54,9 @@ class QueryResultITSpec : StringSpec() {
             val table = operation.getTable("Table1")
             val qr = QueryResult(SearchType.QUERY, table.description, result)
 
+            qr.hasMoreData(1) shouldBe false
+            qr.getData(1).size shouldBe 1
+
             result.hasNextPage() shouldBe false
             result.size() shouldBe 1
         }
