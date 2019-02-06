@@ -70,6 +70,9 @@ class QueryResultITSpec : StringSpec() {
                             emptyList(),
                             Order.ASC))
 
+            val table = operation.getTable("Table1")
+            val qr = QueryResult(SearchType.QUERY, table.description, result)
+
             result.hasNextPage() shouldBe true
             result.size() shouldBe 100
 
