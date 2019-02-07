@@ -76,9 +76,15 @@ class QueryResultITSpec : StringSpec() {
             result.hasNextPage() shouldBe true
             result.size() shouldBe 100
 
+            qr.hasMoreData(1) shouldBe true
+            qr.getData(1).size shouldBe 100
+
             result = result.nextPage()
             result.hasNextPage() shouldBe false
             result.size() shouldBe 49
+
+            qr.hasMoreData(2) shouldBe false
+            qr.getData(2).size shouldBe 49
         }
 
         "verify navigate over pages for the query on index with filters" {
