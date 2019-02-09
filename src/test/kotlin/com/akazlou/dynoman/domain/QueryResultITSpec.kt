@@ -99,6 +99,9 @@ class QueryResultITSpec : StringSpec() {
             val table = operation.getTable("Table1")
             val qr = QueryResult(SearchType.QUERY, table.description, result)
 
+            qr.hasMoreData(1) shouldBe true
+            qr.getData(1).size shouldBe 0
+
             // TODO: Verify whether this is the expected behaviour on the real DynamoDB (doesn't sound like it is)
             result.hasNextPage() shouldBe true
             result.size() shouldBe 0
