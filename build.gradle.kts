@@ -11,7 +11,7 @@ import org.gradle.api.tasks.testing.Test
 
 buildscript {
     var kotlin_version: String by extra
-    kotlin_version = "1.3.11"
+    kotlin_version = "1.3.21"
 
     repositories {
         mavenCentral()

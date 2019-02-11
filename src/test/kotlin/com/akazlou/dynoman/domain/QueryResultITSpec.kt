@@ -106,7 +106,6 @@ class QueryResultITSpec : StringSpec() {
             result.hasNextPage() shouldBe true
             result.size() shouldBe 0
 
-
             result = result.nextPage()
             result.hasNextPage() shouldBe false
             result.size() shouldBe 0
