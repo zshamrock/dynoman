@@ -1,13 +1,5 @@
 import no.tornado.fxlauncher.gradle.FXLauncherExtension
-import no.tornado.fxlauncher.gradle.FXLauncherPlugin
-import org.gradle.api.plugins.JavaPluginConvention
-import org.gradle.kotlin.dsl.application
-import org.gradle.kotlin.dsl.extra
-import org.gradle.kotlin.dsl.java
-import org.gradle.kotlin.dsl.repositories
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
-import org.gradle.api.plugins.ExtensionAware
-import org.gradle.api.tasks.testing.Test
 
 buildscript {
     var kotlin_version: String by extra
@@ -50,7 +42,7 @@ repositories {
 dependencies {
     compile(kotlin("stdlib-jdk8", kotlin_version))
     compile("no.tornado", "tornadofx", "1.7.18")
-    compile("com.amazonaws", "aws-java-sdk-dynamodb", "1.11.475")
+    compile("com.amazonaws", "aws-java-sdk-dynamodb", "1.11.495")
     compile("org.jetbrains.kotlin", "kotlin-reflect", kotlin_version)
     compile("org.reflections", "reflections", "0.9.11")
     testImplementation("io.kotlintest:kotlintest-runner-junit5:3.1.11")
