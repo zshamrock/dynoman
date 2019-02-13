@@ -46,7 +46,7 @@ dependencies {
     compile("org.jetbrains.kotlin", "kotlin-reflect", kotlin_version)
     compile("org.reflections", "reflections", "0.9.11")
     testImplementation("io.kotlintest:kotlintest-runner-junit5:3.1.11")
-    testCompile("org.testcontainers:testcontainers:1.10.4")
+    testCompile("org.testcontainers:testcontainers:1.10.6")
 }
 
 configure<JavaPluginConvention> {
