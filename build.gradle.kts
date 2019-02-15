@@ -45,7 +45,7 @@ dependencies {
     compile("com.amazonaws", "aws-java-sdk-dynamodb", "1.11.495")
     compile("org.jetbrains.kotlin", "kotlin-reflect", kotlin_version)
     compile("org.reflections", "reflections", "0.9.11")
-    testImplementation("io.kotlintest:kotlintest-runner-junit5:3.1.11")
+    testImplementation("io.kotlintest:kotlintest-runner-junit5:3.2.1")
     testCompile("org.testcontainers:testcontainers:1.10.6")
 }
 
