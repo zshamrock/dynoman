@@ -9,7 +9,6 @@ import io.kotlintest.extensions.TestListener
 import io.kotlintest.shouldBe
 import io.kotlintest.specs.StringSpec
 
-// TODO: Might better use QueryResult to actually test the implementation
 class QueryResultITSpec : StringSpec() {
 
     override fun listeners(): List<TestListener> = listOf(DynamoDBTestContainerListener)
