@@ -18,6 +18,7 @@ object Config {
     @JvmField
     val DEFAULT_REGION = Regions.US_WEST_2
     const val LOCAL = "local"
+    const val VERSION = "1.0.0"
 
     private const val SYSTEM_PROPERTY_PROFILE_NAME = "aws.profile"
     private const val ENV_PROPERTY_PROFILE_NAME = "AWS_PROFILE"
