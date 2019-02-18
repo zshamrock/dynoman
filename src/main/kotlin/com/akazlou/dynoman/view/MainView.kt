@@ -9,13 +9,16 @@ class MainView : View("DynamoDB Manager") {
         prefHeight = 730.0
         top {
             menubar {
-                menu("File") {
-                    item("Exit", KeyCombination.keyCombination("Ctrl+X")).action {
+                stylesheet {
+
+                }
+                menu("_File") {
+                    item("E_xit", KeyCombination.keyCombination("Ctrl+X")).action {
                         System.exit(0)
                     }
                 }
-                menu("Help") {
-                    item("About").action {
+                menu("_Help") {
+                    item("_About").action {
                         println("Dynoman ${Config.VERSION}")
                     }
                 }

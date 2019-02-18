@@ -1,0 +1,6 @@
+/*
+https://stackoverflow.com/questions/20541038/how-to-have-the-menu-mnemonic-underline-appearing-always
+*/
+.mnemonic-underline {
+    -fx-stroke: -fx-text-fill;
+}
