@@ -1,5 +1,6 @@
 package com.akazlou.dynoman.view
 
+import javafx.scene.input.KeyCombination
 import tornadofx.*
 
 class MainView : View("DynamoDB Manager") {
@@ -9,7 +10,9 @@ class MainView : View("DynamoDB Manager") {
         top {
             menubar {
                 menu("File") {
-
+                    item("Exit", KeyCombination.keyCombination("Ctrl+X")).action {
+                        System.exit(0)
+                    }
                 }
                 menu("Help") {
                     item("About").action {
