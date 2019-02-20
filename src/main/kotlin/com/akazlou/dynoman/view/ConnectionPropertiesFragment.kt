@@ -29,6 +29,7 @@ class ConnectionPropertiesFragment : Fragment("Connection") {
             field("Credentials File:") {
                 textfield(credentialsFile)
                 button("...") {
+                    addClass("button-select")
                     action {
                         val files = chooseFile("Open AWS Credentials File", emptyArray())
                         credentialsFile.value = files.map { it.absolutePath }.firstOrNull().orEmpty()
@@ -42,8 +43,6 @@ class ConnectionPropertiesFragment : Fragment("Connection") {
         }
         buttonbar {
             button("Connect") {
-                //setPrefSize(100.0, 40.0)
-                prefWidth = 100.0
                 action {
                     runAsyncWithProgress {
                         with(app.config) {

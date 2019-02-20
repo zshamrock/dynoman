@@ -12,12 +12,8 @@ class SaveQueryFragment : Fragment("Save Query") {
         }
         hbox(5.0) {
             button("Save") {
-                //setPrefSize(100.0, 40.0)
-                prefWidth = 100.0
             }
             button("Cancel") {
-                //setPrefSize(100.0, 40.0)
-                prefWidth = 100.0
                 action {
                     close()
                 }

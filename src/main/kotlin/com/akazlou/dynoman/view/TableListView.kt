@@ -54,8 +54,6 @@ class TableListView : View() {
             useMaxHeight = true
         }
         button("Connect") {
-            //setPrefSize(100.0, 40.0)
-            prefWidth = 100.0
             action {
                 find(ConnectionPropertiesFragment::class).openModal(block = true)
             }

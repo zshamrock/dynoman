@@ -37,8 +37,6 @@ class QueryView : View("Query") {
             padding = tornadofx.insets(5, 0)
             alignment = Pos.CENTER_LEFT
             button("Save") {
-                //setPrefSize(100.0, 40.0)
-                prefWidth = 100.0
                 shortcut("Ctrl+S")
                 action {
                     find(SaveQueryFragment::class).openModal(stageStyle = StageStyle.UTILITY)
@@ -56,8 +54,6 @@ class QueryView : View("Query") {
                 items = namedQueries
             }
             button("Open") {
-                //setPrefSize(100.0, 40.0)
-                prefWidth = 100.0
             }
         }
         queries = tabpane {

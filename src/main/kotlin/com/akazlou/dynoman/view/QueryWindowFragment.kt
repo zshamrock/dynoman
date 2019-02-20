@@ -189,8 +189,6 @@ class QueryWindowFragment : Fragment("Query...") {
                 }
                 addKeySchemaRows(searchTypeProperty.value, queryGridPane, searchSources[0].keySchema)
                 button("Add filter") {
-                    //setPrefSize(100.0, 40.0)
-                    prefWidth = 100.0
                     action {
                         addFilterRow(queryGridPane)
                     }
@@ -209,9 +207,6 @@ class QueryWindowFragment : Fragment("Query...") {
                 hbox(5.0) {
                     alignment = Pos.CENTER
                     button("Search") {
-                        // TODO: Extract the sizes into the constant, so allow ease of modification just in one place
-                        //setPrefSize(100.0, 40.0)
-                        prefWidth = 100.0
                         action {
                             val operationType = searchTypeProperty.value
                             println("Search: ${searchTypeProperty.value}")
@@ -330,8 +325,6 @@ class QueryWindowFragment : Fragment("Query...") {
                     }
                     if (mode == Mode.MODAL) {
                         button("Cancel") {
-                            //setPrefSize(pref100.0, 40.0)
-                            prefWidth = 100.0
                             action {
                                 close()
                             }
@@ -467,6 +460,7 @@ class QueryWindowFragment : Fragment("Query...") {
                 filterKeyValueTextField.attachTo(this)
             }
             button("x") {
+                addClass("button-x")
                 action {
                     val rowIndex = queryGridPane.removeRow(this)
                     val index = rowIndex - keysRowsCount

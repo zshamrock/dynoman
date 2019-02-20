@@ -4,3 +4,15 @@ https://stackoverflow.com/questions/20541038/how-to-have-the-menu-mnemonic-under
 .mnemonic-underline {
     -fx-stroke: -fx-text-fill;
 }
+
+.button {
+    -fx-pref-width: 100px;
+}
+
+.button-select {
+    -fx-pref-width: 30px;
+}
+
+.button-x {
+    -fx-pref-width: 20px;
+}
