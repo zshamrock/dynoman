@@ -1,6 +1,10 @@
 /*
+https://docs.oracle.com/javase/8/javafx/api/javafx/scene/doc-files/cssref.html
+ */
+
+/*
 https://stackoverflow.com/questions/20541038/how-to-have-the-menu-mnemonic-underline-appearing-always
-*/
+ */
 .mnemonic-underline {
     -fx-stroke: -fx-text-fill;
 }
