@@ -38,6 +38,7 @@ class QueryTabFragment : Fragment("Query Tab") {
     private var queryResult: QueryResult? = null
     private var copyAllByFieldMenu: Menu? = null
     private val allColumns: MutableSet<String> = mutableSetOf()
+    private var qwf: QueryWindowFragment by singleAssign()
 
     override val root = vbox {
         hbox(alignment = Pos.CENTER_RIGHT) {
@@ -96,7 +97,7 @@ class QueryTabFragment : Fragment("Query Tab") {
                             selectAll()
                         }
                     }
-                    val qwf = find<QueryWindowFragment>(
+                    qwf = find<QueryWindowFragment>(
                             params = mapOf(
                                     QueryWindowFragment::mode to QueryWindowFragment.Mode.INLINE,
                                     QueryWindowFragment::searchType to searchType,
@@ -214,6 +215,10 @@ class QueryTabFragment : Fragment("Query Tab") {
         return queryArea.text
     }
 
+    fun duplicate(): QueryTabFragment {
+        return this
+    }
+
     fun setQueryResult(qr: QueryResult) {
         this.queryResult = qr
         queryArea.text = if (qr.searchType == SearchType.SCAN) "SELECT * FROM ${qr.getTable()}" else ""
@@ -266,6 +271,8 @@ class QueryTabFragment : Fragment("Query Tab") {
             }
         }
     }
+
+    fun getQueryResult() = queryResult
 
     private fun updatePaginationTextProperty(pageNum: Int) {
         val (from, to) = queryResult!!.getCurrentDataRange(pageNum)

@@ -479,6 +479,7 @@ class QueryWindowFragment : Fragment("Query...") {
         }
     }
 
+    // TODO: Introduce data class to keep the state of the query window
     fun init(searchType: SearchType,
              searchSource: SearchSource?,
              hashKeyValue: String?,

@@ -13,6 +13,8 @@ import com.amazonaws.services.dynamodbv2.document.Page
 import com.amazonaws.services.dynamodbv2.model.TableDescription
 import javafx.beans.property.SimpleStringProperty
 import javafx.geometry.Pos
+import javafx.scene.control.ContextMenu
+import javafx.scene.control.MenuItem
 import javafx.scene.control.TabPane
 import javafx.scene.layout.Priority
 import javafx.scene.text.Font
@@ -20,10 +22,31 @@ import javafx.stage.StageStyle
 import tornadofx.*
 
 class QueryView : View("Query") {
+    companion object {
+        private const val QUERY_TAB_FRAGMENT_KEY: String = "queryTabFragment"
+    }
+
     private val controller: RunQueryController by inject()
     private var queries: TabPane by singleAssign()
     private val region = SimpleStringProperty(Config.getRegion(app.config))
     private val local = SimpleStringProperty(buildLocalText(Config.isLocal(app.config)))
+    private val tabContextMenu: ContextMenu
+
+    init {
+        val duplicate = MenuItem("Duplicate")
+        tabContextMenu = ContextMenu(duplicate)
+
+        duplicate.setOnAction {
+            // TODO: Might be the improvement to put the duplicated tab just after the source tab
+            val currentTab = queries.selectionModel.selectedItem
+            val fragment = currentTab.properties[QUERY_TAB_FRAGMENT_KEY] as QueryTabFragment
+            val qr = fragment.getQueryResult()!!
+            val tab = queries.tab("${qr.searchType} ${qr.getTable()}", fragment.duplicate().root)
+            tab.properties[QUERY_TAB_FRAGMENT_KEY] = fragment
+            tab.contextMenu = tabContextMenu
+            queries.selectionModel.selectLast()
+        }
+    }
 
     override val root = vbox(5.0) {
         borderpaneConstraints {
@@ -95,7 +118,7 @@ class QueryView : View("Query") {
                        order: Order?,
                        queryFilters: List<QueryFilter>,
                        page: Page<Item, out Any>) {
-        val tab = find<QueryTabFragment>(
+        val fragment = find<QueryTabFragment>(
                 params = mapOf(
                         QueryTabFragment::searchType to searchType,
                         "description" to description,
@@ -106,8 +129,10 @@ class QueryView : View("Query") {
                         "sortKeyValues" to sortKeyValues,
                         "order" to order,
                         "queryFilters" to queryFilters))
-        tab.setQueryResult(QueryResult(searchType, description, page))
-        queries.tab("$searchType $table", tab.root)
+        fragment.setQueryResult(QueryResult(searchType, description, page))
+        val tab = queries.tab("$searchType $table", fragment.root)
+        tab.properties[QUERY_TAB_FRAGMENT_KEY] = fragment
+        tab.contextMenu = tabContextMenu
         queries.selectionModel.selectLast()
     }
 
