@@ -1,9 +1,9 @@
 package com.akazlou.dynoman.service
 
 import com.akazlou.dynoman.domain.ConnectionProperties
-import com.akazlou.dynoman.domain.QueryResult
-import com.akazlou.dynoman.domain.QuerySearch
-import com.akazlou.dynoman.domain.ScanSearch
+import com.akazlou.dynoman.domain.search.QueryResult
+import com.akazlou.dynoman.domain.search.QuerySearch
+import com.akazlou.dynoman.domain.search.ScanSearch
 import com.amazonaws.services.dynamodbv2.document.DynamoDB
 import com.amazonaws.services.dynamodbv2.document.Item
 import com.amazonaws.services.dynamodbv2.document.Page

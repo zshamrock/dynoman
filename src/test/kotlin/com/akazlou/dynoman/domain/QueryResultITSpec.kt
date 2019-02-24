@@ -2,6 +2,14 @@ package com.akazlou.dynoman.domain
 
 import com.akazlou.dynoman.DynamoDBTestContainerListener
 import com.akazlou.dynoman.IT
+import com.akazlou.dynoman.domain.search.Operator
+import com.akazlou.dynoman.domain.search.Order
+import com.akazlou.dynoman.domain.search.QueryCondition
+import com.akazlou.dynoman.domain.search.QueryResult
+import com.akazlou.dynoman.domain.search.QuerySearch
+import com.akazlou.dynoman.domain.search.ScanSearch
+import com.akazlou.dynoman.domain.search.SearchType
+import com.akazlou.dynoman.domain.search.Type
 import com.akazlou.dynoman.service.DynamoDBOperation
 import com.amazonaws.regions.Regions
 import io.kotlintest.TestCaseConfig

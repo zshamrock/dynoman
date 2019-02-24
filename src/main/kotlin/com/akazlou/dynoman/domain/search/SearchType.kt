@@ -1,4 +1,4 @@
-package com.akazlou.dynoman.domain
+package com.akazlou.dynoman.domain.search
 
 import java.util.Locale
 

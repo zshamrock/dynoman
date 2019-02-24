@@ -1,4 +1,4 @@
-package com.akazlou.dynoman.domain
+package com.akazlou.dynoman.domain.search
 
 import com.amazonaws.services.dynamodbv2.document.QueryFilter
 import com.amazonaws.services.dynamodbv2.document.RangeKeyCondition
@@ -24,8 +24,8 @@ enum class Type {
     companion object {
         fun fromString(s: String): Type {
             return when (s) {
-                "S" -> Type.STRING
-                "N" -> Type.NUMBER
+                "S" -> STRING
+                "N" -> NUMBER
                 else -> throw UnsupportedOperationException("Unsupported $s type")
             }
         }

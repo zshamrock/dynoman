@@ -1,5 +1,10 @@
 package com.akazlou.dynoman.domain
 
+import com.akazlou.dynoman.domain.search.Operator
+import com.akazlou.dynoman.domain.search.Order
+import com.akazlou.dynoman.domain.search.QueryCondition
+import com.akazlou.dynoman.domain.search.QuerySearch
+import com.akazlou.dynoman.domain.search.Type
 import com.amazonaws.services.dynamodbv2.document.KeyAttribute
 import io.kotlintest.matchers.beEmpty
 import io.kotlintest.should

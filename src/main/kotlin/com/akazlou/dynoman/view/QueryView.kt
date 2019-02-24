@@ -1,11 +1,11 @@
 package com.akazlou.dynoman.view
 
 import com.akazlou.dynoman.controller.RunQueryController
-import com.akazlou.dynoman.domain.Operator
-import com.akazlou.dynoman.domain.Order
-import com.akazlou.dynoman.domain.QueryFilter
-import com.akazlou.dynoman.domain.QueryResult
-import com.akazlou.dynoman.domain.SearchType
+import com.akazlou.dynoman.domain.search.Operator
+import com.akazlou.dynoman.domain.search.Order
+import com.akazlou.dynoman.domain.search.QueryFilter
+import com.akazlou.dynoman.domain.search.QueryResult
+import com.akazlou.dynoman.domain.search.SearchType
 import com.akazlou.dynoman.service.DynamoDBOperation
 import com.amazonaws.regions.Regions
 import com.amazonaws.services.dynamodbv2.document.Item

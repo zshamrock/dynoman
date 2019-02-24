@@ -1,14 +1,14 @@
 package com.akazlou.dynoman.view
 
-import com.akazlou.dynoman.domain.Operator
-import com.akazlou.dynoman.domain.Order
-import com.akazlou.dynoman.domain.QueryCondition
-import com.akazlou.dynoman.domain.QueryFilter
-import com.akazlou.dynoman.domain.QueryResult
-import com.akazlou.dynoman.domain.QuerySearch
-import com.akazlou.dynoman.domain.ScanSearch
-import com.akazlou.dynoman.domain.SearchType
-import com.akazlou.dynoman.domain.Type
+import com.akazlou.dynoman.domain.search.Operator
+import com.akazlou.dynoman.domain.search.Order
+import com.akazlou.dynoman.domain.search.QueryCondition
+import com.akazlou.dynoman.domain.search.QueryFilter
+import com.akazlou.dynoman.domain.search.QueryResult
+import com.akazlou.dynoman.domain.search.QuerySearch
+import com.akazlou.dynoman.domain.search.ScanSearch
+import com.akazlou.dynoman.domain.search.SearchType
+import com.akazlou.dynoman.domain.search.Type
 import com.akazlou.dynoman.ext.removeAllRows
 import com.akazlou.dynoman.ext.removeRow
 import com.akazlou.dynoman.function.Functions

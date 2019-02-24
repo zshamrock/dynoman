@@ -1,4 +1,4 @@
-package com.akazlou.dynoman.domain
+package com.akazlou.dynoman.domain.search
 
 import com.amazonaws.services.dynamodbv2.document.RangeKeyCondition
 import com.amazonaws.services.dynamodbv2.document.spec.QuerySpec
