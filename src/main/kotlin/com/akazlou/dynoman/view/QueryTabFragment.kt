@@ -4,6 +4,7 @@ import com.akazlou.dynoman.domain.search.Operator
 import com.akazlou.dynoman.domain.search.Order
 import com.akazlou.dynoman.domain.search.QueryFilter
 import com.akazlou.dynoman.domain.search.QueryResult
+import com.akazlou.dynoman.domain.search.SearchCriteria
 import com.akazlou.dynoman.domain.search.SearchType
 import com.akazlou.dynoman.function.Functions
 import com.amazonaws.services.dynamodbv2.model.KeySchemaElement
@@ -105,14 +106,14 @@ class QueryTabFragment : Fragment("Query Tab") {
                                     QueryWindowFragment::operation to params["operation"]))
                     val editor = tab("EDITOR", qwf.root)
                     val queryFilters = params["queryFilters"]
-                    qwf.init(searchType,
+                    val criteria = SearchCriteria(searchType,
                             params["searchSource"] as SearchSource?,
                             params["hashKeyValue"] as String?,
                             params["sortKeyOperator"] as Operator?,
                             (params["sortKeyValues"] as? List<*>)?.filterIsInstance<String>() ?: emptyList(),
                             params["order"] as Order?,
-                            (queryFilters as? List<*>)?.filterIsInstance<QueryFilter>() ?: emptyList(),
-                            this@QueryTabFragment)
+                            (queryFilters as? List<*>)?.filterIsInstance<QueryFilter>() ?: emptyList())
+                    qwf.init(criteria, this@QueryTabFragment)
                     editor.select()
                 }
             }

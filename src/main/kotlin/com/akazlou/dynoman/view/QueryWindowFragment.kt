@@ -7,6 +7,7 @@ import com.akazlou.dynoman.domain.search.QueryFilter
 import com.akazlou.dynoman.domain.search.QueryResult
 import com.akazlou.dynoman.domain.search.QuerySearch
 import com.akazlou.dynoman.domain.search.ScanSearch
+import com.akazlou.dynoman.domain.search.SearchCriteria
 import com.akazlou.dynoman.domain.search.SearchType
 import com.akazlou.dynoman.domain.search.Type
 import com.akazlou.dynoman.ext.removeAllRows
@@ -479,32 +480,25 @@ class QueryWindowFragment : Fragment("Query...") {
         }
     }
 
-    // TODO: Introduce data class to keep the state of the query window
-    fun init(searchType: SearchType,
-             searchSource: SearchSource?,
-             hashKeyValue: String?,
-             sortKeyOperator: Operator?,
-             sortKeyValues: List<String>,
-             order: Order?,
-             queryFilters: List<QueryFilter>,
+    fun init(criteria: SearchCriteria,
              tab: QueryTabFragment) {
         this.tab = tab
         if (searchType == SearchType.SCAN) {
-            queryFilters.forEach { addFilterRow(queryGridPane, it) }
+            criteria.forEachQueryFilter { addFilterRow(queryGridPane, it) }
             return
         }
-        println("Sort key values: $sortKeyValues")
-        searchSourceComboBox.value = searchSource
-        this.hashKeyValue.value = hashKeyValue
-        this.sortKeyOperatorProperty.value = sortKeyOperator
-        if (sortKeyOperator != null && sortKeyOperator.isBetween()) {
-            this.sortKeyFrom.value = sortKeyValues.getOrNull(0)
-            this.sortKeyTo.value = sortKeyValues.getOrNull(1)
+        println("Sort key values: $criteria.sortKeyValues")
+        searchSourceComboBox.value = criteria.searchSource
+        this.hashKeyValue.value = criteria.hashKeyValue
+        this.sortKeyOperatorProperty.value = criteria.sortKeyOperator
+        if (criteria.isBetweenSortKeyOperator()) {
+            this.sortKeyFrom.value = criteria.getSortKeyValueFrom()
+            this.sortKeyTo.value = criteria.getSortKeyValueTo()
         } else {
-            this.sortKey.value = sortKeyValues.getOrNull(0)
+            this.sortKey.value = criteria.getSortKeyValueFrom()
         }
-        this.orderProperty.value = order
-        queryFilters.forEach { addFilterRow(queryGridPane, it) }
+        this.orderProperty.value = criteria.order
+        criteria.forEachQueryFilter { addFilterRow(queryGridPane, it) }
     }
 
     inner class OperatorChangeListener(private val operators: ComboBox<Operator>,
