@@ -501,6 +501,10 @@ class QueryWindowFragment : Fragment("Query...") {
         criteria.forEachQueryFilter { addFilterRow(queryGridPane, it) }
     }
 
+    fun getSearchCriteria(): SearchCriteria {
+        TODO("Implement getting search criteria from the current values")
+    }
+
     inner class OperatorChangeListener(private val operators: ComboBox<Operator>,
                                        private val textField: TextField,
                                        private val textFieldValue: SimpleStringProperty,
