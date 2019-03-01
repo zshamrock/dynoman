@@ -91,10 +91,10 @@ class QueryWindowFragment : Fragment("Query...") {
     private val sortKeyOperatorComboBox: ComboBox<Operator>
     // TODO: Create 5 between hbox-es for the filters and reuse them (as we do limit support only up to 5 filters)
     private val searchSourceProperty = SimpleObjectProperty<SearchSource>()
-    private val hashKeyValue = SimpleStringProperty()
-    private val sortKey = SimpleStringProperty()
-    private val sortKeyFrom = SimpleStringProperty()
-    private val sortKeyTo = SimpleStringProperty()
+    private val hashKeyValueProperty = SimpleStringProperty()
+    private val sortKeyProperty = SimpleStringProperty()
+    private val sortKeyFromProperty = SimpleStringProperty()
+    private val sortKeyToProperty = SimpleStringProperty()
     private val sortKeyOperatorProperty = SimpleObjectProperty<Operator>(Operator.EQ)
     private val orderProperty = SimpleObjectProperty<Order>(Order.ASC)
     private val filterKeys = mutableListOf<SimpleStringProperty>()
@@ -117,14 +117,14 @@ class QueryWindowFragment : Fragment("Query...") {
         attributeDefinitionTypes = description.attributeDefinitions.associateBy({ it.attributeName }, { Type.fromString(it.attributeType) })
 
         val sortKeyFromTextField = TextField()
-        sortKeyFromTextField.textProperty().bindBidirectional(sortKeyFrom)
+        sortKeyFromTextField.textProperty().bindBidirectional(sortKeyFromProperty)
         val sortKeyToTextField = TextField()
-        sortKeyToTextField.textProperty().bindBidirectional(sortKeyTo)
+        sortKeyToTextField.textProperty().bindBidirectional(sortKeyToProperty)
         val andLabel = Label("And")
         andLabel.minWidth = 40.0
         andLabel.alignment = Pos.CENTER
         sortKeyTextField = TextField()
-        sortKeyTextField.bind(sortKey)
+        sortKeyTextField.bind(sortKeyProperty)
         sortKeyBetweenHBox = HBox(sortKeyFromTextField, andLabel, sortKeyToTextField)
         sortKeyBetweenHBox.alignment = Pos.CENTER
 
@@ -135,10 +135,10 @@ class QueryWindowFragment : Fragment("Query...") {
                 .addListener(this.OperatorChangeListener(
                         sortKeyOperatorComboBox,
                         sortKeyTextField,
-                        sortKey,
+                        sortKeyProperty,
                         sortKeyBetweenHBox,
-                        sortKeyFrom,
-                        sortKeyTo))
+                        sortKeyFromProperty,
+                        sortKeyToProperty))
     }
 
     override val root = vbox(5.0) {
@@ -214,23 +214,23 @@ class QueryWindowFragment : Fragment("Query...") {
                             val skOp = sortKeyOperatorProperty.value
                             val skValues = when {
                                 skOp.isBetween() ->
-                                    if (sortKeyFrom.value == null || sortKeyTo.value == null) {
+                                    if (sortKeyFromProperty.value == null || sortKeyToProperty.value == null) {
                                         emptyList()
                                     } else {
-                                        listOf(parseValue(sortKeyFrom.value), parseValue(sortKeyTo.value))
+                                        listOf(parseValue(sortKeyFromProperty.value), parseValue(sortKeyToProperty.value))
                                     }
                                 else ->
-                                    if (sortKey.value.isNullOrEmpty()) {
+                                    if (sortKeyProperty.value.isNullOrEmpty()) {
                                         emptyList()
                                     } else {
-                                        listOf(parseValue(sortKey.value))
+                                        listOf(parseValue(sortKeyProperty.value))
                                     }
                             }
-                            println("Hash Key = ${hashKeyValue.value}, Sort Key $skOp ${sortKey.value}")
+                            println("Hash Key = ${hashKeyValueProperty.value}, Sort Key $skOp ${sortKeyProperty.value}")
                             println("Sort By ${orderProperty.value}")
                             val qt = searchSourceProperty.value
                             println(qt)
-                            if (!hashKeyValue.value.isNullOrBlank() || operationType.isScan()) {
+                            if (!hashKeyValueProperty.value.isNullOrBlank() || operationType.isScan()) {
                                 val conditions = filterKeys.mapIndexed { index, filterKey ->
                                     val filterKeyOperation = filterKeyOperations[index].value
                                     QueryCondition(
@@ -258,7 +258,7 @@ class QueryWindowFragment : Fragment("Query...") {
                                                 qt.hashKey.attributeName,
                                                 attributeDefinitionTypes[qt.hashKey.attributeName]!!,
                                                 Operator.EQ,
-                                                listOf(parseValue(hashKeyValue.value)))
+                                                listOf(parseValue(hashKeyValueProperty.value)))
                                         val rangeKey = if (skValues.isEmpty()) {
                                             null
                                         } else {
@@ -297,14 +297,14 @@ class QueryWindowFragment : Fragment("Query...") {
                                                     })
                                         }
                                         println("skValues: $skValues")
-                                        println(sortKey)
+                                        println(sortKeyProperty)
                                         find(QueryView::class).setQueryResult(
                                                 operation,
                                                 description,
                                                 operationType,
                                                 description.tableName,
                                                 qt,
-                                                parseValue(hashKeyValue.value),
+                                                parseValue(hashKeyValueProperty.value),
                                                 skOp,
                                                 skValues,
                                                 orderProperty.value,
@@ -340,10 +340,10 @@ class QueryWindowFragment : Fragment("Query...") {
         sortKeyOperatorProperty.value = Operator.EQ
         queryGridPane.removeAllRows()
         keysRowsCount = 0
-        hashKeyValue.value = ""
-        sortKey.value = ""
-        sortKeyFrom.value = ""
-        sortKeyTo.value = ""
+        hashKeyValueProperty.value = ""
+        sortKeyProperty.value = ""
+        sortKeyFromProperty.value = ""
+        sortKeyToProperty.value = ""
         // Collect current filters into the QueryFilter-s before clean them up
         val filters = mutableListOf<QueryFilter>()
         filterKeys.forEachIndexed { index, filterKey ->
@@ -402,7 +402,7 @@ class QueryWindowFragment : Fragment("Query...") {
                     sortKeyOperatorComboBox.attachTo(this)
                 }
                 if (isHash) {
-                    textfield(hashKeyValue) { }
+                    textfield(hashKeyValueProperty) { }
                 } else {
                     sortKeyTextField.attachTo(this)
                 }
@@ -489,20 +489,33 @@ class QueryWindowFragment : Fragment("Query...") {
         }
         println("Sort key values: $criteria.sortKeyValues")
         searchSourceComboBox.value = criteria.searchSource
-        this.hashKeyValue.value = criteria.hashKeyValue
+        this.hashKeyValueProperty.value = criteria.hashKeyValue
         this.sortKeyOperatorProperty.value = criteria.sortKeyOperator
         if (criteria.isBetweenSortKeyOperator()) {
-            this.sortKeyFrom.value = criteria.getSortKeyValueFrom()
-            this.sortKeyTo.value = criteria.getSortKeyValueTo()
+            this.sortKeyFromProperty.value = criteria.getSortKeyValueFrom()
+            this.sortKeyToProperty.value = criteria.getSortKeyValueTo()
         } else {
-            this.sortKey.value = criteria.getSortKeyValueFrom()
+            this.sortKeyProperty.value = criteria.getSortKeyValueFrom()
         }
         this.orderProperty.value = criteria.order
         criteria.forEachQueryFilter { addFilterRow(queryGridPane, it) }
     }
 
     fun getSearchCriteria(): SearchCriteria {
-        TODO("Implement getting search criteria from the current values")
+        val operator = sortKeyOperatorProperty.value
+        return SearchCriteria(
+                searchType,
+                searchSourceProperty.value,
+                hashKeyValueProperty.value,
+                operator,
+                if (operator.isBetween()) {
+                    listOf(sortKeyFromProperty.value, sortKeyToProperty.value)
+                } else {
+                    listOf(sortKeyProperty.value)
+                },
+                orderProperty.value,
+                // TODO: Add method to build list of query filters
+                listOf())
     }
 
     inner class OperatorChangeListener(private val operators: ComboBox<Operator>,
