@@ -8,6 +8,7 @@ import com.akazlou.dynoman.domain.search.SearchCriteria
 import com.akazlou.dynoman.domain.search.SearchType
 import com.akazlou.dynoman.function.Functions
 import com.amazonaws.services.dynamodbv2.model.KeySchemaElement
+import com.amazonaws.services.dynamodbv2.model.TableDescription
 import javafx.beans.property.SimpleBooleanProperty
 import javafx.beans.property.SimpleStringProperty
 import javafx.beans.value.ObservableValue
@@ -217,7 +218,22 @@ class QueryTabFragment : Fragment("Query Tab") {
     }
 
     fun duplicate(): QueryTabFragment {
-        return this
+        val criteria = qwf.getSearchCriteria()
+        println(criteria.queryFilters)
+        val description = params["description"] as TableDescription
+        val fragment = find<QueryTabFragment>(
+                params = mapOf(
+                        QueryTabFragment::searchType to searchType,
+                        "description" to description,
+                        "operation" to params["operation"],
+                        "searchSource" to criteria.searchSource,
+                        "hashKeyValue" to criteria.hashKeyValue,
+                        "sortKeyOperator" to criteria.sortKeyOperator,
+                        "sortKeyValues" to criteria.sortKeyValues,
+                        "order" to criteria.order,
+                        "queryFilters" to criteria.queryFilters))
+        fragment.setQueryResult(queryResult!!)
+        return fragment
     }
 
     fun setQueryResult(qr: QueryResult) {
