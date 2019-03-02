@@ -100,7 +100,7 @@ class QueryWindowFragment : Fragment("Query...") {
     private val filterKeys = mutableListOf<SimpleStringProperty>()
     private val filterLabels = mutableListOf<SimpleStringProperty>()
     private val filterKeyTypes = mutableListOf<SimpleObjectProperty<Type>>()
-    private val filterKeyOperations = mutableListOf<SimpleObjectProperty<Operator>>()
+    private val filterKeyOperators = mutableListOf<SimpleObjectProperty<Operator>>()
     private val filterKeyValues = mutableListOf<SimpleStringProperty?>()
     private val filterKeyBetweenValues = mutableListOf<Pair<SimpleStringProperty, SimpleStringProperty>>()
     private var keysRowsCount = 0
@@ -232,7 +232,7 @@ class QueryWindowFragment : Fragment("Query...") {
                             println(qt)
                             if (!hashKeyValueProperty.value.isNullOrBlank() || operationType.isScan()) {
                                 val conditions = filterKeys.mapIndexed { index, filterKey ->
-                                    val filterKeyOperation = filterKeyOperations[index].value
+                                    val filterKeyOperation = filterKeyOperators[index].value
                                     QueryCondition(
                                             filterKey.value,
                                             filterKeyTypes[index].value,
@@ -284,7 +284,7 @@ class QueryWindowFragment : Fragment("Query...") {
                                 } ui { result ->
                                     if (mode == Mode.MODAL) {
                                         val queryFilters = filterKeys.mapIndexed { index, property ->
-                                            val filterKeyOperation = filterKeyOperations[index].value
+                                            val filterKeyOperation = filterKeyOperators[index].value
                                             QueryFilter(property.value,
                                                     filterKeyTypes[index].value,
                                                     filterKeyOperation,
@@ -347,7 +347,7 @@ class QueryWindowFragment : Fragment("Query...") {
         // Collect current filters into the QueryFilter-s before clean them up
         val filters = mutableListOf<QueryFilter>()
         filterKeys.forEachIndexed { index, filterKey ->
-            val filterKeyOperator = filterKeyOperations[index].value
+            val filterKeyOperator = filterKeyOperators[index].value
             filters.add(QueryFilter(
                     filterKey.value.orEmpty(),
                     filterKeyTypes[index].value,
@@ -361,7 +361,7 @@ class QueryWindowFragment : Fragment("Query...") {
         filterLabels.clear()
         filterKeys.clear()
         filterKeyTypes.clear()
-        filterKeyOperations.clear()
+        filterKeyOperators.clear()
         filterKeyValues.clear()
         filterKeyBetweenValues.clear()
         return filters
@@ -424,7 +424,7 @@ class QueryWindowFragment : Fragment("Query...") {
             filterKeyTypes.add(filterKeyType)
             combobox(values = FILTER_KEY_TYPES, property = filterKeyType)
             val filterKeyOperation = SimpleObjectProperty<Operator>(queryFilter?.operator ?: Operator.EQ)
-            filterKeyOperations.add(filterKeyOperation)
+            filterKeyOperators.add(filterKeyOperation)
             val filterKeyOperationComboBox = combobox(
                     values = FILTER_KEY_AVAILABLE_OPERATORS, property = filterKeyOperation)
             filterKeyOperationComboBox.prefWidth = ATTRIBUTE_OPERATION_COLUMN_WIDTH
@@ -469,7 +469,7 @@ class QueryWindowFragment : Fragment("Query...") {
                     filterLabels.removeAt(index)
                     filterKeys.removeAt(index)
                     filterKeyTypes.removeAt(index)
-                    filterKeyOperations.removeAt(index)
+                    filterKeyOperators.removeAt(index)
                     filterKeyValues.removeAt(index)
                     filterKeyBetweenValues.removeAt(index)
                     if (index == 0 && filterLabels.isNotEmpty()) {
@@ -514,8 +514,17 @@ class QueryWindowFragment : Fragment("Query...") {
                     listOf(sortKeyProperty.value)
                 },
                 orderProperty.value,
-                // TODO: Add method to build list of query filters
-                listOf())
+                buildQueryFilters())
+    }
+
+    private fun buildQueryFilters(): List<QueryFilter> {
+        // TODO: Test various scenarios when the query filter row is incomplete in multiple ways
+        return filterKeys.mapIndexed { index, key ->
+            QueryFilter(key.value,
+                    filterKeyTypes[index].value,
+                    filterKeyOperators[index].value,
+                    filterKeyValues.map { it!!.value })
+        }
     }
 
     inner class OperatorChangeListener(private val operators: ComboBox<Operator>,
