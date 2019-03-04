@@ -519,13 +519,18 @@ class QueryWindowFragment : Fragment("Query...") {
 
     private fun buildQueryFilters(): List<QueryFilter> {
         // TODO: Test various scenarios when the query filter row is incomplete in multiple ways
-        // TODO: Handle Between operator filter key values!
         // TODO: Duplicate of the duplicate results in the strange behaviour, looks like it gets the value from the original tab
         return filterKeys.mapIndexed { index, key ->
+            val operator = filterKeyOperators[index].value
             QueryFilter(key.value,
                     filterKeyTypes[index].value,
-                    filterKeyOperators[index].value,
-                    listOf(filterKeyValues[index]!!.value))
+                    operator,
+                    if (operator.isBetween()) {
+                        val values = filterKeyBetweenValues[index]
+                        listOf(values.first.value, values.second.value)
+                    } else {
+                        listOf(filterKeyValues[index]!!.value)
+                    })
         }
     }
 
