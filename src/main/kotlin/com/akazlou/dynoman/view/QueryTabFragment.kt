@@ -43,6 +43,7 @@ class QueryTabFragment : Fragment("Query Tab") {
     private var qwf: QueryWindowFragment by singleAssign()
 
     override val root = vbox {
+        println("initialize new query tab fragment")
         hbox(alignment = Pos.CENTER_RIGHT) {
             prefHeight = 30.0
             maxHeight = 30.0
@@ -219,6 +220,8 @@ class QueryTabFragment : Fragment("Query Tab") {
 
     fun duplicate(): QueryTabFragment {
         val criteria = qwf.getSearchCriteria()
+        println("qwf ${qwf}")
+        println("criteria ${criteria}")
         println(criteria.queryFilters)
         val description = params["description"] as TableDescription
         val fragment = find<QueryTabFragment>(
