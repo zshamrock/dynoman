@@ -220,8 +220,8 @@ class QueryTabFragment : Fragment("Query Tab") {
 
     fun duplicate(): QueryTabFragment {
         val criteria = qwf.getSearchCriteria()
-        println("qwf ${qwf}")
-        println("criteria ${criteria}")
+        println("qwf $qwf")
+        println("criteria $criteria")
         println(criteria.queryFilters)
         val description = params["description"] as TableDescription
         val fragment = find<QueryTabFragment>(
@@ -236,6 +236,8 @@ class QueryTabFragment : Fragment("Query Tab") {
                         "order" to criteria.order,
                         "queryFilters" to criteria.queryFilters))
         fragment.setQueryResult(queryResult!!)
+        println("current tab: $this")
+        println("duplicated tab: $fragment")
         return fragment
     }
 
