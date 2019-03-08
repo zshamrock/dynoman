@@ -100,15 +100,17 @@ class QueryTabFragment : Fragment("Query Tab") {
                             selectAll()
                         }
                     }
+                    val description = params["description"] as TableDescription
                     qwf = find<QueryWindowFragment>(
                             params = mapOf(
                                     QueryWindowFragment::mode to QueryWindowFragment.Mode.INLINE,
                                     QueryWindowFragment::searchType to searchType,
-                                    QueryWindowFragment::description to params["description"],
+                                    QueryWindowFragment::description to description,
                                     QueryWindowFragment::operation to params["operation"]))
                     val editor = tab("EDITOR", qwf.root)
                     val queryFilters = params["queryFilters"]
                     val criteria = SearchCriteria(searchType,
+                            description.tableName,
                             params["searchSource"] as SearchSource?,
                             params["hashKeyValue"] as String?,
                             params["sortKeyOperator"] as Operator?,

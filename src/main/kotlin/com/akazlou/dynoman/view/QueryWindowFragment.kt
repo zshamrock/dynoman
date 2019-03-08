@@ -505,6 +505,7 @@ class QueryWindowFragment : Fragment("Query...") {
         val operator = sortKeyOperatorProperty.value
         return SearchCriteria(
                 searchType,
+                description.tableName,
                 searchSourceProperty.value,
                 hashKeyValueProperty.value,
                 operator,

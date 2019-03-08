@@ -6,6 +6,7 @@ import com.akazlou.dynoman.view.SearchSource
  * Class to encapsulate search (either scan or query) arguments.
  */
 data class SearchCriteria(val type: SearchType,
+                          val tableName: String,
                           val searchSource: SearchSource?,
                           val hashKeyValue: String?,
                           val sortKeyOperator: Operator?,
