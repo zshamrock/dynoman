@@ -28,7 +28,7 @@ class SaveQueryFragment : Fragment("Save Query") {
                             .resolve("session")
                             .resolve("${sessionNameProperty.value}.session")
                     controller.save(criterias, config)
-                    println("Saving $criterias")
+                    println("Saving $criterias at $path")
                     //Files.write(path, )
                     close()
                 }
