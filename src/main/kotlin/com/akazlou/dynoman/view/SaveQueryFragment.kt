@@ -27,7 +27,7 @@ class SaveQueryFragment : Fragment("Save Query") {
                     val path = app.configBasePath
                             .resolve("session")
                             .resolve("${sessionNameProperty.value}.session")
-                    controller.save(criterias, config)
+                    controller.save(path, criterias, config)
                     println("Saving $criterias at $path")
                     //Files.write(path, )
                     close()
