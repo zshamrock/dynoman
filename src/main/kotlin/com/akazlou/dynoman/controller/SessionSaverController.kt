@@ -9,6 +9,10 @@ class SessionSaverController : Controller() {
     private val service = SessionSaverService()
 
     fun save(path: Path, criterias: List<SearchCriteria>, config: ConfigProperties) {
+        val json = JsonBuilder()
+        with (json) {
+
+        }
         service.save(criterias)
     }
 }
