@@ -58,6 +58,9 @@ class TableListView : View() {
                 find(ConnectionPropertiesFragment::class).openModal(block = true)
             }
         }
+        textfield {
+            promptText = "Filter by table name"
+        }
         tablesTree = treeview {
             vboxConstraints {
                 prefHeight = 480.0
