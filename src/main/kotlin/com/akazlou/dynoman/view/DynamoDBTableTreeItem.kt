@@ -5,15 +5,16 @@ import com.akazlou.dynoman.service.DynamoDBOperation
 import com.amazonaws.services.dynamodbv2.model.AttributeDefinition
 import com.amazonaws.services.dynamodbv2.model.KeySchemaElement
 import com.amazonaws.services.dynamodbv2.model.TableDescription
+import javafx.beans.property.SimpleObjectProperty
 import javafx.collections.FXCollections
 import javafx.collections.ObservableList
 import javafx.scene.control.TreeItem
 
-class DynamoDBTableTreeItem(private val table: DynamoDBTable, private var operation: DynamoDBOperation)
+class DynamoDBTableTreeItem(private val table: DynamoDBTable, private var operation: SimpleObjectProperty<DynamoDBOperation>)
     : TreeItem<DynamoDBTable>(table) {
     val description: TableDescription by lazy {
         println("Fetch ${table.name} description")
-        operation.getTable(table.name).describe()
+        operation.value.getTable(table.name).describe()
     }
 
     override fun getChildren(): ObservableList<TreeItem<DynamoDBTable>> {

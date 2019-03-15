@@ -11,6 +11,8 @@ import com.akazlou.dynoman.domain.search.ScanSearch
 import com.akazlou.dynoman.domain.search.SearchType
 import com.akazlou.dynoman.domain.search.Type
 import com.akazlou.dynoman.service.DynamoDBOperation
+import javafx.beans.property.SimpleObjectProperty
+import javafx.collections.FXCollections
 import javafx.collections.ObservableList
 import javafx.scene.control.ContextMenu
 import javafx.scene.control.CustomMenuItem
@@ -29,8 +31,9 @@ import tornadofx.*
 
 class TableListView : View() {
     private val controller: MainController by inject()
+    private val operationProperty: SimpleObjectProperty<DynamoDBOperation> = SimpleObjectProperty()
     private val queryView: QueryView by inject()
-    private var tablesList: ObservableList<TreeItem<DynamoDBTable>> by singleAssign()
+    private val tablesList: ObservableList<DynamoDBTable> = FXCollections.observableArrayList()
     private var tablesTree: TreeView<DynamoDBTable> by singleAssign()
     // Keep the cellFactory cached to be reused when switching between the connection properties
     private val cellFactories = with(
@@ -69,7 +72,14 @@ class TableListView : View() {
             root = TreeItem(DynamoDBTable("Tables"))
             root.isExpanded = true
             isShowRoot = false
-            tablesList = root.children
+            populate({ table -> DynamoDBTableTreeItem(table, operationProperty) },
+                    { parent ->
+                        if (parent == root) {
+                            tablesList
+                        } else {
+                            null
+                        }
+                    })
         }
         textarea {
             vboxConstraints {
@@ -80,10 +90,11 @@ class TableListView : View() {
     }
 
     fun refresh(operation: DynamoDBOperation, properties: ConnectionProperties, tables: List<DynamoDBTable>) {
+        operationProperty.value = operation
         queryView.setRegion(properties.region, properties.local)
         // Initialize the cellFactory for the tree here in order to get the correct operation reference
         tablesTree.cellFactory = cellFactories.getValue(properties)
-        tablesList.setAll(tables.map { DynamoDBTableTreeItem(it, operation) })
+        tablesList.setAll(tables)
     }
 
     class DynamoDBTableStringConverter : StringConverter<DynamoDBTable>() {
