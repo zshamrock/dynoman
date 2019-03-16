@@ -12,8 +12,10 @@ import com.akazlou.dynoman.domain.search.SearchType
 import com.akazlou.dynoman.domain.search.Type
 import com.akazlou.dynoman.service.DynamoDBOperation
 import javafx.beans.property.SimpleObjectProperty
+import javafx.beans.property.SimpleStringProperty
 import javafx.collections.FXCollections
 import javafx.collections.ObservableList
+import javafx.collections.transformation.FilteredList
 import javafx.scene.control.ContextMenu
 import javafx.scene.control.CustomMenuItem
 import javafx.scene.control.Label
@@ -28,13 +30,21 @@ import javafx.scene.layout.Priority
 import javafx.util.Callback
 import javafx.util.StringConverter
 import tornadofx.*
+import java.util.function.Predicate
 
 class TableListView : View() {
+    companion object {
+        @JvmField
+        val ACCEPT_ALL_PREDICATE = FilterTablePredicate()
+    }
+
     private val controller: MainController by inject()
     private val operationProperty: SimpleObjectProperty<DynamoDBOperation> = SimpleObjectProperty()
     private val queryView: QueryView by inject()
-    private val tablesList: ObservableList<DynamoDBTable> = FXCollections.observableArrayList()
+    private val rawTablesList: ObservableList<DynamoDBTable> = FXCollections.observableArrayList()
     private var tablesTree: TreeView<DynamoDBTable> by singleAssign()
+    private val filteredNameProperty = SimpleStringProperty("")
+    private val tablesList: FilteredList<DynamoDBTable> = rawTablesList.filtered(ACCEPT_ALL_PREDICATE)
     // Keep the cellFactory cached to be reused when switching between the connection properties
     private val cellFactories = with(
             mutableMapOf<ConnectionProperties, Callback<TreeView<DynamoDBTable>, TreeCell<DynamoDBTable>>>()) {
@@ -50,6 +60,16 @@ class TableListView : View() {
         }
     }
 
+    init {
+        filteredNameProperty.addListener { _, oldValue, newValue ->
+            println("Filter text changed from $oldValue to $newValue")
+            if (oldValue != newValue) {
+                // TODO: Use at least maps (better Caffeine cache with the limited number of items as the eviction size)
+                tablesList.predicate = FilterTablePredicate(newValue)
+            }
+        }
+    }
+
     override val root = vbox(5.0) {
         borderpaneConstraints {
             prefWidth = 220.0
@@ -61,7 +81,8 @@ class TableListView : View() {
                 find(ConnectionPropertiesFragment::class).openModal(block = true)
             }
         }
-        textfield {
+        // TODO: Provide overlay button (?) to allow to clean up the code using the mouse
+        textfield(filteredNameProperty) {
             promptText = "Filter by table name"
         }
         tablesTree = treeview {
@@ -94,7 +115,9 @@ class TableListView : View() {
         queryView.setRegion(properties.region, properties.local)
         // Initialize the cellFactory for the tree here in order to get the correct operation reference
         tablesTree.cellFactory = cellFactories.getValue(properties)
-        tablesList.setAll(tables)
+        filteredNameProperty.value = ""
+        rawTablesList.setAll(tables)
+        tablesList.predicate = ACCEPT_ALL_PREDICATE
     }
 
     class DynamoDBTableStringConverter : StringConverter<DynamoDBTable>() {
@@ -230,5 +253,11 @@ class TableListView : View() {
                 }
             }
         }
+    }
+}
+
+class FilterTablePredicate(var text: String = "") : Predicate<DynamoDBTable> {
+    override fun test(table: DynamoDBTable): Boolean {
+        return text.isBlank() || table.name.contains(text, true)
     }
 }
