@@ -33,10 +33,6 @@ import tornadofx.*
 import java.util.function.Predicate
 
 class TableListView : View() {
-    companion object {
-        @JvmField
-        val ACCEPT_ALL_PREDICATE = FilterTablePredicate()
-    }
 
     private val controller: MainController by inject()
     private val operationProperty: SimpleObjectProperty<DynamoDBOperation> = SimpleObjectProperty()
@@ -44,7 +40,8 @@ class TableListView : View() {
     private val rawTablesList: ObservableList<DynamoDBTable> = FXCollections.observableArrayList()
     private var tablesTree: TreeView<DynamoDBTable> by singleAssign()
     private val filteredNameProperty = SimpleStringProperty("")
-    private val tablesList: FilteredList<DynamoDBTable> = rawTablesList.filtered(ACCEPT_ALL_PREDICATE)
+    private val tablesList: FilteredList<DynamoDBTable> =
+            rawTablesList.filtered(FilterTablePredicate.ACCEPT_ALL_PREDICATE)
     // Keep the cellFactory cached to be reused when switching between the connection properties
     private val cellFactories = with(
             mutableMapOf<ConnectionProperties, Callback<TreeView<DynamoDBTable>, TreeCell<DynamoDBTable>>>()) {
@@ -62,7 +59,6 @@ class TableListView : View() {
 
     init {
         filteredNameProperty.addListener { _, oldValue, newValue ->
-            println("Filter text changed from $oldValue to $newValue")
             if (oldValue != newValue) {
                 // TODO: Use at least maps (better Caffeine cache with the limited number of items as the eviction size)
                 tablesList.predicate = FilterTablePredicate(newValue)
@@ -117,7 +113,7 @@ class TableListView : View() {
         tablesTree.cellFactory = cellFactories.getValue(properties)
         filteredNameProperty.value = ""
         rawTablesList.setAll(tables)
-        tablesList.predicate = ACCEPT_ALL_PREDICATE
+        tablesList.predicate = FilterTablePredicate.ACCEPT_ALL_PREDICATE
     }
 
     class DynamoDBTableStringConverter : StringConverter<DynamoDBTable>() {
@@ -257,6 +253,11 @@ class TableListView : View() {
 }
 
 class FilterTablePredicate(var text: String = "") : Predicate<DynamoDBTable> {
+    companion object {
+        @JvmField
+        val ACCEPT_ALL_PREDICATE = FilterTablePredicate()
+    }
+
     override fun test(table: DynamoDBTable): Boolean {
         return text.isBlank() || table.name.contains(text, true)
     }
