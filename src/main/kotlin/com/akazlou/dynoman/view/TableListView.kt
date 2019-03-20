@@ -16,6 +16,7 @@ import javafx.beans.property.SimpleStringProperty
 import javafx.collections.FXCollections
 import javafx.collections.ObservableList
 import javafx.collections.transformation.FilteredList
+import javafx.geometry.Pos
 import javafx.scene.control.ContextMenu
 import javafx.scene.control.CustomMenuItem
 import javafx.scene.control.Label
@@ -37,11 +38,11 @@ class TableListView : View() {
     private val controller: MainController by inject()
     private val operationProperty: SimpleObjectProperty<DynamoDBOperation> = SimpleObjectProperty()
     private val queryView: QueryView by inject()
-    private val rawTablesList: ObservableList<DynamoDBTable> = FXCollections.observableArrayList()
+    private val masterTablesList: ObservableList<DynamoDBTable> = FXCollections.observableArrayList()
     private var tablesTree: TreeView<DynamoDBTable> by singleAssign()
     private val filteredNameProperty = SimpleStringProperty("")
     private val tablesList: FilteredList<DynamoDBTable> =
-            rawTablesList.filtered(FilterTablePredicate.ACCEPT_ALL_PREDICATE)
+            masterTablesList.filtered(FilterTablePredicate.ACCEPT_ALL_PREDICATE)
     // Keep the cellFactory cached to be reused when switching between the connection properties
     private val cellFactories = with(
             mutableMapOf<ConnectionProperties, Callback<TreeView<DynamoDBTable>, TreeCell<DynamoDBTable>>>()) {
@@ -77,9 +78,19 @@ class TableListView : View() {
                 find(ConnectionPropertiesFragment::class).openModal(block = true)
             }
         }
-        // TODO: Provide overlay button (?) to allow to clean up the code using the mouse
-        textfield(filteredNameProperty) {
-            promptText = "Filter by table name"
+        stackpane {
+            alignment = Pos.CENTER_RIGHT
+            textfield(filteredNameProperty) {
+                promptText = "Filter by table name"
+                useMaxWidth = true
+            }
+            button("x") {
+                addClass("clear-x")
+                action {
+                    filteredNameProperty.value = ""
+                    tablesList.predicate = FilterTablePredicate.ACCEPT_ALL_PREDICATE
+                }
+            }
         }
         tablesTree = treeview {
             vboxConstraints {
@@ -112,7 +123,7 @@ class TableListView : View() {
         // Initialize the cellFactory for the tree here in order to get the correct operation reference
         tablesTree.cellFactory = cellFactories.getValue(properties)
         filteredNameProperty.value = ""
-        rawTablesList.setAll(tables)
+        masterTablesList.setAll(tables)
         tablesList.predicate = FilterTablePredicate.ACCEPT_ALL_PREDICATE
     }
 

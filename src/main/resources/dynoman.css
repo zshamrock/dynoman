@@ -20,3 +20,8 @@ https://stackoverflow.com/questions/20541038/how-to-have-the-menu-mnemonic-under
 .button-x {
     -fx-pref-width: 20px;
 }
+
+.clear-x {
+    -fx-pref-width: 20px;
+    -fx-pref-height: 20px;
+}
