@@ -22,22 +22,21 @@ object Config {
 
     private const val SYSTEM_PROPERTY_PROFILE_NAME = "aws.profile"
     private const val ENV_PROPERTY_PROFILE_NAME = "AWS_PROFILE"
+    private const val DEFAULT_AWS_PROFILE = "default"
 
     fun getRegion(config: ConfigProperties): String {
-        return config.string(REGION, DEFAULT_REGION.name)
+        return config.string(REGION, DEFAULT_REGION.getName())
     }
 
     fun isLocal(config: ConfigProperties): Boolean {
-        return config.boolean(LOCAL, false)!!
+        return config.boolean(LOCAL, false)
     }
 
     fun getProfile(config: ConfigProperties): String {
         val profile = config.string(PROFILE)
         return if (profile.isNullOrBlank()) {
-            System.getProperty(SYSTEM_PROPERTY_PROFILE_NAME)
-                    .orEmpty()
-                    .ifBlank { System.getenv(ENV_PROPERTY_PROFILE_NAME) }
-                    .orEmpty()
+            System.getProperty(SYSTEM_PROPERTY_PROFILE_NAME,
+                    System.getenv(ENV_PROPERTY_PROFILE_NAME).orEmpty().ifEmpty { DEFAULT_AWS_PROFILE })
         } else {
             profile
         }
