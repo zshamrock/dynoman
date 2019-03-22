@@ -11,6 +11,8 @@ import com.akazlou.dynoman.domain.search.ScanSearch
 import com.akazlou.dynoman.domain.search.SearchType
 import com.akazlou.dynoman.domain.search.Type
 import com.akazlou.dynoman.service.DynamoDBOperation
+import com.github.benmanes.caffeine.cache.Caffeine
+import com.github.benmanes.caffeine.cache.LoadingCache
 import javafx.beans.property.SimpleObjectProperty
 import javafx.beans.property.SimpleStringProperty
 import javafx.collections.FXCollections
@@ -31,6 +33,7 @@ import javafx.scene.layout.Priority
 import javafx.util.Callback
 import javafx.util.StringConverter
 import tornadofx.*
+import java.util.concurrent.TimeUnit
 import java.util.function.Predicate
 
 class TableListView : View() {
@@ -57,12 +60,19 @@ class TableListView : View() {
             }
         }
     }
+    private val predicates: LoadingCache<String, Predicate<DynamoDBTable>> = Caffeine.newBuilder()
+            .maximumSize(10)
+            .expireAfterWrite(30, TimeUnit.MINUTES)
+            .build { FilterTablePredicate(it) }
 
     init {
         filteredNameProperty.addListener { _, oldValue, newValue ->
             if (oldValue != newValue) {
-                // TODO: Use at least maps (better Caffeine cache with the limited number of items as the eviction size)
-                tablesList.predicate = FilterTablePredicate(newValue)
+                tablesList.predicate = if (newValue.isEmpty()) {
+                    FilterTablePredicate.ACCEPT_ALL_PREDICATE
+                } else {
+                    predicates.get(newValue)
+                }
             }
         }
     }
