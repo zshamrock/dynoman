@@ -39,6 +39,7 @@ class QueryTabFragment : Fragment("Query Tab") {
     private val data = FXCollections.observableArrayList<ResultData>()
     private var queryResult: QueryResult? = null
     private var copyAllByFieldMenu: Menu? = null
+    private var copyAllDistinctByFieldMenu: Menu? = null
     private val allColumns: MutableSet<String> = mutableSetOf()
     private var qwf: QueryWindowFragment by singleAssign()
 
@@ -188,6 +189,7 @@ class QueryTabFragment : Fragment("Query Tab") {
                             }
                         }
                         copyAllByFieldMenu = menu("Copy All by Field")
+                        copyAllDistinctByFieldMenu = menu("Copy All Distinct by Field")
                         separator()
                         menu("Apply Function") {
                             Functions.getAvailableFunctions().sortedBy { it.name() }.forEach { function ->
@@ -279,21 +281,36 @@ class QueryTabFragment : Fragment("Query Tab") {
                 val item = MenuItem(key)
                 item.setOnAction {
                     println("Copy All by Field $key")
-                    val content = data.asSequence()
-                            .map { it.data[key] }
-                            .flatMap {
-                                (it as? List<*> ?: listOf(it)).asSequence()
-                            }
-                            .filterNotNull()
-                            .map { it.toString() }
-                            .filter { it.isNotBlank() }
-                            .distinct()
-                            .joinToString("\n")
+                    val content = getDataByField(key, false).joinToString("\n")
                     clipboard.putString(content)
                 }
                 copyAllByFieldMenu!!.items.add(item)
             }
         }
+        if (copyAllDistinctByFieldMenu!!.items.isEmpty() && data.isNotEmpty()) {
+            data[0].getKeys().forEach { key ->
+                val item = MenuItem(key)
+                item.setOnAction {
+                    println("Copy All Distinct by Field $key")
+                    val content = getDataByField(key, true).joinToString("\n")
+                    clipboard.putString(content)
+                }
+                copyAllDistinctByFieldMenu!!.items.add(item)
+            }
+        }
+    }
+
+    private fun getDataByField(field: String, distinct: Boolean): Sequence<String> {
+        var content = data.asSequence()
+                .map { it.data[field] }
+                .flatMap {
+                    (it as? List<*> ?: listOf(it)).asSequence()
+                }
+                .map { it?.toString() ?: "" }
+        if (distinct) {
+            content = content.filter { it.isNotBlank() }.distinct()
+        }
+        return content
     }
 
     fun getQueryResult() = queryResult
