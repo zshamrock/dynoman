@@ -277,7 +277,7 @@ class QueryTabFragment : Fragment("Query Tab") {
         resultTable.columns.setAll(columns)
         data.setAll(results)
         if (copyAllByFieldMenu!!.items.isEmpty() && data.isNotEmpty()) {
-            data[0].getKeys().forEach { key ->
+            allColumns.forEach { key ->
                 val item = MenuItem(key)
                 item.setOnAction {
                     println("Copy All by Field $key")
@@ -288,7 +288,7 @@ class QueryTabFragment : Fragment("Query Tab") {
             }
         }
         if (copyAllDistinctByFieldMenu!!.items.isEmpty() && data.isNotEmpty()) {
-            data[0].getKeys().forEach { key ->
+            allColumns.forEach { key ->
                 val item = MenuItem(key)
                 item.setOnAction {
                     println("Copy All Distinct by Field $key")
