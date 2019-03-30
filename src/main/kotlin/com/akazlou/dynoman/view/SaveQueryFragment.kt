@@ -15,25 +15,25 @@ class SaveQueryFragment : Fragment("Save Query") {
 
     override val root = form {
         fieldset {
-            field("Name") {
+            field("Name:") {
                 textfield(sessionNameProperty)
             }
-            buttonbar {
-                button("Save") {
-                    action {
-                        val path = app.configBasePath
-                                .resolve("session")
-                                .resolve("${sessionNameProperty.value}.session")
-                        controller.save(path, criterias, config)
-                        println("Saving $criterias at $path")
-                        //Files.write(path, )
-                        close()
-                    }
+        }
+        buttonbar {
+            button("Save") {
+                action {
+                    val path = app.configBasePath
+                            .resolve("session")
+                            .resolve("${sessionNameProperty.value}.session")
+                    controller.save(path, criterias, config)
+                    println("Saving $criterias at $path")
+                    //Files.write(path, )
+                    close()
                 }
-                button("Cancel") {
-                    action {
-                        close()
-                    }
+            }
+            button("Cancel") {
+                action {
+                    close()
                 }
             }
         }
