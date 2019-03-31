@@ -21,6 +21,7 @@ class SaveQueryFragment : Fragment("Save Query") {
         }
         buttonbar {
             button("Save") {
+                enableWhen { sessionNameProperty.isNotBlank() }
                 action {
                     val path = app.configBasePath
                             .resolve("session")
