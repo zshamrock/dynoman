@@ -4,11 +4,11 @@ import com.amazonaws.services.dynamodbv2.document.RangeKeyCondition
 import com.amazonaws.services.dynamodbv2.document.spec.QuerySpec
 import com.amazonaws.services.dynamodbv2.document.spec.ScanSpec
 
-abstract class Search(private var searchType: SearchType,
-                      val table: String,
-                      val index: String?,
-                      protected val filters: List<QueryCondition>,
-                      private val order: Order) {
+sealed class Search(private var searchType: SearchType,
+                    val table: String,
+                    val index: String?,
+                    protected val filters: List<QueryCondition>,
+                    private val order: Order) {
     fun isAscOrdered(): Boolean {
         return order == Order.ASC
     }
