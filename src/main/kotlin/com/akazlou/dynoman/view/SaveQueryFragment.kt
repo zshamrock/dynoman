@@ -23,6 +23,7 @@ class SaveQueryFragment : Fragment("Save Query") {
             button("Save") {
                 enableWhen { sessionNameProperty.isNotBlank() }
                 action {
+                    // TODO: Wrap in async
                     val path = app.configBasePath
                             .resolve("session")
                             .resolve("${sessionNameProperty.value}.session")
