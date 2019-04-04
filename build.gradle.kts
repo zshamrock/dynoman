@@ -4,12 +4,15 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 buildscript {
     var kotlin_version: String by extra
     kotlin_version = "1.3.21"
+    var serialization_version: String by extra
+    serialization_version = "0.10.0"
 
     repositories {
         mavenCentral()
     }
     dependencies {
         classpath(kotlin("gradle-plugin", kotlin_version))
+        classpath(kotlin("serialization", kotlin_version))
         classpath("com.github.jengelman.gradle.plugins:shadow:4.0.3")
         classpath("no.tornado:fxlauncher-gradle-plugin:1.0.20")
     }
@@ -29,23 +32,29 @@ version = "1.0.0-SNAPSHOT"
 
 apply {
     plugin("kotlin")
+    plugin("kotlinx-serialization")
     plugin("com.github.johnrengelman.shadow")
     plugin("no.tornado.fxlauncher")
 }
 
 val kotlin_version: String by extra
+val serialization_version: String by extra
 
 repositories {
     mavenCentral()
+    // kotlin-serialization-runtime library
+    maven("https://kotlin.bintray.com/kotlinx")
 }
 
 dependencies {
     compile(kotlin("stdlib-jdk8", kotlin_version))
-    compile("no.tornado", "tornadofx", "1.7.18")
+    compile(kotlin("reflect", kotlin_version))
+    compile("org.jetbrains.kotlinx", "kotlinx-serialization-runtime", serialization_version)
     compile("com.amazonaws", "aws-java-sdk-dynamodb", "1.11.495")
-    compile("org.jetbrains.kotlin", "kotlin-reflect", kotlin_version)
-    compile("org.reflections", "reflections", "0.9.11")
     compile("com.github.ben-manes.caffeine", "caffeine", "2.7.0")
+    compile("no.tornado", "tornadofx", "1.7.18")
+    compile("org.reflections", "reflections", "0.9.11")
+
     testImplementation("io.kotlintest:kotlintest-runner-junit5:3.2.1")
     testCompile("org.testcontainers:testcontainers:1.10.6")
 }
