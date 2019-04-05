@@ -3,6 +3,7 @@ package com.akazlou.dynoman.domain.search
 import com.amazonaws.services.dynamodbv2.document.RangeKeyCondition
 import com.amazonaws.services.dynamodbv2.document.spec.QuerySpec
 import com.amazonaws.services.dynamodbv2.document.spec.ScanSpec
+import kotlinx.serialization.Serializable
 
 sealed class Search(private var searchType: SearchType,
                     val table: String,
@@ -14,6 +15,7 @@ sealed class Search(private var searchType: SearchType,
     }
 }
 
+@Serializable
 class QuerySearch(table: String,
                   index: String?,
                   keys: List<QueryCondition>,
@@ -75,6 +77,7 @@ class QuerySearch(table: String,
     }
 }
 
+@Serializable
 class ScanSearch(table: String,
                  index: String?,
                  filters: List<QueryCondition>) :
