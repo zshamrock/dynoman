@@ -1,13 +1,13 @@
 package com.akazlou.dynoman.service
 
-import com.akazlou.dynoman.domain.search.SearchCriteria
+import com.akazlou.dynoman.domain.search.Search
 
 class SessionSaverService {
-    fun save(criterias: List<SearchCriteria>) {
+    fun save(search: Search) {
         TODO("Implement")
     }
 
-    fun restore(): List<SearchCriteria> {
+    fun restore(): Search {
         TODO("Implement")
     }
 }

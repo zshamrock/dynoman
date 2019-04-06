@@ -1,14 +1,14 @@
 package com.akazlou.dynoman.view
 
 import com.akazlou.dynoman.controller.SessionSaverController
-import com.akazlou.dynoman.domain.search.SearchCriteria
+import com.akazlou.dynoman.domain.search.Search
 import javafx.beans.property.SimpleStringProperty
 import tornadofx.*
 
 // TODO: Define the structure/format of the data stored, and where
 class SaveQueryFragment : Fragment("Save Query") {
 
-    val criterias: List<SearchCriteria> by param()
+    val search: Search by param()
     val controller: SessionSaverController by inject()
 
     private val sessionNameProperty = SimpleStringProperty()
@@ -27,8 +27,8 @@ class SaveQueryFragment : Fragment("Save Query") {
                     val path = app.configBasePath
                             .resolve("session")
                             .resolve("${sessionNameProperty.value}.session")
-                    controller.save(path, criterias, config)
-                    println("Saving $criterias at $path")
+                    controller.save(path, search, config)
+                    println("Saving $search at $path")
                     //Files.write(path, )
                     close()
                 }
