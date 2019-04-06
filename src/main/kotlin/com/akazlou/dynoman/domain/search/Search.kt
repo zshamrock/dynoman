@@ -5,22 +5,23 @@ import com.amazonaws.services.dynamodbv2.document.spec.QuerySpec
 import com.amazonaws.services.dynamodbv2.document.spec.ScanSpec
 import kotlinx.serialization.Serializable
 
+@Serializable
 sealed class Search(private var searchType: SearchType,
-                    val table: String,
-                    val index: String?,
-                    protected val filters: List<QueryCondition>,
-                    private val order: Order) {
+                    open val table: String,
+                    open val index: String?,
+                    open val filters: List<QueryCondition>,
+                    open val order: Order) {
     fun isAscOrdered(): Boolean {
         return order == Order.ASC
     }
 }
 
 @Serializable
-class QuerySearch(table: String,
-                  index: String?,
-                  keys: List<QueryCondition>,
-                  filters: List<QueryCondition>,
-                  order: Order) : Search(SearchType.QUERY, table, index, filters, order) {
+class QuerySearch(override val table: String,
+                  override val index: String?,
+                  val keys: List<QueryCondition>,
+                  override val filters: List<QueryCondition>,
+                  override val order: Order) : Search(SearchType.QUERY, table, index, filters, order) {
     private val hashKey = keys[0]
     private val rangeKey = keys.getOrNull(1)
 
@@ -78,9 +79,9 @@ class QuerySearch(table: String,
 }
 
 @Serializable
-class ScanSearch(table: String,
-                 index: String?,
-                 filters: List<QueryCondition>) :
+class ScanSearch(override val table: String,
+                 override val index: String?,
+                 override val filters: List<QueryCondition>) :
         Search(SearchType.SCAN, table, index, filters, Order.ASC) {
     fun toScanSpec(maxPageSize: Int = 0): ScanSpec {
         val spec = ScanSpec()
