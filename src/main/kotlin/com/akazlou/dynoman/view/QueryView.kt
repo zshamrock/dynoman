@@ -11,8 +11,10 @@ import com.amazonaws.regions.Regions
 import com.amazonaws.services.dynamodbv2.document.Item
 import com.amazonaws.services.dynamodbv2.document.Page
 import com.amazonaws.services.dynamodbv2.model.TableDescription
+import javafx.beans.binding.Bindings
 import javafx.beans.property.SimpleStringProperty
 import javafx.geometry.Pos
+import javafx.scene.control.Button
 import javafx.scene.control.ContextMenu
 import javafx.scene.control.MenuItem
 import javafx.scene.control.TabPane
@@ -53,13 +55,14 @@ class QueryView : View("Query") {
             prefHeight = 725.0
             useMaxWidth = true
         }
+        var saveButton: Button by singleAssign()
         val controlArea = hbox(5.0) {
             vboxConstraints {
                 maxHeight = 45.0
             }
             padding = tornadofx.insets(5, 0)
             alignment = Pos.CENTER_LEFT
-            button("Save") {
+            saveButton = button("Save") {
                 shortcut("Ctrl+S")
                 action {
                     find(SaveQueryFragment::class).openModal(stageStyle = StageStyle.UTILITY)
@@ -88,6 +91,7 @@ class QueryView : View("Query") {
             // TODO: Correctly handle Unnamed tab
             //tab("Unnamed", find(QueryTabFragment::class).root)
         }
+        saveButton.enableWhen { Bindings.isNotEmpty(queries.tabs) }
         hbox(5.0) {
             vboxConstraints {
                 maxHeight = 35.0
