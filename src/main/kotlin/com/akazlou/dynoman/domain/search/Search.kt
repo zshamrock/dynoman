@@ -3,14 +3,28 @@ package com.akazlou.dynoman.domain.search
 import com.amazonaws.services.dynamodbv2.document.RangeKeyCondition
 import com.amazonaws.services.dynamodbv2.document.spec.QuerySpec
 import com.amazonaws.services.dynamodbv2.document.spec.ScanSpec
+import tornadofx.*
+import javax.json.JsonObject
 
 sealed class Search(private var searchType: SearchType,
                     val table: String,
                     val index: String?,
                     protected val filters: List<QueryCondition>,
-                    private val order: Order) {
+                    private val order: Order) : JsonModel {
     fun isAscOrdered(): Boolean {
         return order == Order.ASC
+    }
+
+    override fun toJSON(json: JsonBuilder) {
+        with(json) {
+
+        }
+    }
+
+    override fun updateModel(json: JsonObject) {
+        with(json) {
+
+        }
     }
 }
 
