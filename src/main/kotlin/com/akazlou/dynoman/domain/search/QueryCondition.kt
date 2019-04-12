@@ -4,10 +4,8 @@ import com.amazonaws.services.dynamodbv2.document.QueryFilter
 import com.amazonaws.services.dynamodbv2.document.RangeKeyCondition
 import com.amazonaws.services.dynamodbv2.document.ScanFilter
 import com.amazonaws.services.dynamodbv2.document.internal.Filter
-import kotlinx.serialization.Serializable
 import java.util.Locale
 
-@Serializable
 data class QueryCondition(val name: String, val type: Type, val operator: Operator, val values: List<String>) {
     fun toQueryFilter(): QueryFilter {
         return operator.toQueryFilter(name, type, *values.toTypedArray())
