@@ -17,15 +17,20 @@ sealed class Search(private var searchType: SearchType,
 
     override fun toJSON(json: JsonBuilder) {
         with(json) {
-
+            add("type", searchType.name)
+            doToJSON(json)
         }
     }
 
     override fun updateModel(json: JsonObject) {
         with(json) {
-
+            doUpdateModel(json)
         }
     }
+
+    protected abstract fun doToJSON(json: JsonBuilder)
+
+    protected abstract fun doUpdateModel(json: JsonObject)
 }
 
 class QuerySearch(table: String,
@@ -33,6 +38,7 @@ class QuerySearch(table: String,
                   keys: List<QueryCondition>,
                   filters: List<QueryCondition>,
                   order: Order) : Search(SearchType.QUERY, table, index, filters, order) {
+
     private val hashKey = keys[0]
     private val rangeKey = keys.getOrNull(1)
 
@@ -87,6 +93,14 @@ class QuerySearch(table: String,
         }
         return spec
     }
+
+    override fun doToJSON(json: JsonBuilder) {
+        TODO("not implemented")
+    }
+
+    override fun doUpdateModel(json: JsonObject) {
+        TODO("not implemented")
+    }
 }
 
 class ScanSearch(table: String,
@@ -100,5 +114,13 @@ class ScanSearch(table: String,
             spec.withMaxPageSize(maxPageSize)
         }
         return spec
+    }
+
+    override fun doToJSON(json: JsonBuilder) {
+        TODO("not implemented")
+    }
+
+    override fun doUpdateModel(json: JsonObject) {
+        TODO("not implemented")
     }
 }

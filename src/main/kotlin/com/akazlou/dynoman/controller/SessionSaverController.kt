@@ -11,7 +11,6 @@ class SessionSaverController : Controller() {
     fun save(path: Path, search: Search, config: ConfigProperties) {
         val json = JsonBuilder()
         with(json) {
-
         }
         service.save(search)
         service.save(search)
