@@ -8,7 +8,7 @@ import tornadofx.*
 // TODO: Define the structure/format of the data stored, and where
 class SaveQueryFragment : Fragment("Save Query") {
 
-    val search: Search by param()
+    val searches: List<Search> by param()
     val controller: SessionSaverController by inject()
 
     private val sessionNameProperty = SimpleStringProperty()
@@ -27,8 +27,8 @@ class SaveQueryFragment : Fragment("Save Query") {
                     val path = app.configBasePath
                             .resolve("session")
                             .resolve("${sessionNameProperty.value}.session")
-                    controller.save(path, search, config)
-                    println("Saving $search at $path")
+                    controller.save(path, searches, config)
+                    println("Saving searches at $path")
                     //Files.write(path, )
                     close()
                 }
