@@ -5,11 +5,10 @@ import com.akazlou.dynoman.domain.search.Search
 import javafx.beans.property.SimpleStringProperty
 import tornadofx.*
 
-// TODO: Define the structure/format of the data stored, and where
 class SaveQueryFragment : Fragment("Save Query") {
 
     val searches: List<Search> by param()
-    val controller: SessionSaverController by inject()
+    private val controller: SessionSaverController by inject()
 
     private val sessionNameProperty = SimpleStringProperty()
 
