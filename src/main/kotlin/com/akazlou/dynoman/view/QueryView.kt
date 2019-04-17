@@ -40,15 +40,24 @@ class QueryView : View("Query") {
         tabContextMenu = ContextMenu(duplicate)
 
         duplicate.setOnAction {
-            // TODO: Might be the improvement to put the duplicated tab just after the source tab
+            val tabs = queries.tabs
             val currentTab = queries.selectionModel.selectedItem
-            val fragment = currentTab.properties[QUERY_TAB_FRAGMENT_KEY] as QueryTabFragment
-            val qr = fragment.getQueryResult()!!
-            val fr = fragment.duplicate()
-            val tab = queries.tab("${qr.searchType} ${qr.getTable()}", fr.root)
-            tab.properties[QUERY_TAB_FRAGMENT_KEY] = fr
+            val currentFragment = currentTab.properties[QUERY_TAB_FRAGMENT_KEY] as QueryTabFragment
+            val qr = currentFragment.getQueryResult()!!
+            val fragment = currentFragment.duplicate()
+            val index = tabs.indexOf(currentTab)
+            val isLast = index + 1 == tabs.size
+            val tab = queries.tab("${qr.searchType} ${qr.getTable()}", fragment.root)
+            tab.properties[QUERY_TAB_FRAGMENT_KEY] = fragment
             tab.contextMenu = tabContextMenu
-            queries.selectionModel.selectLast()
+            if (!isLast) {
+                // if the current tab was not the last tab in the list, we put the new tab just after the current tab,
+                // otherwise it is already just after the current tab
+                tabs.remove(tab)
+                tabs.add(index + 1, tab)
+
+            }
+            queries.selectionModel.select(tab)
         }
     }
 
