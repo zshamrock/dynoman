@@ -44,8 +44,9 @@ class QueryView : View("Query") {
             val currentTab = queries.selectionModel.selectedItem
             val fragment = currentTab.properties[QUERY_TAB_FRAGMENT_KEY] as QueryTabFragment
             val qr = fragment.getQueryResult()!!
-            val tab = queries.tab("${qr.searchType} ${qr.getTable()}", fragment.duplicate().root)
-            tab.properties[QUERY_TAB_FRAGMENT_KEY] = fragment
+            val fr = fragment.duplicate()
+            val tab = queries.tab("${qr.searchType} ${qr.getTable()}", fr.root)
+            tab.properties[QUERY_TAB_FRAGMENT_KEY] = fr
             tab.contextMenu = tabContextMenu
             queries.selectionModel.selectLast()
         }
