@@ -10,8 +10,6 @@ import com.akazlou.dynoman.domain.search.ScanSearch
 import com.akazlou.dynoman.domain.search.SearchCriteria
 import com.akazlou.dynoman.domain.search.SearchType
 import com.akazlou.dynoman.domain.search.Type
-import com.akazlou.dynoman.ext.removeAllRows
-import com.akazlou.dynoman.ext.removeRow
 import com.akazlou.dynoman.function.Functions
 import com.akazlou.dynoman.service.DynamoDBOperation
 import com.amazonaws.services.dynamodbv2.model.KeySchemaElement
