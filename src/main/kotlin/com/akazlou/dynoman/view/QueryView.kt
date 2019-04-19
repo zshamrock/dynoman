@@ -53,9 +53,7 @@ class QueryView : View("Query") {
             if (!isLast) {
                 // if the current tab was not the last tab in the list, we put the new tab just after the current tab,
                 // otherwise it is already just after the current tab
-                tabs.remove(tab)
-                tabs.add(index + 1, tab)
-
+                tabs.move(tab, index + 1)
             }
             queries.selectionModel.select(tab)
         }
