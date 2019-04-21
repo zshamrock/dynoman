@@ -7,6 +7,7 @@ import com.akazlou.dynoman.domain.search.QueryFilter
 import com.akazlou.dynoman.domain.search.QueryResult
 import com.akazlou.dynoman.domain.search.Search
 import com.akazlou.dynoman.domain.search.SearchType
+import com.akazlou.dynoman.ext.tab
 import com.akazlou.dynoman.service.DynamoDBOperation
 import com.amazonaws.regions.Regions
 import com.amazonaws.services.dynamodbv2.document.Item
@@ -46,15 +47,9 @@ class QueryView : View("Query") {
             val qr = currentFragment.getQueryResult()!!
             val fragment = currentFragment.duplicate()
             val index = tabs.indexOf(currentTab)
-            val isLast = index + 1 == tabs.size
-            val tab = queries.tab("${qr.searchType} ${qr.getTable()}", fragment.root)
+            val tab = queries.tab(index + 1, "${qr.searchType} ${qr.getTable()}", fragment.root)
             tab.properties[QUERY_TAB_FRAGMENT_KEY] = fragment
             tab.contextMenu = tabContextMenu
-            if (!isLast) {
-                // if the current tab was not the last tab in the list, we put the new tab just after the current tab,
-                // otherwise it is already just after the current tab
-                tabs.move(tab, index + 1)
-            }
             queries.selectionModel.select(tab)
         }
     }
