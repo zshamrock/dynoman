@@ -319,6 +319,10 @@ class QueryTabFragment : Fragment("Query Tab") {
         val (from, to) = queryResult!!.getCurrentDataRange(pageNum)
         paginationTextProperty.value = "Viewing $from to $to items"
     }
+
+    fun getSearch(): SearchCriteria {
+        return qwf.getSearchCriteria()
+    }
 }
 
 data class ResultData(val data: Map<String, Any?>, val hashKey: KeySchemaElement, val sortKey: KeySchemaElement?) {

@@ -6,6 +6,8 @@ import com.amazonaws.services.dynamodbv2.document.spec.ScanSpec
 import tornadofx.*
 import javax.json.JsonObject
 
+// TODO: Looks like these classes have been introduces specifically for the purpose of JSON storage, but actually
+// SearchCriteria should do the job and eliminate the kind of duplications these classes introduced
 sealed class Search(private var searchType: SearchType,
                     val table: String,
                     val index: String?,

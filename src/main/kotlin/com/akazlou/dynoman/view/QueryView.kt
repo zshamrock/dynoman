@@ -5,7 +5,6 @@ import com.akazlou.dynoman.domain.search.Operator
 import com.akazlou.dynoman.domain.search.Order
 import com.akazlou.dynoman.domain.search.QueryFilter
 import com.akazlou.dynoman.domain.search.QueryResult
-import com.akazlou.dynoman.domain.search.Search
 import com.akazlou.dynoman.domain.search.SearchType
 import com.akazlou.dynoman.ext.tab
 import com.akazlou.dynoman.service.DynamoDBOperation
@@ -69,8 +68,11 @@ class QueryView : View("Query") {
             saveButton = button("Save") {
                 shortcut("Ctrl+S")
                 action {
+                    val criterias = queries.tabs
+                            .map { it.properties[QUERY_TAB_FRAGMENT_KEY] as QueryTabFragment }
+                            .map { it.getSearch() }
                     find<SaveQueryFragment>(params = mapOf(
-                            SaveQueryFragment::searches to listOf<Search>()
+                            SaveQueryFragment::searches to criterias
                     )).openModal(stageStyle = StageStyle.UTILITY)
                 }
             }
