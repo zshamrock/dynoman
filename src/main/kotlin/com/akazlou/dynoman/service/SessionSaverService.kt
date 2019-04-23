@@ -1,6 +1,5 @@
 package com.akazlou.dynoman.service
 
-import com.akazlou.dynoman.domain.search.Search
 import com.akazlou.dynoman.domain.search.SearchCriteria
 import tornadofx.*
 
@@ -10,10 +9,10 @@ class SessionSaverService {
         searches.forEach {
             with(json) {
             }
-        }                
+        }
     }
 
-    fun restore(): List<Search> {
+    fun restore(): List<SearchCriteria> {
         TODO("Implement")
     }
 }
