@@ -23,6 +23,9 @@ class DateTimeFunction : Function<String>() {
     }
 
     override fun run(vararg args: Any): String {
+        if ((args.isEmpty()) || ((args[0] as? String).isNullOrBlank())) {
+            return ""
+        }
         return ZonedDateTime
                 .ofInstant(Instant.ofEpochMilli(args[0] as? Long ?: (args[0] as String).toLong()), UTC_ZONE)
                 .format(DEFAULT_FORMATTER)
