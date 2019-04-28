@@ -9,6 +9,6 @@ class SessionSaverController : Controller() {
     private val service = SessionSaverService()
 
     fun save(path: Path, searches: List<SearchCriteria>, config: ConfigProperties) {
-        service.save(searches)
+        service.save(path, searches)
     }
 }

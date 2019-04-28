@@ -24,11 +24,10 @@ class SaveQueryFragment : Fragment("Save Query") {
                 action {
                     // TODO: Wrap in async
                     val path = app.configBasePath
-                            .resolve("session")
+                            .resolve("sessions")
                             .resolve("${sessionNameProperty.value}.session")
-                    controller.save(path, searches, config)
                     println("Saving searches at $path")
-                    //Files.write(path, )
+                    controller.save(path, searches, config)
                     close()
                 }
             }
