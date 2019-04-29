@@ -10,7 +10,7 @@ import java.nio.file.StandardOpenOption
 import javax.json.Json
 
 class SessionSaverService {
-    fun save(path: Path, searches: List<SearchCriteria>) {
+    fun save(path: Path, name: String, searches: List<SearchCriteria>) {
         val json = JsonBuilder()
         val array = Json.createArrayBuilder()
         searches.forEach { search ->
@@ -23,7 +23,8 @@ class SessionSaverService {
         json.add("sessions", array)
         val writer = StringWriter()
         Json.createWriter(writer).write(json.build())
-        Files.write(path,
+        Files.createDirectories(path)
+        Files.write(path.resolve("$name.session"),
                 listOf(writer.toString()),
                 StandardCharsets.UTF_8,
                 StandardOpenOption.CREATE,

@@ -8,7 +8,7 @@ import java.nio.file.Path
 class SessionSaverController : Controller() {
     private val service = SessionSaverService()
 
-    fun save(path: Path, searches: List<SearchCriteria>, config: ConfigProperties) {
-        service.save(path, searches)
+    fun save(path: Path, name: String, searches: List<SearchCriteria>, config: ConfigProperties) {
+        service.save(path, name, searches)
     }
 }
