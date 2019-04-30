@@ -22,10 +22,12 @@ class SaveQueryFragment : Fragment("Save Query") {
             button("Save") {
                 enableWhen { sessionNameProperty.isNotBlank() }
                 action {
-                    // TODO: Wrap in async
-                    val path = app.configBasePath.resolve("sessions")
-                    controller.save(path, sessionNameProperty.value, searches, config)
-                    close()
+                    runAsyncWithProgress {
+                        val path = app.configBasePath.resolve("sessions")
+                        controller.save(path, sessionNameProperty.value, searches, config)
+                    } ui {
+                        close()
+                    }
                 }
             }
             button("Cancel") {

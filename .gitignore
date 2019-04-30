@@ -31,3 +31,5 @@ app.properties
 # Gradle
 build
 .gradle
+
+conf/
