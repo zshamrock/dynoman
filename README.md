@@ -20,4 +20,4 @@
 
 ### To run
 
-`AWS_PROFILE=<application specific profile> ./gradlew run`
+`AWS_PROFILE=<application specific profile> ./gradlew run` or simply run `./run.sh`.
