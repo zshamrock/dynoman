@@ -42,7 +42,7 @@ repositories {
 dependencies {
     compile(kotlin("stdlib-jdk8", kotlin_version))
     compile(kotlin("reflect", kotlin_version))
-    compile("com.amazonaws", "aws-java-sdk-dynamodb", "1.11.495")
+    compile("com.amazonaws", "aws-java-sdk-dynamodb", "1.11.546")
     compile("com.github.ben-manes.caffeine", "caffeine", "2.7.0")
     compile("no.tornado", "tornadofx", "1.7.18")
     compile("org.reflections", "reflections", "0.9.11")
