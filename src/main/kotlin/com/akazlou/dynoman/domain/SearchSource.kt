@@ -1,8 +1,7 @@
-package com.akazlou.dynoman.view
+package com.akazlou.dynoman.domain
 
 import com.amazonaws.services.dynamodbv2.model.KeySchemaElement
 
-// TODO: Should move this class into the domain, outside from the view package
 data class SearchSource(val name: String, val keySchema: List<KeySchemaElement>, val isIndex: Boolean) :
         Comparable<SearchSource> {
 

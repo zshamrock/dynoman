@@ -1,6 +1,7 @@
 package com.akazlou.dynoman.view
 
 import com.akazlou.dynoman.controller.RunQueryController
+import com.akazlou.dynoman.domain.SearchSource
 import com.akazlou.dynoman.domain.search.Operator
 import com.akazlou.dynoman.domain.search.Order
 import com.akazlou.dynoman.domain.search.QueryFilter

@@ -3,6 +3,7 @@ package com.akazlou.dynoman.view
 import com.akazlou.dynoman.controller.MainController
 import com.akazlou.dynoman.domain.ConnectionProperties
 import com.akazlou.dynoman.domain.DynamoDBTable
+import com.akazlou.dynoman.domain.SearchSource
 import com.akazlou.dynoman.domain.search.Operator
 import com.akazlou.dynoman.domain.search.Order
 import com.akazlou.dynoman.domain.search.QueryCondition

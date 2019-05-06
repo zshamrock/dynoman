@@ -1,6 +1,6 @@
 package com.akazlou.dynoman.domain.search
 
-import com.akazlou.dynoman.view.SearchSource
+import com.akazlou.dynoman.domain.SearchSource
 
 /**
  * Class to encapsulate search (either scan or query) arguments.
