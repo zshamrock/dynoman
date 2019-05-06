@@ -3,6 +3,7 @@ package com.akazlou.dynoman.view
 import com.akazlou.dynoman.domain.ConnectionProperties
 import com.amazonaws.regions.Regions
 import tornadofx.*
+import java.nio.file.Path
 
 /**
  * Configuration singleton keeping all the internals of working with application configurations.
@@ -23,6 +24,8 @@ object Config {
     private const val SYSTEM_PROPERTY_PROFILE_NAME = "aws.profile"
     private const val ENV_PROPERTY_PROFILE_NAME = "AWS_PROFILE"
     private const val DEFAULT_AWS_PROFILE = "default"
+
+    private const val SESSIONS_STORE_PATH = "sessions"
 
     fun getRegion(config: ConfigProperties): String {
         return config.string(REGION, DEFAULT_REGION.getName())
@@ -62,5 +65,9 @@ object Config {
                 getProfile(config),
                 getCredentialsFile(config),
                 isLocal(config))
+    }
+
+    fun getSavedSessionsPath(base: Path): Path {
+        return base.resolve(SESSIONS_STORE_PATH)
     }
 }

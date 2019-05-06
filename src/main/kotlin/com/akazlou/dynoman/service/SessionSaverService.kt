@@ -13,6 +13,10 @@ import javax.json.Json
 import javax.json.stream.JsonGenerator
 
 class SessionSaverService {
+    companion object {
+        private const val SUFFIX = ".session"
+    }
+
     private val wf = Json.createWriterFactory(mapOf(
             JsonGenerator.PRETTY_PRINTING to true))
 
@@ -57,7 +61,7 @@ class SessionSaverService {
         val writer = StringWriter()
         wf.createWriter(writer).write(json.build())
         Files.createDirectories(path)
-        Files.write(path.resolve("$name.session"),
+        Files.write(path.resolve("$name$SUFFIX"),
                 listOf(writer.toString()),
                 StandardCharsets.UTF_8,
                 StandardOpenOption.CREATE,
@@ -67,5 +71,13 @@ class SessionSaverService {
 
     fun restore(): List<SearchCriteria> {
         TODO("Implement")
+    }
+
+    fun listNames(path: Path): List<String> {
+        val dir = path.toFile()
+        if (!dir.exists()) {
+            return listOf()
+        }
+        return dir.listFiles().map { it.nameWithoutExtension }.toList()
     }
 }

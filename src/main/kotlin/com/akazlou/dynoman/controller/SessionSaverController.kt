@@ -11,4 +11,8 @@ class SessionSaverController : Controller() {
     fun save(path: Path, name: String, searches: List<SearchCriteria>, config: ConfigProperties) {
         service.save(path, name, searches)
     }
+
+    fun listNames(path: Path): List<String> {
+        return service.listNames(path)
+    }
 }

@@ -23,7 +23,7 @@ class SaveQueryFragment : Fragment("Save Query") {
                 enableWhen { sessionNameProperty.isNotBlank() }
                 action {
                     runAsyncWithProgress {
-                        val path = app.configBasePath.resolve("sessions")
+                        val path = Config.getSavedSessionsPath(app.configBasePath)
                         controller.save(path, sessionNameProperty.value, searches, config)
                     } ui {
                         close()

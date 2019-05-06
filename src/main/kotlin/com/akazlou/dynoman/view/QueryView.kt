@@ -1,6 +1,7 @@
 package com.akazlou.dynoman.view
 
 import com.akazlou.dynoman.controller.RunQueryController
+import com.akazlou.dynoman.controller.SessionSaverController
 import com.akazlou.dynoman.domain.SearchSource
 import com.akazlou.dynoman.domain.search.Operator
 import com.akazlou.dynoman.domain.search.Order
@@ -30,11 +31,13 @@ class QueryView : View("Query") {
         private const val QUERY_TAB_FRAGMENT_KEY: String = "queryTabFragment"
     }
 
-    private val controller: RunQueryController by inject()
+    private val runQueryController: RunQueryController by inject()
+    private val sessionSaverController: SessionSaverController by inject()
     private var queries: TabPane by singleAssign()
     private val region = SimpleStringProperty(Config.getRegion(app.config))
     private val local = SimpleStringProperty(buildLocalText(Config.isLocal(app.config)))
     private val tabContextMenu: ContextMenu
+    private val namedQueries = mutableListOf<String>().observable()
 
     init {
         val duplicate = MenuItem("Duplicate")
@@ -52,6 +55,7 @@ class QueryView : View("Query") {
             tab.contextMenu = tabContextMenu
             queries.selectionModel.select(tab)
         }
+        updateNamedQueries()
     }
 
     override val root = vbox(5.0) {
@@ -75,6 +79,7 @@ class QueryView : View("Query") {
                     find<SaveQueryFragment>(params = mapOf(
                             SaveQueryFragment::searches to criterias
                     )).openModal(stageStyle = StageStyle.UTILITY)
+                    updateNamedQueries()
                 }
             }
             region {
@@ -82,7 +87,6 @@ class QueryView : View("Query") {
                     hGrow = Priority.ALWAYS
                 }
             }
-            val namedQueries = listOf("X", "Y", "Z").observable()
             combobox<String> {
                 //setPrefSize(200.0, 40.0)
                 prefWidth = 200.0
@@ -118,6 +122,10 @@ class QueryView : View("Query") {
                 }
             }
         }
+    }
+
+    private fun updateNamedQueries() {
+        namedQueries.setAll(sessionSaverController.listNames(Config.getSavedSessionsPath(app.configBasePath)))
     }
 
     fun setQueryResult(operation: DynamoDBOperation,
