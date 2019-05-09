@@ -69,8 +69,8 @@ class SessionSaverService {
                 StandardOpenOption.TRUNCATE_EXISTING)
     }
 
-    fun restore(): List<SearchCriteria> {
-        TODO("Implement")
+    fun restore(path: Path): List<SearchCriteria> {
+        return listOf()
     }
 
     fun listNames(path: Path): List<String> {

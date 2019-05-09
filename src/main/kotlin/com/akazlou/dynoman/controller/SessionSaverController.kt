@@ -15,4 +15,8 @@ class SessionSaverController : Controller() {
     fun listNames(path: Path): List<String> {
         return service.listNames(path)
     }
+
+    fun restore(path: Path): List<SearchCriteria> {
+        return service.restore(path)
+    }
 }

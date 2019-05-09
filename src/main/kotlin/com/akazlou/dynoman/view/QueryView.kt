@@ -38,6 +38,7 @@ class QueryView : View("Query") {
     private val local = SimpleStringProperty(buildLocalText(Config.isLocal(app.config)))
     private val tabContextMenu: ContextMenu
     private val namedQueries = mutableListOf<String>().observable()
+    private val openSessionNameProperty = SimpleStringProperty()
 
     init {
         val duplicate = MenuItem("Duplicate")
@@ -87,12 +88,17 @@ class QueryView : View("Query") {
                     hGrow = Priority.ALWAYS
                 }
             }
-            combobox<String> {
+            combobox<String>(openSessionNameProperty) {
                 //setPrefSize(200.0, 40.0)
                 prefWidth = 200.0
                 items = namedQueries
             }
             button("Open") {
+                enableWhen { Bindings.isNotEmpty(openSessionNameProperty) }
+                action {
+                    sessionSaverController.restore(
+                            Config.getSavedSessionsPath(app.configBasePath).resolve(openSessionNameProperty.value))
+                }
             }
         }
         queries = tabpane {
