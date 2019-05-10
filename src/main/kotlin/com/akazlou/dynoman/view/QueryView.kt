@@ -96,8 +96,13 @@ class QueryView : View("Query") {
             button("Open") {
                 enableWhen { Bindings.isNotEmpty(openSessionNameProperty) }
                 action {
-                    sessionSaverController.restore(
-                            Config.getSavedSessionsPath(app.configBasePath).resolve(openSessionNameProperty.value))
+                    runAsyncWithProgress {
+                        sessionSaverController.restore(
+                                Config.getSavedSessionsPath(app.configBasePath), openSessionNameProperty.value)
+                    } ui { criterias ->
+                        criterias.forEach { criteria ->
+                        }
+                    }
                 }
             }
         }

@@ -19,8 +19,9 @@ class SessionSaverService {
 
     private val wf = Json.createWriterFactory(mapOf(
             JsonGenerator.PRETTY_PRINTING to true))
+    private val pf = Json.createParserFactory(mutableMapOf<String, Any>())
 
-    fun save(path: Path, name: String, searches: List<SearchCriteria>) {
+    fun save(base: Path, name: String, searches: List<SearchCriteria>) {
         val json = JsonBuilder()
         val array = Json.createArrayBuilder()
         searches.forEach { search ->
@@ -60,8 +61,8 @@ class SessionSaverService {
         json.add("sessions", array)
         val writer = StringWriter()
         wf.createWriter(writer).write(json.build())
-        Files.createDirectories(path)
-        Files.write(path.resolve("$name$SUFFIX"),
+        Files.createDirectories(base)
+        Files.write(resolve(base, name),
                 listOf(writer.toString()),
                 StandardCharsets.UTF_8,
                 StandardOpenOption.CREATE,
@@ -69,7 +70,12 @@ class SessionSaverService {
                 StandardOpenOption.TRUNCATE_EXISTING)
     }
 
-    fun restore(path: Path): List<SearchCriteria> {
+    private fun resolve(base: Path, name: String) = base.resolve("$name$SUFFIX")
+
+    fun restore(base: Path, name: String): List<SearchCriteria> {
+        val path = resolve(base, name)
+        println("Parsing $path")
+        val parser = pf.createParser(path.toFile().reader())
         return listOf()
     }
 
