@@ -79,7 +79,7 @@ class QueryView : View("Query") {
                             .map { it.getSearch() }
                     find<SaveQueryFragment>(params = mapOf(
                             SaveQueryFragment::searches to criterias
-                    )).openModal(stageStyle = StageStyle.UTILITY)
+                    )).openModal(stageStyle = StageStyle.UTILITY, block = true)
                     updateNamedQueries()
                 }
             }
