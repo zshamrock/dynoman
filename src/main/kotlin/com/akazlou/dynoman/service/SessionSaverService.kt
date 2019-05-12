@@ -11,6 +11,7 @@ import java.nio.file.Path
 import java.nio.file.StandardOpenOption
 import javax.json.Json
 import javax.json.stream.JsonGenerator
+import kotlin.streams.toList
 
 class SessionSaverService {
     companion object {
@@ -76,6 +77,21 @@ class SessionSaverService {
         val path = resolve(base, name)
         println("Parsing $path")
         val parser = pf.createParser(path.toFile().reader())
+        parser.next()
+        val sessions = parser.`object`.getJsonArray("sessions").stream().map { value ->
+            val obj = value.asJsonObject()
+            val searchType = SearchType.valueOf(obj.getString("type"))
+            println("Parsing $searchType")
+            when (searchType) {
+                SearchType.QUERY -> {
+                    ""
+                }
+                SearchType.SCAN -> {
+                    ""
+                }
+            }
+        }.toList()
+        println(sessions)
         return listOf()
     }
 
