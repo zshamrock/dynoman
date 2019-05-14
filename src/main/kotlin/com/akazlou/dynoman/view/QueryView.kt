@@ -99,8 +99,8 @@ class QueryView : View("Query") {
                     runAsyncWithProgress {
                         sessionSaverController.restore(
                                 Config.getSavedSessionsPath(app.configBasePath), openSessionNameProperty.value)
-                    } ui { criterias ->
-                        criterias.forEach { criteria ->
+                    } ui { searches ->
+                        searches.forEach { search ->
                         }
                     }
                 }

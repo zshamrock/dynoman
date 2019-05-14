@@ -1,5 +1,6 @@
 package com.akazlou.dynoman.controller
 
+import com.akazlou.dynoman.domain.search.Search
 import com.akazlou.dynoman.domain.search.SearchCriteria
 import com.akazlou.dynoman.service.SessionSaverService
 import tornadofx.*
@@ -16,7 +17,7 @@ class SessionSaverController : Controller() {
         return service.listNames(path)
     }
 
-    fun restore(base: Path, name: String): List<SearchCriteria> {
+    fun restore(base: Path, name: String): List<Search> {
         return service.restore(base, name)
     }
 }

@@ -1,8 +1,14 @@
 package com.akazlou.dynoman.service
 
+import com.akazlou.dynoman.domain.search.Operator
 import com.akazlou.dynoman.domain.search.Order
+import com.akazlou.dynoman.domain.search.QueryCondition
+import com.akazlou.dynoman.domain.search.QuerySearch
+import com.akazlou.dynoman.domain.search.ScanSearch
+import com.akazlou.dynoman.domain.search.Search
 import com.akazlou.dynoman.domain.search.SearchCriteria
 import com.akazlou.dynoman.domain.search.SearchType
+import com.akazlou.dynoman.domain.search.Type
 import tornadofx.*
 import java.io.StringWriter
 import java.nio.charset.StandardCharsets
@@ -11,7 +17,6 @@ import java.nio.file.Path
 import java.nio.file.StandardOpenOption
 import javax.json.Json
 import javax.json.stream.JsonGenerator
-import kotlin.streams.toList
 
 class SessionSaverService {
     companion object {
@@ -73,26 +78,53 @@ class SessionSaverService {
 
     private fun resolve(base: Path, name: String) = base.resolve("$name$SUFFIX")
 
-    fun restore(base: Path, name: String): List<SearchCriteria> {
+    fun restore(base: Path, name: String): List<Search> {
         val path = resolve(base, name)
         println("Parsing $path")
         val parser = pf.createParser(path.toFile().reader())
         parser.next()
-        val sessions = parser.`object`.getJsonArray("sessions").stream().map { value ->
+        val sessions = parser.`object`.getJsonArray("sessions").map { value ->
             val obj = value.asJsonObject()
             val searchType = SearchType.valueOf(obj.getString("type"))
             println("Parsing $searchType")
+            val table = obj.getString("table")
+            val order = Order.valueOf(obj.getString("order"))
+            val index = obj.getString("index", null)
+            val filters = obj.getJsonArray("filters").orEmpty().map { it.asJsonObject() }.map { filter ->
+                QueryCondition(
+                        filter.getString("name"),
+                        Type.valueOf(filter.getString("type")),
+                        Operator.valueOf(filter.getString("operator")),
+                        filter.getJsonArray("values").orEmpty().map { it.toString() }
+                )
+            }
             when (searchType) {
                 SearchType.QUERY -> {
-                    ""
+                    // TODO: As we currently don't persist hash/parition and sort keys names and types below the
+                    //  placeholders are used until this is fixed
+                    val hash = obj.getString("hash")
+                    val hashKey = QueryCondition("?", Type.STRING, Operator.EQ, listOf(hash))
+                    val sort = obj.getJsonArray("sort").orEmpty().map { it.toString() }
+                    val keys = if (sort.isEmpty()) {
+                        listOf(hashKey)
+                    } else {
+                        listOf(hashKey,
+                                QueryCondition("?", Type.NUMBER, Operator.valueOf(obj.getString("operator")), sort))
+                    }
+                    QuerySearch(
+                            table,
+                            index,
+                            keys,
+                            filters,
+                            order)
                 }
                 SearchType.SCAN -> {
-                    ""
+                    ScanSearch(table, index, filters)
                 }
             }
         }.toList()
         println(sessions)
-        return listOf()
+        return sessions
     }
 
     fun listNames(path: Path): List<String> {
