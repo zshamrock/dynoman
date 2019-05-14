@@ -2,9 +2,9 @@ package com.akazlou.dynoman.domain
 
 import com.akazlou.dynoman.DynamoDBTestContainerListener
 import com.akazlou.dynoman.IT
+import com.akazlou.dynoman.domain.search.Condition
 import com.akazlou.dynoman.domain.search.Operator
 import com.akazlou.dynoman.domain.search.Order
-import com.akazlou.dynoman.domain.search.QueryCondition
 import com.akazlou.dynoman.domain.search.QueryResult
 import com.akazlou.dynoman.domain.search.QuerySearch
 import com.akazlou.dynoman.domain.search.ScanSearch
@@ -55,7 +55,8 @@ class QueryResultITSpec : StringSpec() {
                     QuerySearch(
                             "Table1",
                             null,
-                            listOf(QueryCondition("Id1", Type.STRING, Operator.EQ, listOf("Id1-50"))),
+                            Condition("Id1", Type.STRING, Operator.EQ, listOf("Id1-50")),
+                            null,
                             emptyList(),
                             Order.ASC))
             val table = operation.getTable("Table1")
@@ -73,7 +74,8 @@ class QueryResultITSpec : StringSpec() {
                     QuerySearch(
                             "Table1",
                             "Table1Index2",
-                            listOf(QueryCondition("Num", Type.NUMBER, Operator.EQ, listOf("1"))),
+                            Condition("Num", Type.NUMBER, Operator.EQ, listOf("1")),
+                            null,
                             emptyList(),
                             Order.ASC))
 
@@ -99,8 +101,9 @@ class QueryResultITSpec : StringSpec() {
                     QuerySearch(
                             "Table1",
                             "Table1Index2",
-                            listOf(QueryCondition("Num", Type.NUMBER, Operator.EQ, listOf("1"))),
-                            listOf(QueryCondition("Timestamp2", Type.NUMBER, Operator.GE, listOf("150"))),
+                            Condition("Num", Type.NUMBER, Operator.EQ, listOf("1")),
+                            null,
+                            listOf(Condition("Timestamp2", Type.NUMBER, Operator.GE, listOf("150"))),
                             Order.ASC))
 
             val table = operation.getTable("Table1")

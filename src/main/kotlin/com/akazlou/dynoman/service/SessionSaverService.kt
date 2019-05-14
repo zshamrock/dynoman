@@ -1,12 +1,11 @@
 package com.akazlou.dynoman.service
 
+import com.akazlou.dynoman.domain.search.Condition
 import com.akazlou.dynoman.domain.search.Operator
 import com.akazlou.dynoman.domain.search.Order
-import com.akazlou.dynoman.domain.search.QueryCondition
 import com.akazlou.dynoman.domain.search.QuerySearch
 import com.akazlou.dynoman.domain.search.ScanSearch
 import com.akazlou.dynoman.domain.search.Search
-import com.akazlou.dynoman.domain.search.SearchCriteria
 import com.akazlou.dynoman.domain.search.SearchType
 import com.akazlou.dynoman.domain.search.Type
 import tornadofx.*
@@ -27,28 +26,27 @@ class SessionSaverService {
             JsonGenerator.PRETTY_PRINTING to true))
     private val pf = Json.createParserFactory(mutableMapOf<String, Any>())
 
-    fun save(base: Path, name: String, searches: List<SearchCriteria>) {
+    fun save(base: Path, name: String, searches: List<Search>) {
         val json = JsonBuilder()
         val array = Json.createArrayBuilder()
         searches.forEach { search ->
             val builder = JsonBuilder()
             with(builder) {
                 add("type", search.type.name)
-                add("table", search.tableName)
-                if (search.type == SearchType.QUERY) {
-                    val source = search.searchSource!!
-                    if (source.isIndex) {
-                        add("index", source.name)
-                    }
-                    add("hash", search.hashKeyValue)
-                    if (search.sortKeyOperator != null) {
-                        add("sort", search.sortKeyValues)
-                        add("operator", search.sortKeyOperator.name)
+                add("table", search.table)
+                if (search.index != null) {
+                    add("index", search.index)
+                }
+                if (search is QuerySearch) {
+                    add("hash", search.getHashKeyValue().toString())
+                    if (search.rangeKey != null) {
+                        add("sort", search.getRangeKeyValues())
+                        add("operator", search.getRangeKeyOperator().name)
                     }
                 }
-                if (search.queryFilters.isNotEmpty()) {
+                if (search.conditions.isNotEmpty()) {
                     val filters = Json.createArrayBuilder()
-                    search.forEachQueryFilter {
+                    search.conditions.forEach {
                         val filter = JsonBuilder()
                         with(filter) {
                             add("name", it.name)
@@ -60,7 +58,7 @@ class SessionSaverService {
                     }
                     add("filters", filters)
                 }
-                add("order", (search.order ?: Order.ASC).name)
+                add("order", search.order.name)
             }
             array.add(builder.build())
         }
@@ -91,7 +89,7 @@ class SessionSaverService {
             val order = Order.valueOf(obj.getString("order"))
             val index = obj.getString("index", null)
             val filters = obj.getJsonArray("filters").orEmpty().map { it.asJsonObject() }.map { filter ->
-                QueryCondition(
+                Condition(
                         filter.getString("name"),
                         Type.valueOf(filter.getString("type")),
                         Operator.valueOf(filter.getString("operator")),
@@ -100,21 +98,21 @@ class SessionSaverService {
             }
             when (searchType) {
                 SearchType.QUERY -> {
-                    // TODO: As we currently don't persist hash/parition and sort keys names and types below the
-                    //  placeholders are used until this is fixed
                     val hash = obj.getString("hash")
-                    val hashKey = QueryCondition("?", Type.STRING, Operator.EQ, listOf(hash))
+                    // TODO: Set the name
+                    val hashKey = Condition("?", Type.STRING, Operator.EQ, listOf(hash))
                     val sort = obj.getJsonArray("sort").orEmpty().map { it.toString() }
-                    val keys = if (sort.isEmpty()) {
-                        listOf(hashKey)
+                    val sortKey = if (sort.isEmpty()) {
+                        null
                     } else {
-                        listOf(hashKey,
-                                QueryCondition("?", Type.NUMBER, Operator.valueOf(obj.getString("operator")), sort))
+                        // TODO: Set the name
+                        Condition("?", Type.NUMBER, Operator.valueOf(obj.getString("operator")), sort)
                     }
                     QuerySearch(
                             table,
                             index,
-                            keys,
+                            hashKey,
+                            sortKey,
                             filters,
                             order)
                 }

@@ -1,14 +1,13 @@
 package com.akazlou.dynoman.view
 
 import com.akazlou.dynoman.domain.SearchSource
+import com.akazlou.dynoman.domain.search.Condition
 import com.akazlou.dynoman.domain.search.Operator
 import com.akazlou.dynoman.domain.search.Order
-import com.akazlou.dynoman.domain.search.QueryCondition
-import com.akazlou.dynoman.domain.search.QueryFilter
 import com.akazlou.dynoman.domain.search.QueryResult
 import com.akazlou.dynoman.domain.search.QuerySearch
 import com.akazlou.dynoman.domain.search.ScanSearch
-import com.akazlou.dynoman.domain.search.SearchCriteria
+import com.akazlou.dynoman.domain.search.Search
 import com.akazlou.dynoman.domain.search.SearchType
 import com.akazlou.dynoman.domain.search.Type
 import com.akazlou.dynoman.function.Functions
@@ -208,7 +207,7 @@ class QueryWindowFragment : Fragment("Query...") {
                     alignment = Pos.CENTER
                     button("Search") {
                         action {
-                            val operationType = searchTypeProperty.value
+                            val searchType = searchTypeProperty.value
                             println("Search: ${searchTypeProperty.value}")
                             val skOp = sortKeyOperatorProperty.value
                             val skValues = when {
@@ -229,10 +228,10 @@ class QueryWindowFragment : Fragment("Query...") {
                             println("Sort By ${orderProperty.value}")
                             val qt = searchSourceProperty.value
                             println(qt)
-                            if (!hashKeyValueProperty.value.isNullOrBlank() || operationType.isScan()) {
+                            if (!hashKeyValueProperty.value.isNullOrBlank() || searchType.isScan()) {
                                 val conditions = filterKeys.mapIndexed { index, filterKey ->
                                     val filterKeyOperation = filterKeyOperators[index].value
-                                    QueryCondition(
+                                    Condition(
                                             filterKey.value,
                                             filterKeyTypes[index].value,
                                             filterKeyOperation,
@@ -247,13 +246,14 @@ class QueryWindowFragment : Fragment("Query...") {
                                 // TODO: Is it possible instead to open the tab, and show the loader/spinner there,
                                 //  instead of closing this modal window and display nothing
                                 runAsyncWithProgress {
-                                    if (operationType.isScan()) {
-                                        operation.scan(ScanSearch(
+                                    if (searchType.isScan()) {
+                                        val search = ScanSearch(
                                                 description.tableName,
                                                 if (qt.isIndex) qt.name else null,
-                                                conditions))
+                                                conditions)
+                                        Pair(search, operation.scan(search))
                                     } else {
-                                        val hashKey = QueryCondition(
+                                        val hashKey = Condition(
                                                 qt.hashKey.attributeName,
                                                 attributeDefinitionTypes[qt.hashKey.attributeName]!!,
                                                 Operator.EQ,
@@ -261,7 +261,7 @@ class QueryWindowFragment : Fragment("Query...") {
                                         val rangeKey = if (skValues.isEmpty()) {
                                             null
                                         } else {
-                                            QueryCondition(
+                                            Condition(
                                                     qt.sortKey?.attributeName!!,
                                                     attributeDefinitionTypes[qt.sortKey.attributeName]!!,
                                                     skOp,
@@ -270,49 +270,24 @@ class QueryWindowFragment : Fragment("Query...") {
                                         val search = QuerySearch(
                                                 description.tableName,
                                                 if (qt.isIndex) qt.name else null,
-                                                if (rangeKey == null) {
-                                                    listOf(hashKey)
-                                                } else {
-                                                    listOf(hashKey, rangeKey)
-                                                },
+                                                hashKey,
+                                                rangeKey,
                                                 conditions,
                                                 orderProperty.value
                                         )
-                                        operation.query(search)
+                                        Pair(search, operation.query(search))
                                     }
-                                } ui { result ->
+                                } ui { (search, result) ->
                                     if (mode == Mode.MODAL) {
-                                        val queryFilters = filterKeys.mapIndexed { index, property ->
-                                            val filterKeyOperation = filterKeyOperators[index].value
-                                            QueryFilter(property.value,
-                                                    filterKeyTypes[index].value,
-                                                    filterKeyOperation,
-                                                    if (filterKeyOperation.isBetween()) {
-                                                        val betweenPair = filterKeyBetweenValues[index]
-                                                        listOf(parseValue(betweenPair.first.value),
-                                                                parseValue(betweenPair.second.value))
-                                                    } else {
-                                                        listOf(parseValue(filterKeyValues[index]?.value))
-                                                    })
-                                        }
-                                        println("skValues: $skValues")
-                                        println(sortKeyProperty)
                                         find(QueryView::class).setQueryResult(
                                                 operation,
                                                 description,
-                                                operationType,
-                                                description.tableName,
-                                                qt,
-                                                parseValue(hashKeyValueProperty.value),
-                                                skOp,
-                                                skValues,
-                                                orderProperty.value,
-                                                queryFilters,
+                                                search,
                                                 result)
                                     } else {
                                         tab?.setQueryResult(
                                                 QueryResult(
-                                                        operationType,
+                                                        searchType,
                                                         description,
                                                         result))
                                     }
@@ -335,7 +310,7 @@ class QueryWindowFragment : Fragment("Query...") {
         }
     }
 
-    private fun cleanQueryGridPane(): List<QueryFilter> {
+    private fun cleanQueryGridPane(): List<Condition> {
         sortKeyOperatorProperty.value = Operator.EQ
         queryGridPane.removeAllRows()
         keysRowsCount = 0
@@ -344,10 +319,10 @@ class QueryWindowFragment : Fragment("Query...") {
         sortKeyFromProperty.value = ""
         sortKeyToProperty.value = ""
         // Collect current filters into the QueryFilter-s before clean them up
-        val filters = mutableListOf<QueryFilter>()
+        val filters = mutableListOf<Condition>()
         filterKeys.forEachIndexed { index, filterKey ->
             val filterKeyOperator = filterKeyOperators[index].value
-            filters.add(QueryFilter(
+            filters.add(Condition(
                     filterKey.value.orEmpty(),
                     filterKeyTypes[index].value,
                     filterKeyOperator,
@@ -409,20 +384,20 @@ class QueryWindowFragment : Fragment("Query...") {
         }
     }
 
-    private fun addFilterRow(queryGridPane: GridPane, queryFilter: QueryFilter? = null) {
+    private fun addFilterRow(queryGridPane: GridPane, condition: Condition? = null) {
         println("grid properties: ${queryGridPane.properties}")
         queryGridPane.row {
             val filterLabel = SimpleStringProperty(
                     if (filterKeys.isEmpty()) FILTER_PRIMARY_LABEL else FILTER_SECONDARY_LABEL)
             filterLabels.add(filterLabel)
             text(filterLabel)
-            val filterKey = SimpleStringProperty(queryFilter?.name)
+            val filterKey = SimpleStringProperty(condition?.name)
             filterKeys.add(filterKey)
             textfield(filterKey) { }
-            val filterKeyType = SimpleObjectProperty<Type>(queryFilter?.type ?: Type.STRING)
+            val filterKeyType = SimpleObjectProperty<Type>(condition?.type ?: Type.STRING)
             filterKeyTypes.add(filterKeyType)
             combobox(values = FILTER_KEY_TYPES, property = filterKeyType)
-            val filterKeyOperation = SimpleObjectProperty<Operator>(queryFilter?.operator ?: Operator.EQ)
+            val filterKeyOperation = SimpleObjectProperty<Operator>(condition?.operator ?: Operator.EQ)
             filterKeyOperators.add(filterKeyOperation)
             val filterKeyOperationComboBox = combobox(
                     values = FILTER_KEY_AVAILABLE_OPERATORS, property = filterKeyOperation)
@@ -452,11 +427,11 @@ class QueryWindowFragment : Fragment("Query...") {
                             filterKeyFrom,
                             filterKeyTo))
             if (filterKeyOperation.value.isBetween()) {
-                filterKeyFrom.value = queryFilter?.values?.get(0)
-                filterKeyTo.value = queryFilter?.values?.get(1)
+                filterKeyFrom.value = condition?.values?.get(0)
+                filterKeyTo.value = condition?.values?.get(1)
                 filterKeyBetweenHBox.attachTo(this)
             } else if (!filterKeyOperation.value.isNoArg()) {
-                filterKeyValue.value = queryFilter?.values?.get(0)
+                filterKeyValue.value = condition?.values?.get(0)
                 filterKeyValueTextField.attachTo(this)
             }
             button("x") {
@@ -479,50 +454,90 @@ class QueryWindowFragment : Fragment("Query...") {
         }
     }
 
-    fun init(criteria: SearchCriteria,
+    fun init(search: Search,
              tab: QueryTabFragment) {
         this.tab = tab
-        if (searchType == SearchType.SCAN) {
-            criteria.forEachQueryFilter { addFilterRow(queryGridPane, it) }
-            return
-        }
-        println("Sort key values: $criteria.sortKeyValues")
-        searchSourceComboBox.value = criteria.searchSource
-        this.hashKeyValueProperty.value = criteria.hashKeyValue
-        this.sortKeyOperatorProperty.value = criteria.sortKeyOperator
-        if (criteria.isBetweenSortKeyOperator()) {
-            this.sortKeyFromProperty.value = criteria.getSortKeyValueFrom()
-            this.sortKeyToProperty.value = criteria.getSortKeyValueTo()
-        } else {
-            this.sortKeyProperty.value = criteria.getSortKeyValueFrom()
-        }
-        this.orderProperty.value = criteria.order
-        criteria.forEachQueryFilter { addFilterRow(queryGridPane, it) }
-    }
-
-    fun getSearchCriteria(): SearchCriteria {
-        val operator = sortKeyOperatorProperty.value
-        return SearchCriteria(
-                searchType,
-                description.tableName,
-                searchSourceProperty.value,
-                hashKeyValueProperty.value,
-                operator,
-                if (operator.isBetween()) {
-                    listOf(sortKeyFromProperty.value, sortKeyToProperty.value)
+        when (search) {
+            is ScanSearch -> {
+                search.conditions.forEach { addFilterRow(queryGridPane, it) }
+            }
+            is QuerySearch -> {
+                println("Sort key values: $search.sortKeyValues")
+                val hashKeySchemaElement = KeySchemaElement(search.getHashKeyName(), KeyType.HASH)
+                searchSourceComboBox.value = SearchSource(
+                        search.index ?: search.table,
+                        if (search.index == null) {
+                            listOf(hashKeySchemaElement)
+                        } else {
+                            listOf(hashKeySchemaElement, KeySchemaElement(search.getRangeKeyName(), KeyType.RANGE))
+                        },
+                        search.index != null)
+                this.hashKeyValueProperty.value = search.getHashKeyName()
+                val rangeKeyOperator = search.getRangeKeyOperator()
+                this.sortKeyOperatorProperty.value = rangeKeyOperator
+                if (rangeKeyOperator.isBetween()) {
+                    this.sortKeyFromProperty.value = search.getRangeKeyValues()[0]
+                    this.sortKeyToProperty.value = search.getRangeKeyValues()[1]
                 } else {
-                    listOf(sortKeyProperty.value)
-                },
-                orderProperty.value,
-                buildQueryFilters())
+                    this.sortKeyProperty.value = search.getRangeKeyValues()[0]
+                }
+                this.orderProperty.value = search.order
+                search.conditions.forEach { addFilterRow(queryGridPane, it) }
+            }
+        }
     }
 
-    private fun buildQueryFilters(): List<QueryFilter> {
+    fun getSearch(): Search {
+        val searchSource = searchSourceProperty.value
+        val tableName = description.tableName
+        val index = if (searchSource.isIndex) {
+            searchSource.name
+        } else {
+            null
+        }
+        return when (searchType) {
+            SearchType.SCAN -> {
+                ScanSearch(tableName, index, buildSearchFilters())
+            }
+            SearchType.QUERY -> {
+                val hashKeyName = searchSource.hashKey.attributeName
+                val sortKey = searchSource.sortKey
+                val sortQueryCondition = if (sortKey == null) {
+                    null
+                } else {
+                    val sortKeyName = sortKey.attributeName
+                    val sortKeyOperator = sortKeyOperatorProperty.value
+                    val sortKeyValues = if (sortKeyOperator.isBetween()) {
+                        listOf(sortKeyFromProperty.value, sortKeyToProperty.value)
+                    } else {
+                        listOf(sortKeyProperty.value)
+                    }
+                    Condition(
+                            sortKeyName,
+                            attributeDefinitionTypes.getValue(sortKeyName),
+                            sortKeyOperator,
+                            sortKeyValues)
+                }
+                QuerySearch(
+                        tableName,
+                        index,
+                        Condition.hashKey(
+                                hashKeyName,
+                                attributeDefinitionTypes.getValue(hashKeyName),
+                                hashKeyValueProperty.value),
+                        sortQueryCondition,
+                        buildSearchFilters(),
+                        orderProperty.value)
+            }
+        }
+    }
+
+    private fun buildSearchFilters(): List<Condition> {
         // TODO: Test various scenarios when the query filter row is incomplete in multiple ways
         // TODO: Duplicate of the duplicate results in the strange behaviour, looks like it gets the value from the original tab
         return filterKeys.mapIndexed { index, key ->
             val operator = filterKeyOperators[index].value
-            QueryFilter(key.value,
+            Condition(key.value,
                     filterKeyTypes[index].value,
                     operator,
                     if (operator.isBetween()) {

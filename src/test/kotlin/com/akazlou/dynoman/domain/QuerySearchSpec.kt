@@ -1,8 +1,8 @@
 package com.akazlou.dynoman.domain
 
+import com.akazlou.dynoman.domain.search.Condition
 import com.akazlou.dynoman.domain.search.Operator
 import com.akazlou.dynoman.domain.search.Order
-import com.akazlou.dynoman.domain.search.QueryCondition
 import com.akazlou.dynoman.domain.search.QuerySearch
 import com.akazlou.dynoman.domain.search.Type
 import com.amazonaws.services.dynamodbv2.document.KeyAttribute
@@ -16,7 +16,8 @@ class QuerySearchSpec : StringSpec({
         val search = QuerySearch(
                 "TableA",
                 null,
-                listOf(QueryCondition("Id", Type.NUMBER, Operator.EQ, listOf("1"))),
+                Condition("Id", Type.NUMBER, Operator.EQ, listOf("1")),
+                null,
                 listOf(),
                 Order.DESC)
         val spec = search.toQuerySpec(0)

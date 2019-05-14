@@ -1,7 +1,6 @@
 package com.akazlou.dynoman.controller
 
 import com.akazlou.dynoman.domain.search.Search
-import com.akazlou.dynoman.domain.search.SearchCriteria
 import com.akazlou.dynoman.service.SessionSaverService
 import tornadofx.*
 import java.nio.file.Path
@@ -9,7 +8,7 @@ import java.nio.file.Path
 class SessionSaverController : Controller() {
     private val service = SessionSaverService()
 
-    fun save(base: Path, name: String, searches: List<SearchCriteria>, config: ConfigProperties) {
+    fun save(base: Path, name: String, searches: List<Search>, config: ConfigProperties) {
         service.save(base, name, searches)
     }
 

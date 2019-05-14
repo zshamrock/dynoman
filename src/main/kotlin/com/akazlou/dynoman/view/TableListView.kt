@@ -3,10 +3,9 @@ package com.akazlou.dynoman.view
 import com.akazlou.dynoman.controller.MainController
 import com.akazlou.dynoman.domain.ConnectionProperties
 import com.akazlou.dynoman.domain.DynamoDBTable
-import com.akazlou.dynoman.domain.SearchSource
+import com.akazlou.dynoman.domain.search.Condition
 import com.akazlou.dynoman.domain.search.Operator
 import com.akazlou.dynoman.domain.search.Order
-import com.akazlou.dynoman.domain.search.QueryCondition
 import com.akazlou.dynoman.domain.search.QuerySearch
 import com.akazlou.dynoman.domain.search.ScanSearch
 import com.akazlou.dynoman.domain.search.SearchType
@@ -163,21 +162,14 @@ class TableListView : View() {
                 val tableName = treeItem.value.name
                 println("Scan $tableName")
                 val description = (treeItem as DynamoDBTableTreeItem).description
-                val searchSource = SearchSource(tableName, description.keySchema, false)
                 runAsyncWithProgress {
-                    operation.scan(ScanSearch(tableName, null, emptyList()))
-                } ui { result ->
+                    val search = ScanSearch(tableName, null, emptyList())
+                    Pair(search, operation.scan(search))
+                } ui { (search, result) ->
                     queryView.setQueryResult(
                             operation,
                             description,
-                            SearchType.SCAN,
-                            tableName,
-                            searchSource,
-                            null,
-                            null,
-                            emptyList(),
-                            null,
-                            emptyList(),
+                            search,
                             result)
                 }
             }
@@ -217,32 +209,25 @@ class TableListView : View() {
                 // TODO: Optimize/refactor
                 val attributeDefinitionTypes = description.attributeDefinitions.associateBy(
                         { it.attributeName }, { Type.fromString(it.attributeType) })
-                val primaryKeyCondition = QueryCondition(
+                val hashKey = Condition(
                         primaryKey.attributeName,
-                        attributeDefinitionTypes[primaryKey.attributeName]!!,
+                        attributeDefinitionTypes.getValue(primaryKey.attributeName),
                         Operator.EQ,
                         listOf(hashKeyValue))
-                val querySearch = QuerySearch(
+                val search = QuerySearch(
                         tableName,
                         null,
-                        listOf(primaryKeyCondition),
+                        hashKey,
+                        null,
                         emptyList(),
                         Order.ASC)
                 runAsyncWithProgress {
-                    operation.query(querySearch)
-                } ui { result ->
-                    val searchSource = SearchSource(tableName, description.keySchema, false)
+                    Pair(search, operation.query(search))
+                } ui { (search, result) ->
                     queryView.setQueryResult(
                             operation,
                             description,
-                            SearchType.QUERY,
-                            tableName,
-                            searchSource,
-                            hashKeyValue,
-                            Operator.EQ,
-                            emptyList(),
-                            Order.ASC,
-                            emptyList(),
+                            search,
                             result)
                 }
             }

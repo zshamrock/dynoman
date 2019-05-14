@@ -6,18 +6,18 @@ import com.amazonaws.services.dynamodbv2.document.spec.ScanSpec
 import tornadofx.*
 import javax.json.JsonObject
 
-sealed class Search(private var searchType: SearchType,
+sealed class Search(val type: SearchType,
                     val table: String,
                     val index: String?,
-                    protected val filters: List<QueryCondition>,
-                    private val order: Order) : JsonModel {
+                    val conditions: List<Condition>,
+                    val order: Order) : JsonModel {
     fun isAscOrdered(): Boolean {
         return order == Order.ASC
     }
 
     override fun toJSON(json: JsonBuilder) {
         with(json) {
-            add("type", searchType.name)
+            add("type", type.name)
             doToJSON(json)
         }
     }
@@ -35,22 +35,20 @@ sealed class Search(private var searchType: SearchType,
 
 class QuerySearch(table: String,
                   index: String?,
-                  keys: List<QueryCondition>,
-                  filters: List<QueryCondition>,
+                  val hashKey: Condition,
+                  val rangeKey: Condition?,
+                  filters: List<Condition>,
                   order: Order) : Search(SearchType.QUERY, table, index, filters, order) {
 
-    private val hashKey = keys[0]
-    private val rangeKey = keys.getOrNull(1)
-
-    private fun getHashKeyName(): String {
+    public fun getHashKeyName(): String {
         return hashKey.name
     }
 
-    private fun getHashKeyType(): Type {
+    public fun getHashKeyType(): Type {
         return hashKey.type
     }
 
-    private fun getHashKeyValue(): Any {
+    public fun getHashKeyValue(): Any {
         val hashKeyValue = hashKey.values[0]
         return when (getHashKeyType()) {
             Type.NUMBER -> hashKeyValue.toLong()
@@ -58,11 +56,11 @@ class QuerySearch(table: String,
         }
     }
 
-    private fun getRangeKeyName(): String? {
+    public fun getRangeKeyName(): String? {
         return rangeKey?.name
     }
 
-    private fun getRangeKeyValues(): List<String> {
+    public fun getRangeKeyValues(): List<String> {
         return rangeKey?.values.orEmpty()
     }
 
@@ -70,8 +68,8 @@ class QuerySearch(table: String,
         return rangeKey!!.type
     }
 
-    private fun getRangeKeyOperator(): Operator {
-        return rangeKey!!.operator
+    public fun getRangeKeyOperator(): Operator {
+        return rangeKey?.operator ?: Operator.EQ
     }
 
     fun toQuerySpec(maxPageSize: Int = 0): QuerySpec {
@@ -86,7 +84,7 @@ class QuerySearch(table: String,
             getRangeKeyOperator().apply(range, *values.toTypedArray())
             spec.withRangeKeyCondition(range)
         }
-        spec.withQueryFilters(*(filters.map { it.toQueryFilter() }.toTypedArray()))
+        spec.withQueryFilters(*(conditions.map { it.toQueryFilter() }.toTypedArray()))
         spec.withScanIndexForward(isAscOrdered())
         if (maxPageSize != 0) {
             spec.withMaxPageSize(maxPageSize)
@@ -105,11 +103,11 @@ class QuerySearch(table: String,
 
 class ScanSearch(table: String,
                  index: String?,
-                 filters: List<QueryCondition>) :
+                 filters: List<Condition>) :
         Search(SearchType.SCAN, table, index, filters, Order.ASC) {
     fun toScanSpec(maxPageSize: Int = 0): ScanSpec {
         val spec = ScanSpec()
-        spec.withScanFilters(*(filters.map { it.toScanFilter() }.toTypedArray()))
+        spec.withScanFilters(*(conditions.map { it.toScanFilter() }.toTypedArray()))
         if (maxPageSize != 0) {
             spec.withMaxPageSize(maxPageSize)
         }

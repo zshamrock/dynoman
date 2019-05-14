@@ -1,6 +1,5 @@
-package com.akazlou.dynoman.view
+package com.akazlou.dynoman.domain
 
-import com.akazlou.dynoman.domain.SearchSource
 import com.amazonaws.services.dynamodbv2.model.KeySchemaElement
 import com.amazonaws.services.dynamodbv2.model.KeyType
 import io.kotlintest.shouldBe

@@ -2,12 +2,8 @@ package com.akazlou.dynoman.view
 
 import com.akazlou.dynoman.controller.RunQueryController
 import com.akazlou.dynoman.controller.SessionSaverController
-import com.akazlou.dynoman.domain.SearchSource
-import com.akazlou.dynoman.domain.search.Operator
-import com.akazlou.dynoman.domain.search.Order
-import com.akazlou.dynoman.domain.search.QueryFilter
 import com.akazlou.dynoman.domain.search.QueryResult
-import com.akazlou.dynoman.domain.search.SearchType
+import com.akazlou.dynoman.domain.search.Search
 import com.akazlou.dynoman.ext.tab
 import com.akazlou.dynoman.service.DynamoDBOperation
 import com.amazonaws.regions.Regions
@@ -141,28 +137,16 @@ class QueryView : View("Query") {
 
     fun setQueryResult(operation: DynamoDBOperation,
                        description: TableDescription,
-                       searchType: SearchType,
-                       table: String,
-                       searchSource: SearchSource,
-                       hashKeyValue: String?,
-                       sortKeyOperator: Operator?,
-                       sortKeyValues: List<String>,
-                       order: Order?,
-                       queryFilters: List<QueryFilter>,
+                       search: Search,
                        page: Page<Item, out Any>) {
         val fragment = find<QueryTabFragment>(
                 params = mapOf(
-                        QueryTabFragment::searchType to searchType,
+                        QueryTabFragment::searchType to search.type,
                         "description" to description,
                         "operation" to operation,
-                        "searchSource" to searchSource,
-                        "hashKeyValue" to hashKeyValue,
-                        "sortKeyOperator" to sortKeyOperator,
-                        "sortKeyValues" to sortKeyValues,
-                        "order" to order,
-                        "queryFilters" to queryFilters))
-        fragment.setQueryResult(QueryResult(searchType, description, page))
-        val tab = queries.tab("$searchType $table", fragment.root)
+                        "search" to search))
+        fragment.setQueryResult(QueryResult(search.type, description, page))
+        val tab = queries.tab("${search.type} ${search.table}", fragment.root)
         tab.properties[QUERY_TAB_FRAGMENT_KEY] = fragment
         tab.contextMenu = tabContextMenu
         queries.selectionModel.selectLast()

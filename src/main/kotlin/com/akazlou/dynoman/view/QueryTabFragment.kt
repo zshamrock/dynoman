@@ -1,14 +1,10 @@
 package com.akazlou.dynoman.view
 
-import com.akazlou.dynoman.domain.SearchSource
-import com.akazlou.dynoman.domain.search.Operator
-import com.akazlou.dynoman.domain.search.Order
-import com.akazlou.dynoman.domain.search.QueryFilter
 import com.akazlou.dynoman.domain.search.QueryResult
-import com.akazlou.dynoman.domain.search.SearchCriteria
+import com.akazlou.dynoman.domain.search.ResultData
+import com.akazlou.dynoman.domain.search.Search
 import com.akazlou.dynoman.domain.search.SearchType
 import com.akazlou.dynoman.function.Functions
-import com.amazonaws.services.dynamodbv2.model.KeySchemaElement
 import com.amazonaws.services.dynamodbv2.model.TableDescription
 import javafx.beans.property.SimpleBooleanProperty
 import javafx.beans.property.SimpleStringProperty
@@ -103,23 +99,15 @@ class QueryTabFragment : Fragment("Query Tab") {
                         }
                     }
                     val description = params["description"] as TableDescription
-                    qwf = find<QueryWindowFragment>(
+                    qwf = find(
                             params = mapOf(
                                     QueryWindowFragment::mode to QueryWindowFragment.Mode.INLINE,
                                     QueryWindowFragment::searchType to searchType,
                                     QueryWindowFragment::description to description,
                                     QueryWindowFragment::operation to params["operation"]))
                     val editor = tab("EDITOR", qwf.root)
-                    val queryFilters = params["queryFilters"]
-                    val criteria = SearchCriteria(searchType,
-                            description.tableName,
-                            params["searchSource"] as SearchSource?,
-                            params["hashKeyValue"] as String?,
-                            params["sortKeyOperator"] as Operator?,
-                            (params["sortKeyValues"] as? List<*>)?.filterIsInstance<String>() ?: emptyList(),
-                            params["order"] as Order?,
-                            (queryFilters as? List<*>)?.filterIsInstance<QueryFilter>() ?: emptyList())
-                    qwf.init(criteria, this@QueryTabFragment)
+                    val search = params["search"] as Search
+                    qwf.init(search, this@QueryTabFragment)
                     editor.select()
                 }
             }
@@ -224,22 +212,16 @@ class QueryTabFragment : Fragment("Query Tab") {
     }
 
     fun duplicate(): QueryTabFragment {
-        val criteria = qwf.getSearchCriteria()
+        val search = qwf.getSearch()
         println("qwf $qwf")
-        println("criteria $criteria")
-        println(criteria.queryFilters)
+        println("criteria $search")
+        println(search.conditions)
         val description = params["description"] as TableDescription
-        val fragment = find<QueryTabFragment>(
-                params = mapOf(
-                        QueryTabFragment::searchType to searchType,
-                        "description" to description,
-                        "operation" to params["operation"],
-                        "searchSource" to criteria.searchSource,
-                        "hashKeyValue" to criteria.hashKeyValue,
-                        "sortKeyOperator" to criteria.sortKeyOperator,
-                        "sortKeyValues" to criteria.sortKeyValues,
-                        "order" to criteria.order,
-                        "queryFilters" to criteria.queryFilters))
+        val fragment = find<QueryTabFragment>(params = mapOf(
+                QueryTabFragment::searchType to searchType,
+                "description" to description,
+                "operation" to params["operation"],
+                "search" to search))
         fragment.setQueryResult(queryResult!!)
         println("current tab: $this")
         println("duplicated tab: $fragment")
@@ -321,29 +303,7 @@ class QueryTabFragment : Fragment("Query Tab") {
         paginationTextProperty.value = "Viewing $from to $to items"
     }
 
-    fun getSearch(): SearchCriteria {
-        return qwf.getSearchCriteria()
-    }
-}
-
-data class ResultData(val data: Map<String, Any?>, val hashKey: KeySchemaElement, val sortKey: KeySchemaElement?) {
-    fun getKeys(): List<String> {
-        if (data.isEmpty()) {
-            return emptyList()
-        }
-        val primaryKeys = listOfNotNull(hashKey.attributeName, sortKey?.attributeName)
-        return primaryKeys + (data.keys.toList() - primaryKeys).sorted()
-    }
-
-    fun getValue(attributeName: String): String {
-        return data.getOrDefault(attributeName, "").toString()
-    }
-
-    fun getValues(): List<String> {
-        return getValues(getKeys().toSet())
-    }
-
-    fun getValues(keys: Set<String>): List<String> {
-        return keys.map { getValue(it) }
+    fun getSearch(): Search {
+        return qwf.getSearch()
     }
 }

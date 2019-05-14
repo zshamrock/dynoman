@@ -6,13 +6,19 @@ import com.amazonaws.services.dynamodbv2.document.ScanFilter
 import com.amazonaws.services.dynamodbv2.document.internal.Filter
 import java.util.Locale
 
-data class QueryCondition(val name: String, val type: Type, val operator: Operator, val values: List<String>) {
+data class Condition(val name: String, val type: Type, val operator: Operator, val values: List<String>) {
     fun toQueryFilter(): QueryFilter {
         return operator.toQueryFilter(name, type, *values.toTypedArray())
     }
 
     fun toScanFilter(): ScanFilter {
         return operator.toScanFilter(name, type, *values.toTypedArray())
+    }
+
+    companion object {
+        fun hashKey(name: String, type: Type, value: String): Condition {
+            return Condition(name, type, Operator.EQ, listOf(value))
+        }
     }
 }
 

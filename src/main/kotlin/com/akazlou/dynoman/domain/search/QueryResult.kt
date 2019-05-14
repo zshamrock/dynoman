@@ -1,6 +1,5 @@
 package com.akazlou.dynoman.domain.search
 
-import com.akazlou.dynoman.view.ResultData
 import com.amazonaws.services.dynamodbv2.document.Item
 import com.amazonaws.services.dynamodbv2.document.Page
 import com.amazonaws.services.dynamodbv2.model.KeySchemaElement
