@@ -64,7 +64,7 @@ class QuerySearch(table: String,
         return rangeKey?.values.orEmpty()
     }
 
-    private fun getRangeKeyType(): Type {
+    public fun getRangeKeyType(): Type {
         return rangeKey!!.type
     }
 

@@ -38,10 +38,22 @@ class SessionSaverService {
                     add("index", search.index)
                 }
                 if (search is QuerySearch) {
-                    add("hash", search.getHashKeyValue().toString())
+                    val hash = JsonBuilder()
+                    with(hash) {
+                        add("name", search.getHashKeyName())
+                        add("type", search.getHashKeyType().name)
+                        add("value", search.getHashKeyValue().toString())
+                    }
+                    add("hash", hash.build())
                     if (search.rangeKey != null) {
-                        add("sort", search.getRangeKeyValues())
-                        add("operator", search.getRangeKeyOperator().name)
+                        val sort = JsonBuilder()
+                        with(sort) {
+                            add("name", search.getRangeKeyName())
+                            add("type", search.getRangeKeyType().name)
+                            add("operator", search.getRangeKeyOperator().name)
+                            add("value", search.getRangeKeyValues().toString())
+                        }
+                        add("sort", sort.build())
                     }
                 }
                 if (search.conditions.isNotEmpty()) {
@@ -52,7 +64,7 @@ class SessionSaverService {
                             add("name", it.name)
                             add("type", it.type.name)
                             add("operator", it.operator.name)
-                            add("values", it.values.filterNotNull())
+                            add("values", it.values)
                         }
                         filters.add(filter.build())
                     }
