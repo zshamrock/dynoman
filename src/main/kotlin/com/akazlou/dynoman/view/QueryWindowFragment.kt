@@ -472,14 +472,14 @@ class QueryWindowFragment : Fragment("Query...") {
                             listOf(hashKeySchemaElement, KeySchemaElement(search.getRangeKeyName(), KeyType.RANGE))
                         },
                         search.index != null)
-                this.hashKeyValueProperty.value = search.getHashKeyName()
+                this.hashKeyValueProperty.value = search.getHashKeyValue().toString()
                 val rangeKeyOperator = search.getRangeKeyOperator()
                 this.sortKeyOperatorProperty.value = rangeKeyOperator
                 if (rangeKeyOperator.isBetween()) {
                     this.sortKeyFromProperty.value = search.getRangeKeyValues()[0]
                     this.sortKeyToProperty.value = search.getRangeKeyValues()[1]
                 } else {
-                    this.sortKeyProperty.value = search.getRangeKeyValues()[0]
+                    this.sortKeyProperty.value = search.getRangeKeyValues().getOrNull(0)
                 }
                 this.orderProperty.value = search.order
                 search.conditions.forEach { addFilterRow(queryGridPane, it) }
