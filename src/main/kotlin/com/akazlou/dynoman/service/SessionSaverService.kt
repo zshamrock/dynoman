@@ -42,16 +42,20 @@ class SessionSaverService {
                     with(hash) {
                         add("name", search.getHashKeyName())
                         add("type", search.getHashKeyType().name)
-                        add("value", search.getHashKeyValue().toString())
+                        add("value", search.getHashKeyValue())
                     }
                     add("hash", hash.build())
-                    if (search.rangeKey != null) {
+                    if (search.getRangeKeyName() != null) {
                         val sort = JsonBuilder()
                         with(sort) {
                             add("name", search.getRangeKeyName())
                             add("type", search.getRangeKeyType().name)
                             add("operator", search.getRangeKeyOperator().name)
-                            add("value", search.getRangeKeyValues().toString())
+                            val values = Json.createArrayBuilder()
+                            search.getRangeKeyValues().forEach {
+                                values.add(it)
+                            }
+                            add("value", values.build())
                         }
                         add("sort", sort.build())
                     }

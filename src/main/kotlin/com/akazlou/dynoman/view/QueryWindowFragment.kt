@@ -472,7 +472,7 @@ class QueryWindowFragment : Fragment("Query...") {
                             listOf(hashKeySchemaElement, KeySchemaElement(search.getRangeKeyName(), KeyType.RANGE))
                         },
                         search.index != null)
-                this.hashKeyValueProperty.value = search.getHashKeyValue().toString()
+                this.hashKeyValueProperty.value = search.getHashKeyValue()
                 val rangeKeyOperator = search.getRangeKeyOperator()
                 this.sortKeyOperatorProperty.value = rangeKeyOperator
                 if (rangeKeyOperator.isBetween()) {
