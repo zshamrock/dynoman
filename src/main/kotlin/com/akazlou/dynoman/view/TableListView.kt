@@ -180,7 +180,7 @@ class TableListView : View() {
                 find<QueryWindowFragment>(
                         params = mapOf(
                                 QueryWindowFragment::mode to QueryWindowFragment.Mode.MODAL,
-                                QueryWindowFragment::searchType to SearchType.SCAN,
+                                QueryWindowFragment.SEARCH_TYPE_PARAM to SearchType.SCAN,
                                 QueryWindowFragment::description to description,
                                 QueryWindowFragment::operation to operation)).openModal()
             }
@@ -191,7 +191,7 @@ class TableListView : View() {
                 find<QueryWindowFragment>(
                         params = mapOf(
                                 QueryWindowFragment::mode to QueryWindowFragment.Mode.MODAL,
-                                QueryWindowFragment::searchType to SearchType.QUERY,
+                                QueryWindowFragment.SEARCH_TYPE_PARAM to SearchType.QUERY,
                                 QueryWindowFragment::description to description,
                                 QueryWindowFragment::operation to operation)).openModal()
             }

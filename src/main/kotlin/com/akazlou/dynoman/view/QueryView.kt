@@ -141,7 +141,6 @@ class QueryView : View("Query") {
                        page: Page<Item, out Any>) {
         val fragment = find<QueryTabFragment>(
                 params = mapOf(
-                        QueryTabFragment::searchType to search.type,
                         "description" to description,
                         "operation" to operation,
                         "search" to search))

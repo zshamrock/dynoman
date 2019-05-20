@@ -26,7 +26,6 @@ import javafx.util.Callback
 import tornadofx.*
 
 class QueryTabFragment : Fragment("Query Tab") {
-    val searchType: SearchType by param()
     private var queryArea: TextArea by singleAssign()
     private var resultTable: TableView<ResultData> by singleAssign()
     private var pageNum = 1
@@ -99,14 +98,14 @@ class QueryTabFragment : Fragment("Query Tab") {
                         }
                     }
                     val description = params["description"] as TableDescription
+                    val search = params["search"] as Search
                     qwf = find(
                             params = mapOf(
                                     QueryWindowFragment::mode to QueryWindowFragment.Mode.INLINE,
-                                    QueryWindowFragment::searchType to searchType,
+                                    QueryWindowFragment.SEARCH_TYPE_PARAM to search.type,
                                     QueryWindowFragment::description to description,
                                     QueryWindowFragment::operation to params["operation"]))
                     val editor = tab("EDITOR", qwf.root)
-                    val search = params["search"] as Search
                     qwf.init(search, this@QueryTabFragment)
                     editor.select()
                 }
@@ -218,7 +217,6 @@ class QueryTabFragment : Fragment("Query Tab") {
         println(search.conditions)
         val description = params["description"] as TableDescription
         val fragment = find<QueryTabFragment>(params = mapOf(
-                QueryTabFragment::searchType to searchType,
                 "description" to description,
                 "operation" to params["operation"],
                 "search" to search))

@@ -67,6 +67,9 @@ class QueryWindowFragment : Fragment("Query...") {
 
         const val FILTER_PRIMARY_LABEL = "Filter"
         const val FILTER_SECONDARY_LABEL = "And"
+
+        // TODO: Replace all references for the params (in all classes) by using constant keys
+        const val SEARCH_TYPE_PARAM = "searchType"
     }
 
     enum class Mode {
@@ -75,11 +78,10 @@ class QueryWindowFragment : Fragment("Query...") {
     }
 
     val mode: Mode by param()
-    val searchType: SearchType by param()
     val operation: DynamoDBOperation by param()
     val description: TableDescription by param()
     private val searchTypes: List<SearchType> = listOf(SearchType.SCAN, SearchType.QUERY)
-    private val searchTypeProperty = SimpleObjectProperty<SearchType>(searchType)
+    private val searchTypeProperty = SimpleObjectProperty<SearchType>(params["searchType"] as SearchType)
     private val attributeDefinitionTypes: Map<String, Type>
     private val searchSources: List<SearchSource>
     private var searchSourceComboBox: ComboBox<SearchSource> by singleAssign()
@@ -258,12 +260,12 @@ class QueryWindowFragment : Fragment("Query...") {
                                                 attributeDefinitionTypes[qt.hashKey.attributeName]!!,
                                                 Operator.EQ,
                                                 listOf(parseValue(hashKeyValueProperty.value)))
-                                        val rangeKey = if (skValues.isEmpty()) {
+                                        val rangeKey = if (qt.sortKey == null) {
                                             null
                                         } else {
                                             Condition(
-                                                    qt.sortKey?.attributeName!!,
-                                                    attributeDefinitionTypes[qt.sortKey.attributeName]!!,
+                                                    qt.sortKey.attributeName!!,
+                                                    attributeDefinitionTypes.getValue(qt.sortKey.attributeName),
                                                     skOp,
                                                     skValues)
                                         }
@@ -495,7 +497,7 @@ class QueryWindowFragment : Fragment("Query...") {
         } else {
             null
         }
-        return when (searchType) {
+        return when (searchTypeProperty.value!!) {
             SearchType.SCAN -> {
                 ScanSearch(tableName, index, buildSearchFilters())
             }
