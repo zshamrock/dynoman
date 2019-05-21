@@ -466,12 +466,17 @@ class QueryWindowFragment : Fragment("Query...") {
             is QuerySearch -> {
                 println("Sort key values: $search.sortKeyValues")
                 val hashKeySchemaElement = KeySchemaElement(search.getHashKeyName(), KeyType.HASH)
+                val rangeKeySchemaElement = if (search.getRangeKeyName() == null) {
+                    null
+                } else {
+                    KeySchemaElement(search.getRangeKeyName(), KeyType.RANGE)
+                }
                 searchSourceComboBox.value = SearchSource(
                         search.index ?: search.table,
-                        if (search.index == null) {
+                        if (rangeKeySchemaElement == null) {
                             listOf(hashKeySchemaElement)
                         } else {
-                            listOf(hashKeySchemaElement, KeySchemaElement(search.getRangeKeyName(), KeyType.RANGE))
+                            listOf(hashKeySchemaElement, rangeKeySchemaElement)
                         },
                         search.index != null)
                 this.hashKeyValueProperty.value = search.getHashKeyValue()
