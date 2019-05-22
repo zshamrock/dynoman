@@ -130,6 +130,7 @@ class TableListView : View() {
     fun refresh(operation: DynamoDBOperation, properties: ConnectionProperties, tables: List<DynamoDBTable>) {
         operationProperty.value = operation
         queryView.setRegion(properties.region, properties.local)
+        queryView.setOperation(operation)
         // Initialize the cellFactory for the tree here in order to get the correct operation reference
         tablesTree.cellFactory = cellFactories.getValue(properties)
         filteredNameProperty.value = ""

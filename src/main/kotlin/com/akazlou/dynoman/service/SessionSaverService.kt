@@ -15,6 +15,7 @@ import java.nio.file.Files
 import java.nio.file.Path
 import java.nio.file.StandardOpenOption
 import javax.json.Json
+import javax.json.JsonString
 import javax.json.stream.JsonGenerator
 
 class SessionSaverService {
@@ -114,15 +115,21 @@ class SessionSaverService {
             }
             when (searchType) {
                 SearchType.QUERY -> {
-                    val hash = obj.getString("hash")
-                    // TODO: Set the name
-                    val hashKey = Condition("?", Type.STRING, Operator.EQ, listOf(hash))
-                    val sort = obj.getJsonArray("sort").orEmpty().map { it.toString() }
-                    val sortKey = if (sort.isEmpty()) {
+                    val hash = obj.getJsonObject("hash")
+                    val hashKey = Condition(
+                            hash.getString("name"),
+                            Type.valueOf(hash.getString("type")),
+                            Operator.EQ,
+                            listOf(hash.getString("value")))
+                    val sort = obj.getJsonObject("sort")
+                    val sortKey = if (sort == null) {
                         null
                     } else {
-                        // TODO: Set the name
-                        Condition("?", Type.NUMBER, Operator.valueOf(obj.getString("operator")), sort)
+                        Condition(
+                                sort.getString("name"),
+                                Type.valueOf(sort.getString("type")),
+                                Operator.valueOf(sort.getString("operator")),
+                                sort.getJsonArray("value").getValuesAs(JsonString::getString))
                     }
                     QuerySearch(
                             table,

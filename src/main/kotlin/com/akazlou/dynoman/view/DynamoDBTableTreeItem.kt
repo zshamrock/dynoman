@@ -14,7 +14,7 @@ class DynamoDBTableTreeItem(private val table: DynamoDBTable, private var operat
     : TreeItem<DynamoDBTable>(table) {
     val description: TableDescription by lazy {
         println("Fetch ${table.name} description")
-        operation.value.getTable(table.name).describe()
+        operation.value.describeTable(table.name)
     }
 
     override fun getChildren(): ObservableList<TreeItem<DynamoDBTable>> {

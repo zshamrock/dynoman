@@ -10,10 +10,13 @@ import com.amazonaws.services.dynamodbv2.document.Page
 import com.amazonaws.services.dynamodbv2.document.QueryOutcome
 import com.amazonaws.services.dynamodbv2.document.ScanOutcome
 import com.amazonaws.services.dynamodbv2.document.Table
+import com.amazonaws.services.dynamodbv2.model.TableDescription
 import java.util.concurrent.TimeUnit
 import kotlin.system.measureTimeMillis
 
 class DynamoDBOperation(properties: ConnectionProperties, private val offline: Boolean) {
+
+    private val descriptions = mutableMapOf<String, TableDescription>()
 
     private val dynamodb: DynamoDB? = if (offline) {
         null
@@ -59,5 +62,9 @@ class DynamoDBOperation(properties: ConnectionProperties, private val offline: B
         println("Size of the page is ${page?.size()}")
         println("Query run $runTime ms, and ${TimeUnit.MILLISECONDS.toSeconds(runTime)} secs")
         return page!!
+    }
+
+    fun describeTable(tableName: String): TableDescription {
+        return descriptions.getOrPut(tableName) { getTable(tableName).describe() }
     }
 }

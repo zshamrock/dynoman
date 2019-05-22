@@ -35,6 +35,7 @@ class QueryView : View("Query") {
     private val tabContextMenu: ContextMenu
     private val namedQueries = mutableListOf<String>().observable()
     private val openSessionNameProperty = SimpleStringProperty()
+    private var operation: DynamoDBOperation? = null
 
     init {
         val duplicate = MenuItem("Duplicate")
@@ -67,6 +68,7 @@ class QueryView : View("Query") {
             }
             padding = tornadofx.insets(5, 0)
             alignment = Pos.CENTER_LEFT
+            // XXX: Move Save and Open outside of the QueryView, either separate view or part of the TableListView
             saveButton = button("Save") {
                 shortcut("Ctrl+S")
                 action {
@@ -97,6 +99,17 @@ class QueryView : View("Query") {
                                 Config.getSavedSessionsPath(app.configBasePath), openSessionNameProperty.value)
                     } ui { searches ->
                         searches.forEach { search ->
+                            if (operation != null) {
+                                setQueryResult(
+                                        operation!!,
+                                        operation!!.describeTable(search.table),
+                                        search,
+                                        // When restore the search from the stored one we don't want to do the network
+                                        // (later could be configured over settings whether to do the network call or
+                                        // not) calls to fetch the actual data, instead we populate the search view and
+                                        // allow the user to do the actual network call when required
+                                        null)
+                            }
                         }
                     }
                 }
@@ -138,13 +151,15 @@ class QueryView : View("Query") {
     fun setQueryResult(operation: DynamoDBOperation,
                        description: TableDescription,
                        search: Search,
-                       page: Page<Item, out Any>) {
+                       page: Page<Item, out Any>?) {
         val fragment = find<QueryTabFragment>(
                 params = mapOf(
                         "description" to description,
                         "operation" to operation,
                         "search" to search))
-        fragment.setQueryResult(QueryResult(search.type, description, page))
+        if (page != null) {
+            fragment.setQueryResult(QueryResult(search.type, description, page))
+        }
         val tab = queries.tab("${search.type} ${search.table}", fragment.root)
         tab.properties[QUERY_TAB_FRAGMENT_KEY] = fragment
         tab.contextMenu = tabContextMenu
@@ -154,6 +169,10 @@ class QueryView : View("Query") {
     fun setRegion(region: Regions, local: Boolean) {
         this.region.value = region.getName()
         this.local.value = buildLocalText(local)
+    }
+
+    fun setOperation(operation: DynamoDBOperation) {
+        this.operation = operation
     }
 
     private fun buildLocalText(local: Boolean) = if (local) "(local)" else ""
