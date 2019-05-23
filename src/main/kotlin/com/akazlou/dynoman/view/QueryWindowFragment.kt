@@ -91,10 +91,10 @@ class QueryWindowFragment : Fragment("Query...") {
     private val sortKeyOperatorComboBox: ComboBox<Operator>
     // TODO: Create 5 between hbox-es for the filters and reuse them (as we do limit support only up to 5 filters)
     private val searchSourceProperty = SimpleObjectProperty<SearchSource>()
-    private val hashKeyValueProperty = SimpleStringProperty()
-    private val sortKeyProperty = SimpleStringProperty()
-    private val sortKeyFromProperty = SimpleStringProperty()
-    private val sortKeyToProperty = SimpleStringProperty()
+    private val hashKeyValueProperty = SimpleStringProperty("")
+    private val sortKeyProperty = SimpleStringProperty("")
+    private val sortKeyFromProperty = SimpleStringProperty("")
+    private val sortKeyToProperty = SimpleStringProperty("")
     private val sortKeyOperatorProperty = SimpleObjectProperty<Operator>(Operator.EQ)
     private val orderProperty = SimpleObjectProperty<Order>(Order.ASC)
     private val filterKeys = mutableListOf<SimpleStringProperty>()
@@ -329,7 +329,7 @@ class QueryWindowFragment : Fragment("Query...") {
                     filterKeyTypes[index].value,
                     filterKeyOperator,
                     when {
-                        filterKeyOperator.isNoArg() -> emptyList<String>()
+                        filterKeyOperator.isNoArg() -> emptyList()
                         filterKeyOperator.isBetween() -> filterKeyBetweenValues[index].toList().map { it.value.orEmpty() }
                         else -> listOf(filterKeyValues[index]?.value.orEmpty())
                     }))
@@ -404,15 +404,15 @@ class QueryWindowFragment : Fragment("Query...") {
             val filterKeyOperationComboBox = combobox(
                     values = FILTER_KEY_AVAILABLE_OPERATORS, property = filterKeyOperation)
             filterKeyOperationComboBox.prefWidth = ATTRIBUTE_OPERATION_COLUMN_WIDTH
-            val filterKeyValue = SimpleStringProperty()
+            val filterKeyValue = SimpleStringProperty("")
             filterKeyValues.add(filterKeyValue)
             val filterKeyValueTextField = TextField()
             filterKeyValueTextField.bind(filterKeyValue)
             val filterKeyFromTextField = TextField()
-            val filterKeyFrom = SimpleStringProperty()
+            val filterKeyFrom = SimpleStringProperty("")
             filterKeyFromTextField.textProperty().bindBidirectional(filterKeyFrom)
             val filterKeyToTextField = TextField()
-            val filterKeyTo = SimpleStringProperty()
+            val filterKeyTo = SimpleStringProperty("")
             filterKeyToTextField.textProperty().bindBidirectional(filterKeyTo)
             val andLabel = Label("And")
             andLabel.minWidth = 40.0
@@ -486,7 +486,7 @@ class QueryWindowFragment : Fragment("Query...") {
                     this.sortKeyFromProperty.value = search.getRangeKeyValues()[0]
                     this.sortKeyToProperty.value = search.getRangeKeyValues()[1]
                 } else {
-                    this.sortKeyProperty.value = search.getRangeKeyValues().getOrNull(0)
+                    this.sortKeyProperty.value = search.getRangeKeyValues().getOrNull(0).orEmpty()
                 }
                 this.orderProperty.value = search.order
                 search.conditions.forEach { addFilterRow(queryGridPane, it) }
@@ -569,7 +569,7 @@ class QueryWindowFragment : Fragment("Query...") {
                     val rowIndex = GridPane.getRowIndex(textField)
                     queryGridPane.add(betweenHBox, columnIndex, rowIndex)
                     queryGridPane.children.remove(textField)
-                    textFieldValue.value = null
+                    textFieldValue.value = ""
                 }
                 Operator.EXISTS, Operator.NOT_EXISTS -> {
                     if (oldValue.isNoArg()) {
@@ -577,7 +577,7 @@ class QueryWindowFragment : Fragment("Query...") {
                         return
                     }
                     queryGridPane.children.remove(textField)
-                    textFieldValue.value = null
+                    textFieldValue.value = ""
                 }
                 else -> {
                     // noop
@@ -589,8 +589,8 @@ class QueryWindowFragment : Fragment("Query...") {
                     val rowIndex = GridPane.getRowIndex(betweenHBox)
                     queryGridPane.add(textField, columnIndex, rowIndex)
                     queryGridPane.children.remove(betweenHBox)
-                    textFieldFrom.value = null
-                    textFieldTo.value = null
+                    textFieldFrom.value = ""
+                    textFieldTo.value = ""
                 }
                 Operator.EXISTS, Operator.NOT_EXISTS -> {
                     if (newValue.isNoArg()) {

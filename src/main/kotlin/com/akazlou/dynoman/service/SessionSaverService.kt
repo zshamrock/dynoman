@@ -114,13 +114,11 @@ class SessionSaverService {
 
     fun restore(base: Path, name: String): List<Search> {
         val path = resolve(base, name)
-        println("Parsing $path")
         val parser = pf.createParser(path.toFile().reader())
         parser.next()
         val sessions = parser.`object`.getJsonArray(SESSIONS).map { value ->
             val obj = value.asJsonObject()
             val searchType = SearchType.valueOf(obj.getString(SEARCH_TYPE))
-            println("Parsing $searchType")
             val table = obj.getString(TABLE)
             val order = Order.valueOf(obj.getString(ORDER))
             val index = obj.getString(INDEX, null)
@@ -129,7 +127,7 @@ class SessionSaverService {
                         filter.getString(FILTER_NAME),
                         Type.valueOf(filter.getString(FILTER_TYPE)),
                         Operator.valueOf(filter.getString(FILTER_OPERATOR)),
-                        filter.getJsonArray(FILTER_VALUES).orEmpty().map { it.toString() }
+                        filter.getJsonArray(FILTER_VALUES)?.getValuesAs(JsonString::getString).orEmpty()
                 )
             }
             when (searchType) {
@@ -139,7 +137,7 @@ class SessionSaverService {
                             hash.getString(HASH_NAME),
                             Type.valueOf(hash.getString(HASH_TYPE)),
                             Operator.EQ,
-                            listOf(hash.getString(HASH_VALUE)))
+                            listOf(hash.getString(HASH_VALUE, "")))
                     val sort = obj.getJsonObject(SORT)
                     val sortKey = if (sort == null) {
                         null
@@ -163,7 +161,6 @@ class SessionSaverService {
                 }
             }
         }.toList()
-        println(sessions)
         return sessions
     }
 
