@@ -21,6 +21,25 @@ import javax.json.stream.JsonGenerator
 class SessionSaverService {
     companion object {
         private const val SUFFIX = ".session"
+        private const val SEARCH_TYPE = "type"
+        private const val TABLE = "table"
+        private const val INDEX = "index"
+        private const val HASH = "hash"
+        private const val HASH_NAME = "name"
+        private const val HASH_TYPE = "type"
+        private const val HASH_VALUE = "value"
+        private const val SORT = "sort"
+        private const val SORT_NAME = "name"
+        private const val SORT_TYPE = "type"
+        private const val SORT_VALUE = "value"
+        private const val SORT_OPERATOR = "operator"
+        private const val FILTERS = "filters"
+        private const val FILTER_NAME = "name"
+        private const val FILTER_TYPE = "type"
+        private const val FILTER_VALUES = "values"
+        private const val FILTER_OPERATOR = "operator"
+        private const val ORDER = "order"
+        private const val SESSIONS = "sessions"
     }
 
     private val wf = Json.createWriterFactory(mapOf(
@@ -33,32 +52,32 @@ class SessionSaverService {
         searches.forEach { search ->
             val builder = JsonBuilder()
             with(builder) {
-                add("type", search.type.name)
-                add("table", search.table)
+                add(SEARCH_TYPE, search.type.name)
+                add(TABLE, search.table)
                 if (search.index != null) {
-                    add("index", search.index)
+                    add(INDEX, search.index)
                 }
                 if (search is QuerySearch) {
                     val hash = JsonBuilder()
                     with(hash) {
-                        add("name", search.getHashKeyName())
-                        add("type", search.getHashKeyType().name)
-                        add("value", search.getHashKeyValue())
+                        add(HASH_NAME, search.getHashKeyName())
+                        add(HASH_TYPE, search.getHashKeyType().name)
+                        add(HASH_VALUE, search.getHashKeyValue())
                     }
-                    add("hash", hash.build())
+                    add(HASH, hash.build())
                     if (search.getRangeKeyName() != null) {
                         val sort = JsonBuilder()
                         with(sort) {
-                            add("name", search.getRangeKeyName())
-                            add("type", search.getRangeKeyType().name)
-                            add("operator", search.getRangeKeyOperator().name)
+                            add(SORT_NAME, search.getRangeKeyName())
+                            add(SORT_TYPE, search.getRangeKeyType().name)
+                            add(SORT_OPERATOR, search.getRangeKeyOperator().name)
                             val values = Json.createArrayBuilder()
                             search.getRangeKeyValues().forEach {
                                 values.add(it)
                             }
-                            add("value", values.build())
+                            add(SORT_VALUE, values.build())
                         }
-                        add("sort", sort.build())
+                        add(SORT, sort.build())
                     }
                 }
                 if (search.conditions.isNotEmpty()) {
@@ -66,20 +85,20 @@ class SessionSaverService {
                     search.conditions.forEach {
                         val filter = JsonBuilder()
                         with(filter) {
-                            add("name", it.name)
-                            add("type", it.type.name)
-                            add("operator", it.operator.name)
-                            add("values", it.values)
+                            add(FILTER_NAME, it.name)
+                            add(FILTER_TYPE, it.type.name)
+                            add(FILTER_OPERATOR, it.operator.name)
+                            add(FILTER_VALUES, it.values)
                         }
                         filters.add(filter.build())
                     }
-                    add("filters", filters)
+                    add(FILTERS, filters)
                 }
-                add("order", search.order.name)
+                add(ORDER, search.order.name)
             }
             array.add(builder.build())
         }
-        json.add("sessions", array)
+        json.add(SESSIONS, array)
         val writer = StringWriter()
         wf.createWriter(writer).write(json.build())
         Files.createDirectories(base)
@@ -98,38 +117,38 @@ class SessionSaverService {
         println("Parsing $path")
         val parser = pf.createParser(path.toFile().reader())
         parser.next()
-        val sessions = parser.`object`.getJsonArray("sessions").map { value ->
+        val sessions = parser.`object`.getJsonArray(SESSIONS).map { value ->
             val obj = value.asJsonObject()
-            val searchType = SearchType.valueOf(obj.getString("type"))
+            val searchType = SearchType.valueOf(obj.getString(SEARCH_TYPE))
             println("Parsing $searchType")
-            val table = obj.getString("table")
-            val order = Order.valueOf(obj.getString("order"))
-            val index = obj.getString("index", null)
-            val filters = obj.getJsonArray("filters").orEmpty().map { it.asJsonObject() }.map { filter ->
+            val table = obj.getString(TABLE)
+            val order = Order.valueOf(obj.getString(ORDER))
+            val index = obj.getString(INDEX, null)
+            val filters = obj.getJsonArray(FILTERS).orEmpty().map { it.asJsonObject() }.map { filter ->
                 Condition(
-                        filter.getString("name"),
-                        Type.valueOf(filter.getString("type")),
-                        Operator.valueOf(filter.getString("operator")),
-                        filter.getJsonArray("values").orEmpty().map { it.toString() }
+                        filter.getString(FILTER_NAME),
+                        Type.valueOf(filter.getString(FILTER_TYPE)),
+                        Operator.valueOf(filter.getString(FILTER_OPERATOR)),
+                        filter.getJsonArray(FILTER_VALUES).orEmpty().map { it.toString() }
                 )
             }
             when (searchType) {
                 SearchType.QUERY -> {
-                    val hash = obj.getJsonObject("hash")
+                    val hash = obj.getJsonObject(HASH)
                     val hashKey = Condition(
-                            hash.getString("name"),
-                            Type.valueOf(hash.getString("type")),
+                            hash.getString(HASH_NAME),
+                            Type.valueOf(hash.getString(HASH_TYPE)),
                             Operator.EQ,
-                            listOf(hash.getString("value")))
-                    val sort = obj.getJsonObject("sort")
+                            listOf(hash.getString(HASH_VALUE)))
+                    val sort = obj.getJsonObject(SORT)
                     val sortKey = if (sort == null) {
                         null
                     } else {
                         Condition(
-                                sort.getString("name"),
-                                Type.valueOf(sort.getString("type")),
-                                Operator.valueOf(sort.getString("operator")),
-                                sort.getJsonArray("value").getValuesAs(JsonString::getString))
+                                sort.getString(SORT_NAME),
+                                Type.valueOf(sort.getString(SORT_TYPE)),
+                                Operator.valueOf(sort.getString(SORT_OPERATOR)),
+                                sort.getJsonArray(SORT_VALUE).getValuesAs(JsonString::getString))
                     }
                     QuerySearch(
                             table,
