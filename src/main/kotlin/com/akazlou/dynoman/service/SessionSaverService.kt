@@ -169,6 +169,6 @@ class SessionSaverService {
         if (!dir.exists()) {
             return listOf()
         }
-        return dir.listFiles().map { it.nameWithoutExtension }.toList()
+        return dir.listFiles().map { it.nameWithoutExtension }.sorted().toList()
     }
 }
