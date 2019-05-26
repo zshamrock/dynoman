@@ -3,7 +3,7 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 buildscript {
     var kotlin_version: String by extra
-    kotlin_version = "1.3.21"
+    kotlin_version = "1.3.31"
 
     repositories {
         mavenCentral()
@@ -47,7 +47,7 @@ dependencies {
     compile("no.tornado", "tornadofx", "1.7.18")
     compile("org.reflections", "reflections", "0.9.11")
 
-    testImplementation("io.kotlintest:kotlintest-runner-junit5:3.2.1")
+    testImplementation("io.kotlintest:kotlintest-runner-junit5:3.3.2")
     testCompile("org.testcontainers:testcontainers:1.10.6")
 }
 
