@@ -33,3 +33,9 @@ build
 .gradle
 
 conf/
+
+# Test generated data sets
+src/test/resources/sessions/*_actual.session
+
+# Data
+data/
