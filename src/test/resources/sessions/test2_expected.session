@@ -1,0 +1,223 @@
+
+{
+    "sessions": [
+        {
+            "type": "QUERY",
+            "table": "Table1",
+            "hash": {
+                "name": "Id",
+                "type": "STRING",
+                "value": "abc"
+            },
+            "order": "ASC"
+        },
+        {
+            "type": "QUERY",
+            "table": "Table2",
+            "hash": {
+                "name": "Id",
+                "type": "NUMBER",
+                "value": "123"
+            },
+            "sort": {
+                "name": "Timestamp",
+                "type": "NUMBER",
+                "operator": "GE",
+                "value": [
+                    "456"
+                ]
+            },
+            "filters": [
+                {
+                    "name": "Filter1",
+                    "type": "STRING",
+                    "operator": "CONTAINS",
+                    "values": [
+                        "xyz"
+                    ]
+                }
+            ],
+            "order": "DESC"
+        },
+        {
+            "type": "QUERY",
+            "table": "Table3",
+            "index": "Table3.Index1",
+            "hash": {
+                "name": "Id",
+                "type": "NUMBER",
+                "value": "123"
+            },
+            "sort": {
+                "name": "Timestamp",
+                "type": "NUMBER",
+                "operator": "BETWEEN",
+                "value": [
+                    "5",
+                    "6"
+                ]
+            },
+            "filters": [
+                {
+                    "name": "Filter1",
+                    "type": "NUMBER",
+                    "operator": "BETWEEN",
+                    "values": [
+                        "7",
+                        "8"
+                    ]
+                },
+                {
+                    "name": "Filter2",
+                    "type": "STRING",
+                    "operator": "EXISTS",
+                    "values": [
+                    ]
+                }
+            ],
+            "order": "DESC"
+        },
+        {
+            "type": "QUERY",
+            "table": "Table4",
+            "index": "Table4.Index1",
+            "hash": {
+                "name": "Id",
+                "type": "STRING"
+            },
+            "sort": {
+                "name": "Timestamp",
+                "type": "NUMBER",
+                "operator": "EQ",
+                "value": [
+                    ""
+                ]
+            },
+            "filters": [
+                {
+                    "name": "Filter1",
+                    "type": "NUMBER",
+                    "operator": "BETWEEN",
+                    "values": [
+                        "",
+                        ""
+                    ]
+                },
+                {
+                    "name": "Filter2",
+                    "type": "STRING",
+                    "operator": "EQ",
+                    "values": [
+                        ""
+                    ]
+                }
+            ],
+            "order": "ASC"
+        },
+        {
+            "type": "SCAN",
+            "table": "Table5",
+            "order": "ASC"
+        },
+        {
+            "type": "SCAN",
+            "table": "Table6",
+            "index": "Table6.Index1",
+            "order": "ASC"
+        },
+        {
+            "type": "SCAN",
+            "table": "Table7",
+            "index": "Table7.Index1",
+            "filters": [
+                {
+                    "name": "Filter1",
+                    "type": "NUMBER",
+                    "operator": "EQ",
+                    "values": [
+                        "1"
+                    ]
+                }
+            ],
+            "order": "ASC"
+        },
+        {
+            "type": "SCAN",
+            "table": "Table8",
+            "filters": [
+                {
+                    "name": "Filter1",
+                    "type": "NUMBER",
+                    "operator": "EQ",
+                    "values": [
+                        "1"
+                    ]
+                },
+                {
+                    "name": "Filter2",
+                    "type": "NUMBER",
+                    "operator": "BETWEEN",
+                    "values": [
+                        "2",
+                        "3"
+                    ]
+                },
+                {
+                    "name": "Filter3",
+                    "type": "STRING",
+                    "operator": "EXISTS",
+                    "values": [
+                    ]
+                },
+                {
+                    "name": "Filter3",
+                    "type": "STRING",
+                    "operator": "NOT_CONTAINS",
+                    "values": [
+                        "abc"
+                    ]
+                }
+            ],
+            "order": "ASC"
+        },
+        {
+            "type": "SCAN",
+            "table": "Table9",
+            "filters": [
+                {
+                    "name": "Filter1",
+                    "type": "NUMBER",
+                    "operator": "EQ",
+                    "values": [
+                        ""
+                    ]
+                },
+                {
+                    "name": "Filter2",
+                    "type": "NUMBER",
+                    "operator": "BETWEEN",
+                    "values": [
+                        "",
+                        ""
+                    ]
+                },
+                {
+                    "name": "Filter3",
+                    "type": "STRING",
+                    "operator": "EXISTS",
+                    "values": [
+                    ]
+                },
+                {
+                    "name": "Filter3",
+                    "type": "STRING",
+                    "operator": "NOT_CONTAINS",
+                    "values": [
+                        ""
+                    ]
+                }
+            ],
+            "order": "ASC"
+        }
+    ]
+}

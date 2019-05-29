@@ -214,7 +214,7 @@ class QueryTabFragment : Fragment("Query Tab") {
         val search = qwf.getSearch()
         println("qwf $qwf")
         println("criteria $search")
-        println(search.conditions)
+        println(search.filters)
         val description = params["description"] as TableDescription
         val fragment = find<QueryTabFragment>(params = mapOf(
                 "description" to description,

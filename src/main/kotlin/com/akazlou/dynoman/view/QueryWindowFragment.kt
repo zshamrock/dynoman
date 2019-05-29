@@ -461,7 +461,7 @@ class QueryWindowFragment : Fragment("Query...") {
         this.tab = tab
         when (search) {
             is ScanSearch -> {
-                search.conditions.forEach { addFilterRow(queryGridPane, it) }
+                search.filters.forEach { addFilterRow(queryGridPane, it) }
             }
             is QuerySearch -> {
                 println("Sort key values: $search.sortKeyValues")
@@ -489,7 +489,7 @@ class QueryWindowFragment : Fragment("Query...") {
                     this.sortKeyProperty.value = search.getRangeKeyValues().getOrNull(0).orEmpty()
                 }
                 this.orderProperty.value = search.order
-                search.conditions.forEach { addFilterRow(queryGridPane, it) }
+                search.filters.forEach { addFilterRow(queryGridPane, it) }
             }
         }
     }

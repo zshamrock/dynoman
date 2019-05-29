@@ -80,9 +80,9 @@ class SessionSaverService {
                         add(SORT, sort.build())
                     }
                 }
-                if (search.conditions.isNotEmpty()) {
+                if (search.filters.isNotEmpty()) {
                     val filters = Json.createArrayBuilder()
-                    search.conditions.forEach {
+                    search.filters.forEach {
                         val filter = JsonBuilder()
                         with(filter) {
                             add(FILTER_NAME, it.name)

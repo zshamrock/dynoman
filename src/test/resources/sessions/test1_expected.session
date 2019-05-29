@@ -1,3 +1,15 @@
 
 {
+    "sessions": [
+        {
+            "type": "QUERY",
+            "table": "Table1",
+            "hash": {
+                "name": "Id",
+                "type": "STRING",
+                "value": "abc"
+            },
+            "order": "ASC"
+        }
+    ]
 }

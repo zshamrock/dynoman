@@ -8,7 +8,7 @@ import tornadofx.*
 sealed class Search(val type: SearchType,
                     val table: String,
                     val index: String?,
-                    val conditions: List<Condition>,
+                    val filters: List<Condition>,
                     val order: Order) : JsonModel {
     fun isAscOrdered(): Boolean {
         return order == Order.ASC
@@ -43,7 +43,7 @@ class QuerySearch(table: String,
     }
 
     fun getRangeKeyType(): Type {
-        return rangeKey!!.type
+        return rangeKey?.type ?: Type.STRING
     }
 
     fun getRangeKeyOperator(): Operator {
@@ -59,7 +59,7 @@ class QuerySearch(table: String,
             getRangeKeyOperator().apply(range, *values.toTypedArray())
             spec.withRangeKeyCondition(range)
         }
-        spec.withQueryFilters(*(conditions.map { it.toQueryFilter() }.toTypedArray()))
+        spec.withQueryFilters(*(filters.map { it.toQueryFilter() }.toTypedArray()))
         spec.withScanIndexForward(isAscOrdered())
         if (maxPageSize != 0) {
             spec.withMaxPageSize(maxPageSize)
@@ -81,7 +81,7 @@ class ScanSearch(table: String,
         Search(SearchType.SCAN, table, index, filters, Order.ASC) {
     fun toScanSpec(maxPageSize: Int = 0): ScanSpec {
         val spec = ScanSpec()
-        spec.withScanFilters(*(conditions.map { it.toScanFilter() }.toTypedArray()))
+        spec.withScanFilters(*(filters.map { it.toScanFilter() }.toTypedArray()))
         if (maxPageSize != 0) {
             spec.withMaxPageSize(maxPageSize)
         }
