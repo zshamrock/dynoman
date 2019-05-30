@@ -120,6 +120,20 @@ class QueryTabFragment : Fragment("Query Tab") {
                             }
                         }
                         separator()
+                        menu("Query") {
+                            item("Add Query...") {
+                                setOnAction {
+                                    println("Add Query...")
+                                }
+                            }
+                            separator()
+                            item("Shots") {
+                                setOnAction {
+                                    println("Run Shots")
+                                }
+                            }
+                        }
+                        separator()
                         item("Copy Row") {
                             setOnAction {
                                 if (selectedItem != null) {
