@@ -9,6 +9,8 @@ import com.akazlou.dynoman.domain.search.Search
 import com.akazlou.dynoman.domain.search.Type
 import io.kotlintest.Matcher
 import io.kotlintest.Result
+import io.kotlintest.matchers.collections.shouldBeSorted
+import io.kotlintest.matchers.collections.shouldContainInOrder
 import io.kotlintest.matchers.collections.shouldHaveSize
 import io.kotlintest.shouldBe
 import io.kotlintest.specs.StringSpec
@@ -124,6 +126,13 @@ class SessionSaverServiceSpec : StringSpec() {
             searches.forEachIndexed { index, search ->
                 search shouldBe sameSearch(multipleSearches[index])
             }
+        }
+
+        "list names" {
+            val service = SessionSaverService()
+            val names = service.listNames(base)
+            names.shouldBeSorted()
+            names.shouldContainInOrder("test1_expected", "test2_expected")
         }
     }
 
