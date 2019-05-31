@@ -3,6 +3,7 @@ package com.akazlou.dynoman.controller
 import com.akazlou.dynoman.domain.ConnectionProperties
 import com.akazlou.dynoman.domain.DynamoDBTable
 import com.akazlou.dynoman.service.DynamoDBOperation
+import com.amazonaws.services.dynamodbv2.model.TableDescription
 import tornadofx.*
 
 class MainController : Controller() {
@@ -23,5 +24,9 @@ class MainController : Controller() {
 
     fun getClient(properties: ConnectionProperties): DynamoDBOperation {
         return clients.getValue(properties)
+    }
+
+    fun describeTable(table: DynamoDBTable, properties: ConnectionProperties): TableDescription {
+        return getClient(properties).describeTable(table.name)
     }
 }

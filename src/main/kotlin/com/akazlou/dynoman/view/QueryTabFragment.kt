@@ -124,6 +124,7 @@ class QueryTabFragment : Fragment("Query Tab") {
                             item("Add Query...") {
                                 setOnAction {
                                     println("Add Query...")
+                                    find<AddQueryFragment>().openModal()
                                 }
                             }
                             separator()
