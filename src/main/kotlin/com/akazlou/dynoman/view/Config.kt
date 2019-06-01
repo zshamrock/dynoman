@@ -10,6 +10,7 @@ import java.nio.file.Path
  */
 // XXX: Should use instead the instance of the class, and inject it accordingly to each of the view
 // (or research on how enable it the global wide similar to the app.config)
+// TODO: Move this class into Controller level instead if nothing prevents of doing that
 object Config {
     const val REGION = "region"
     const val ACCESS_KEY = "access_key"
