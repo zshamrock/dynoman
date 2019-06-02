@@ -33,7 +33,7 @@ class TableTreeSelectFragment : Fragment("Table Tree") {
                         }
                     })
         }
-        button("Close") {
+        button("Apply") {
             action {
                 this@TableTreeSelectFragment.close()
             }

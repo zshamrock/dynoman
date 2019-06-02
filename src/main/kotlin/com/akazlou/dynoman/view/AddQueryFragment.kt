@@ -9,7 +9,7 @@ class AddQueryFragment : Fragment("Add Query") {
 
     override val root = form {
         fieldset("New Query") {
-            field("Target:") {
+            field("Foreign table:") {
                 textfield()
                 button("...") {
                     addClass("button-select")
