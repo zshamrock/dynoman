@@ -14,7 +14,7 @@ import com.amazonaws.services.dynamodbv2.model.TableDescription
 import java.util.concurrent.TimeUnit
 import kotlin.system.measureTimeMillis
 
-class DynamoDBOperation(properties: ConnectionProperties, private val offline: Boolean) {
+class DynamoDBOperation(val properties: ConnectionProperties, private val offline: Boolean) {
 
     private val descriptions = mutableMapOf<String, TableDescription>()
 
