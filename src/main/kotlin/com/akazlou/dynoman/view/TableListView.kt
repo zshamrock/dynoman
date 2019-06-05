@@ -22,7 +22,6 @@ class TableListView : View() {
                 find(ConnectionPropertiesFragment::class).openModal(block = true)
             }
         }
-        // TODO: Try instead add each of the children, does it matter?
         add(tableTree.root)
         textarea {
             vboxConstraints {

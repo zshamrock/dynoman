@@ -77,7 +77,7 @@ class TableTreeSelectFragment : Fragment("Table Tree") {
         }
     }
 
-    override val root = vbox {
+    override val root = vbox(5.0) {
         stackpane {
             alignment = Pos.CENTER_RIGHT
             textfield(filteredNameProperty) {
