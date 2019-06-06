@@ -21,14 +21,17 @@ class MainController : Controller() {
 
     private val connectionProperties: ConnectionProperties = Config.getConnectionProperties(app.config)
 
+    // TODO: Pass the actual operation instead of the connection properties
     fun listTables(properties: ConnectionProperties): List<DynamoDBTable> {
         return getClient(properties).listTables().map { DynamoDBTable(it) }
     }
 
+    // TODO: Pass the actual operation instead of the connection properties
     fun getClient(properties: ConnectionProperties): DynamoDBOperation {
         return clients.getValue(properties)
     }
 
+    // TODO: Pass the actual operation instead of the connection properties
     fun describeTable(table: DynamoDBTable, properties: ConnectionProperties): TableDescription {
         return getClient(properties).describeTable(table.name)
     }
