@@ -120,6 +120,10 @@ class TableTreeSelectFragment : Fragment("Table Tree") {
         tablesList.predicate = FilterTablePredicate.ACCEPT_ALL_PREDICATE
     }
 
+    fun getTableName(): String {
+        return tablesTree.selectedValue?.name.orEmpty()
+    }
+
     class DynamoDBTableStringConverter : StringConverter<DynamoDBTable>() {
         override fun toString(table: DynamoDBTable): String {
             return table.name

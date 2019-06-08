@@ -3,10 +3,11 @@ package com.akazlou.dynoman.view
 import com.akazlou.dynoman.domain.ConnectionProperties
 import com.akazlou.dynoman.domain.DynamoDBTable
 import com.akazlou.dynoman.service.DynamoDBOperation
+import javafx.geometry.Pos
 import tornadofx.*
 
 // TODO: Reuse the tree model between main tree view and here, so to avoid network calls and cache if any made
-class TableTreeSelectModalFragment : Fragment("Table Tree Modal") {
+class TableTreeSelectModalFragment : Fragment("Tables Tree") {
     val operation: DynamoDBOperation by param()
     val connectionProperties: ConnectionProperties by param()
     val tables: List<DynamoDBTable> by param()
@@ -18,12 +19,18 @@ class TableTreeSelectModalFragment : Fragment("Table Tree Modal") {
         tableTree.refresh(operation, connectionProperties, tables)
     }
 
-    override val root = vbox {
+    override val root = vbox(5.0) {
+        paddingBottom = 5.0
+        alignment = Pos.CENTER
         add(tableTree.root)
         button("Apply") {
             action {
                 this@TableTreeSelectModalFragment.close()
             }
         }
+    }
+
+    fun getTableName(): String {
+        return tableTree.getTableName()
     }
 }
