@@ -40,14 +40,15 @@ class TableTreeSelectFragment : Fragment("Table Tree") {
     private val controller: MainController by inject()
     private val operationProperty: SimpleObjectProperty<DynamoDBOperation> = SimpleObjectProperty()
     private val queryView: QueryView by inject()
-    private val masterTablesList: ObservableList<DynamoDBTable> = FXCollections.observableArrayList()
-    private var tablesTree: TreeView<DynamoDBTable> by singleAssign()
+    private val masterTablesList: ObservableList<DynamoDBTableTreeItemValue> = FXCollections.observableArrayList()
+    private var tablesTree: TreeView<DynamoDBTableTreeItemValue> by singleAssign()
     private val filteredNameProperty = SimpleStringProperty("")
-    private val tablesList: FilteredList<DynamoDBTable> =
+    private val tablesList: FilteredList<DynamoDBTableTreeItemValue> =
             masterTablesList.filtered(FilterTablePredicate.ACCEPT_ALL_PREDICATE)
     // Keep the cellFactory cached to be reused when switching between the connection properties
     private val cellFactories = with(
-            mutableMapOf<ConnectionProperties, Callback<TreeView<DynamoDBTable>, TreeCell<DynamoDBTable>>>()) {
+            mutableMapOf<ConnectionProperties,
+                    Callback<TreeView<DynamoDBTableTreeItemValue>, TreeCell<DynamoDBTableTreeItemValue>>>()) {
         withDefault { properties ->
             getOrPut(properties) {
                 Callback {
@@ -60,7 +61,7 @@ class TableTreeSelectFragment : Fragment("Table Tree") {
         }
     }
 
-    private val predicates: LoadingCache<String, Predicate<DynamoDBTable>> = Caffeine.newBuilder()
+    private val predicates: LoadingCache<String, Predicate<DynamoDBTableTreeItemValue>> = Caffeine.newBuilder()
             .maximumSize(10)
             .expireAfterWrite(30, TimeUnit.MINUTES)
             .build { FilterTablePredicate(it) }
@@ -97,7 +98,7 @@ class TableTreeSelectFragment : Fragment("Table Tree") {
                 prefHeight = 480.0
                 vGrow = Priority.ALWAYS
             }
-            root = TreeItem(DynamoDBTable("Tables"))
+            root = TreeItem(DynamoDBTableTreeItemValue.textValue("Tables"))
             root.isExpanded = true
             isShowRoot = false
             populate({ table -> DynamoDBTableTreeItem(table, operationProperty) },
@@ -116,20 +117,20 @@ class TableTreeSelectFragment : Fragment("Table Tree") {
         // Initialize the cellFactory for the tree here in order to get the correct operation reference
         tablesTree.cellFactory = cellFactories.getValue(properties)
         filteredNameProperty.value = ""
-        masterTablesList.setAll(tables)
+        masterTablesList.setAll(tables.map { DynamoDBTableTreeItemValue.tableValue(it.name) })
         tablesList.predicate = FilterTablePredicate.ACCEPT_ALL_PREDICATE
     }
 
     fun getTableName(): String {
-        return tablesTree.selectedValue?.name.orEmpty()
+        return tablesTree.selectedValue?.text.orEmpty()
     }
 
-    class DynamoDBTableStringConverter : StringConverter<DynamoDBTable>() {
-        override fun toString(table: DynamoDBTable): String {
-            return table.name
+    class DynamoDBTableStringConverter : StringConverter<DynamoDBTableTreeItemValue>() {
+        override fun toString(table: DynamoDBTableTreeItemValue): String {
+            return table.text
         }
 
-        override fun fromString(string: String): DynamoDBTable? {
+        override fun fromString(string: String): DynamoDBTableTreeItemValue? {
             return null
         }
     }
@@ -138,7 +139,7 @@ class TableTreeSelectFragment : Fragment("Table Tree") {
     class DynamoDBTextFieldTreeCell(operation: DynamoDBOperation,
                                     queryView: QueryView,
                                     converter: DynamoDBTableStringConverter) :
-            TextFieldTreeCell<DynamoDBTable>(converter) {
+            TextFieldTreeCell<DynamoDBTableTreeItemValue>(converter) {
         // TODO: #163 Does it mean that context menu is created for each of the tree cell, would it be possible to use one
         // instance for all the tree cells?
         private val tableMenu: ContextMenu = ContextMenu()
@@ -146,7 +147,7 @@ class TableTreeSelectFragment : Fragment("Table Tree") {
         init {
             val scanMenuItem = MenuItem("Scan")
             scanMenuItem.action {
-                val tableName = treeItem.value.name
+                val tableName = treeItem.value.text
                 println("Scan $tableName")
                 val description = (treeItem as DynamoDBTableTreeItem).description
                 runAsyncWithProgress {
@@ -162,7 +163,7 @@ class TableTreeSelectFragment : Fragment("Table Tree") {
             }
             val scanWithOptionsMenuItem = MenuItem("Scan...")
             scanWithOptionsMenuItem.action {
-                println("Scan ${treeItem.value.name}")
+                println("Scan ${treeItem.value.text}")
                 val description = (treeItem as DynamoDBTableTreeItem).description
                 find<QueryWindowFragment>(
                         params = mapOf(
@@ -173,7 +174,7 @@ class TableTreeSelectFragment : Fragment("Table Tree") {
             }
             val queryMenuItem = MenuItem("Query...")
             queryMenuItem.action {
-                println("Query ${treeItem.value.name}")
+                println("Query ${treeItem.value.text}")
                 val description = (treeItem as DynamoDBTableTreeItem).description
                 find<QueryWindowFragment>(
                         params = mapOf(
@@ -188,8 +189,8 @@ class TableTreeSelectFragment : Fragment("Table Tree") {
                     "Query (clipboard)",
                     "Query the data using the value from the clipboard as the value for the primary key")
             queryMenuItemClipboard.action {
-                println("Query (clipboard) ${treeItem.value.name}")
-                val tableName = treeItem.value.name
+                println("Query (clipboard) ${treeItem.value.text}")
+                val tableName = treeItem.value.text
                 val description = (treeItem as DynamoDBTableTreeItem).description
                 val primaryKey = description.keySchema[0]
                 val hashKeyValue = Clipboard.getSystemClipboard().string
@@ -230,14 +231,14 @@ class TableTreeSelectFragment : Fragment("Table Tree") {
             return menuItem
         }
 
-        override fun updateItem(item: DynamoDBTable?, empty: Boolean) {
+        override fun updateItem(item: DynamoDBTableTreeItemValue?, empty: Boolean) {
             super.updateItem(item, empty)
             if (empty || item == null) {
                 text = null
                 graphic = null
                 contextMenu = null
             } else {
-                text = item.name
+                text = item.text
                 if (treeItem.parent != null && treeItem.parent == treeView.root) {
                     contextMenu = tableMenu
                 }
@@ -246,13 +247,13 @@ class TableTreeSelectFragment : Fragment("Table Tree") {
     }
 }
 
-class FilterTablePredicate(var text: String = "") : Predicate<DynamoDBTable> {
+class FilterTablePredicate(var text: String = "") : Predicate<DynamoDBTableTreeItemValue> {
     companion object {
         @JvmField
         val ACCEPT_ALL_PREDICATE = FilterTablePredicate()
     }
 
-    override fun test(table: DynamoDBTable): Boolean {
-        return text.isBlank() || table.name.contains(text, true)
+    override fun test(table: DynamoDBTableTreeItemValue): Boolean {
+        return text.isBlank() || table.text.contains(text, true)
     }
 }

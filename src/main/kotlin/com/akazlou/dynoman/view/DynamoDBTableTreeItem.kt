@@ -1,6 +1,5 @@
 package com.akazlou.dynoman.view
 
-import com.akazlou.dynoman.domain.DynamoDBTable
 import com.akazlou.dynoman.service.DynamoDBOperation
 import com.amazonaws.services.dynamodbv2.model.AttributeDefinition
 import com.amazonaws.services.dynamodbv2.model.KeySchemaElement
@@ -10,14 +9,15 @@ import javafx.collections.FXCollections
 import javafx.collections.ObservableList
 import javafx.scene.control.TreeItem
 
-class DynamoDBTableTreeItem(private val table: DynamoDBTable, private var operation: SimpleObjectProperty<DynamoDBOperation>)
-    : TreeItem<DynamoDBTable>(table) {
+class DynamoDBTableTreeItem(private val value: DynamoDBTableTreeItemValue,
+                            private var operation: SimpleObjectProperty<DynamoDBOperation>)
+    : TreeItem<DynamoDBTableTreeItemValue>(value) {
     val description: TableDescription by lazy {
-        println("Fetch ${table.name} description")
-        operation.value.describeTable(table.name)
+        println("Fetch ${value.text} description")
+        operation.value.describeTable(value.text)
     }
 
-    override fun getChildren(): ObservableList<TreeItem<DynamoDBTable>> {
+    override fun getChildren(): ObservableList<TreeItem<DynamoDBTableTreeItemValue>> {
         val children = super.getChildren()
         if (children.isNotEmpty()) {
             return children
@@ -26,20 +26,22 @@ class DynamoDBTableTreeItem(private val table: DynamoDBTable, private var operat
         return children
     }
 
-    private fun fetchTableDescription(): ObservableList<TreeItem<DynamoDBTable>> {
-        val children = FXCollections.observableArrayList<TreeItem<DynamoDBTable>>()
+    private fun fetchTableDescription(): ObservableList<TreeItem<DynamoDBTableTreeItemValue>> {
+        val children = FXCollections.observableArrayList<TreeItem<DynamoDBTableTreeItemValue>>()
         val provisionedThroughput = description.provisionedThroughput
-        children.add(TreeItem(DynamoDBTable("RCU: ${provisionedThroughput.readCapacityUnits}")))
-        children.add(TreeItem(DynamoDBTable("WCU: ${provisionedThroughput.writeCapacityUnits}")))
-        val attributes = TreeItem(DynamoDBTable("Attributes"))
+        children.add(TreeItem(
+                DynamoDBTableTreeItemValue.textValue("RCU: ${provisionedThroughput.readCapacityUnits}")))
+        children.add(TreeItem(
+                DynamoDBTableTreeItemValue.textValue("WCU: ${provisionedThroughput.writeCapacityUnits}")))
+        val attributes = TreeItem(DynamoDBTableTreeItemValue.textValue("Attributes"))
         val keySchema = description.keySchema
         val attributeDefinitionsByName = description.attributeDefinitions.associateBy { it.attributeName }
         processKeySchema(keySchema, attributeDefinitionsByName, attributes)
         children.add(attributes)
-        val indexes = TreeItem(DynamoDBTable("Indexes"))
+        val indexes = TreeItem(DynamoDBTableTreeItemValue.textValue("Indexes"))
         val gsi = description.globalSecondaryIndexes
         gsi?.forEach {
-            val indexItem = TreeItem(DynamoDBTable(it.indexName))
+            val indexItem = TreeItem(DynamoDBTableTreeItemValue.indexValue(it.indexName))
             indexes.children.add(indexItem)
             processKeySchema(it.keySchema, attributeDefinitionsByName, indexItem)
         }
@@ -49,11 +51,12 @@ class DynamoDBTableTreeItem(private val table: DynamoDBTable, private var operat
 
     private fun processKeySchema(keySchema: MutableList<KeySchemaElement>,
                                  attributeDefinitionsByName: Map<String, AttributeDefinition>,
-                                 attributes: TreeItem<DynamoDBTable>) {
+                                 attributes: TreeItem<DynamoDBTableTreeItemValue>) {
         keySchema.forEach {
             val attributeDefinition = attributeDefinitionsByName[it.attributeName]
             val attributeType = attributeDefinition?.attributeType
-            attributes.children.add(TreeItem(DynamoDBTable("${it.attributeName} (${it.keyType}) $attributeType")))
+            attributes.children.add(TreeItem(
+                    DynamoDBTableTreeItemValue.textValue("${it.attributeName} (${it.keyType}) $attributeType")))
         }
     }
 

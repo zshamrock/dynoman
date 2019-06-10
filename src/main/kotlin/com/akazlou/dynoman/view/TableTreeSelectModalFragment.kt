@@ -23,6 +23,8 @@ class TableTreeSelectModalFragment : Fragment("Tables Tree") {
         paddingBottom = 5.0
         alignment = Pos.CENTER
         add(tableTree.root)
+        // TODO: It it possible to enable the button only when the table or index is selected
+        // TODO: Add Cancel button
         button("Apply") {
             action {
                 this@TableTreeSelectModalFragment.close()
