@@ -24,12 +24,23 @@ class TableTreeSelectModalFragment : Fragment("Tables Tree") {
         alignment = Pos.CENTER
         add(tableTree.root)
         // TODO: It it possible to enable the button only when the table or index is selected
-        // TODO: Add Cancel button
-        button("Apply") {
-            action {
-                this@TableTreeSelectModalFragment.close()
+        // Use hbox instead of buttonbar, as didn't find the proper way to align buttons in the buttonbar centered,
+        // and buttonOrder didn't work at all (tried +AC+, but even +AC didn't work, i.e. no button was rendered,
+        // although as per documentation that should work).
+        hbox(5.0) {
+            alignment = Pos.CENTER
+            button("Apply") {
+                action {
+                    this@TableTreeSelectModalFragment.close()
+                }
+            }
+            button("Cancel") {
+                action {
+                    this@TableTreeSelectModalFragment.close()
+                }
             }
         }
+
     }
 
     fun getTableName(): String {
