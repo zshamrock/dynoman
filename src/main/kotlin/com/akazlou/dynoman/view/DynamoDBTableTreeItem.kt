@@ -41,7 +41,7 @@ class DynamoDBTableTreeItem(private val value: DynamoDBTableTreeItemValue,
         val indexes = TreeItem(DynamoDBTableTreeItemValue.textValue("Indexes"))
         val gsi = description.globalSecondaryIndexes
         gsi?.forEach {
-            val indexItem = TreeItem(DynamoDBTableTreeItemValue.indexValue(it.indexName))
+            val indexItem = TreeItem(DynamoDBTableTreeItemValue.indexValue(description.tableName, it.indexName))
             indexes.children.add(indexItem)
             processKeySchema(it.keySchema, attributeDefinitionsByName, indexItem)
         }

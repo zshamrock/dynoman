@@ -1,3 +1,5 @@
 package com.akazlou.dynoman.domain
 
-data class DynamoDBTable(val name: String)
+open class DynamoDBTable(val name: String)
+
+class DynamoDBTableIndex(tableName: String, val indexName: String) : DynamoDBTable(tableName)

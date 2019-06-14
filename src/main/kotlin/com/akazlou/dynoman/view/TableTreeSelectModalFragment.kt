@@ -7,7 +7,7 @@ import javafx.geometry.Pos
 import tornadofx.*
 
 // TODO: Reuse the tree model between main tree view and here, so to avoid network calls and cache if any made
-class TableTreeSelectModalFragment : Fragment("Tables Tree") {
+class TableTreeSelectModalFragment : Fragment("Select Table or Index") {
     val operation: DynamoDBOperation by param()
     val connectionProperties: ConnectionProperties by param()
     val tables: List<DynamoDBTable> by param()
