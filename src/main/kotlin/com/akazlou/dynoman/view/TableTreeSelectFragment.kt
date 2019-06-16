@@ -37,6 +37,10 @@ import java.util.concurrent.TimeUnit
 import java.util.function.Predicate
 
 class TableTreeSelectFragment : Fragment("Table Tree") {
+    companion object {
+        private val ROOT_TABLE_TEXT_VALUE = DynamoDBTableTreeItemValue.textValue("Tables")
+    }
+
     private val controller: MainController by inject()
     private val operationProperty: SimpleObjectProperty<DynamoDBOperation> = SimpleObjectProperty()
     private val queryView: QueryView by inject()
@@ -45,6 +49,7 @@ class TableTreeSelectFragment : Fragment("Table Tree") {
     private val filteredNameProperty = SimpleStringProperty("")
     private val tablesList: FilteredList<DynamoDBTableTreeItemValue> =
             masterTablesList.filtered(FilterTablePredicate.ACCEPT_ALL_PREDICATE)
+    private val selectionProperty = SimpleObjectProperty<DynamoDBTableTreeItemValue>(ROOT_TABLE_TEXT_VALUE)
     // Keep the cellFactory cached to be reused when switching between the connection properties
     private val cellFactories = with(
             mutableMapOf<ConnectionProperties,
@@ -98,7 +103,7 @@ class TableTreeSelectFragment : Fragment("Table Tree") {
                 prefHeight = 480.0
                 vGrow = Priority.ALWAYS
             }
-            root = TreeItem(DynamoDBTableTreeItemValue.textValue("Tables"))
+            root = TreeItem(ROOT_TABLE_TEXT_VALUE)
             root.isExpanded = true
             isShowRoot = false
             populate({ table -> DynamoDBTableTreeItem(table, operationProperty) },
@@ -110,6 +115,7 @@ class TableTreeSelectFragment : Fragment("Table Tree") {
                         }
                     })
         }
+        tablesTree.bindSelected(selectionProperty)
     }
 
     fun refresh(operation: DynamoDBOperation, properties: ConnectionProperties, tables: List<DynamoDBTable>) {
@@ -121,13 +127,13 @@ class TableTreeSelectFragment : Fragment("Table Tree") {
         tablesList.predicate = FilterTablePredicate.ACCEPT_ALL_PREDICATE
     }
 
-    fun getTableName(): String {
-        return tablesTree.selectedValue?.text.orEmpty()
+    fun getSelection(): SimpleObjectProperty<DynamoDBTableTreeItemValue> {
+        return selectionProperty
     }
 
     class DynamoDBTableStringConverter : StringConverter<DynamoDBTableTreeItemValue>() {
-        override fun toString(table: DynamoDBTableTreeItemValue): String {
-            return table.text
+        override fun toString(value: DynamoDBTableTreeItemValue): String {
+            return value.getText()
         }
 
         override fun fromString(string: String): DynamoDBTableTreeItemValue? {
@@ -147,7 +153,7 @@ class TableTreeSelectFragment : Fragment("Table Tree") {
         init {
             val scanMenuItem = MenuItem("Scan")
             scanMenuItem.action {
-                val tableName = treeItem.value.text
+                val tableName = treeItem.value.getText()
                 println("Scan $tableName")
                 val description = (treeItem as DynamoDBTableTreeItem).description
                 runAsyncWithProgress {
@@ -163,7 +169,7 @@ class TableTreeSelectFragment : Fragment("Table Tree") {
             }
             val scanWithOptionsMenuItem = MenuItem("Scan...")
             scanWithOptionsMenuItem.action {
-                println("Scan ${treeItem.value.text}")
+                println("Scan ${treeItem.value.getText()}")
                 val description = (treeItem as DynamoDBTableTreeItem).description
                 find<QueryWindowFragment>(
                         params = mapOf(
@@ -174,7 +180,7 @@ class TableTreeSelectFragment : Fragment("Table Tree") {
             }
             val queryMenuItem = MenuItem("Query...")
             queryMenuItem.action {
-                println("Query ${treeItem.value.text}")
+                println("Query ${treeItem.value.getText()}")
                 val description = (treeItem as DynamoDBTableTreeItem).description
                 find<QueryWindowFragment>(
                         params = mapOf(
@@ -189,8 +195,8 @@ class TableTreeSelectFragment : Fragment("Table Tree") {
                     "Query (clipboard)",
                     "Query the data using the value from the clipboard as the value for the primary key")
             queryMenuItemClipboard.action {
-                println("Query (clipboard) ${treeItem.value.text}")
-                val tableName = treeItem.value.text
+                println("Query (clipboard) ${treeItem.value.getText()}")
+                val tableName = treeItem.value.getText()
                 val description = (treeItem as DynamoDBTableTreeItem).description
                 val primaryKey = description.keySchema[0]
                 val hashKeyValue = Clipboard.getSystemClipboard().string
@@ -238,7 +244,7 @@ class TableTreeSelectFragment : Fragment("Table Tree") {
                 graphic = null
                 contextMenu = null
             } else {
-                text = item.text
+                text = item.getText()
                 if (treeItem.parent != null && treeItem.parent == treeView.root) {
                     contextMenu = tableMenu
                 }
@@ -254,6 +260,6 @@ class FilterTablePredicate(var text: String = "") : Predicate<DynamoDBTableTreeI
     }
 
     override fun test(table: DynamoDBTableTreeItemValue): Boolean {
-        return text.isBlank() || table.text.contains(text, true)
+        return text.isBlank() || table.getText().contains(text, true)
     }
 }

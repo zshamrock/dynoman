@@ -23,13 +23,17 @@ class TableTreeSelectModalFragment : Fragment("Select Table or Index") {
         paddingBottom = 5.0
         alignment = Pos.CENTER
         add(tableTree.root)
-        // TODO: It it possible to enable the button only when the table or index is selected
         // Use hbox instead of buttonbar, as didn't find the proper way to align buttons in the buttonbar centered,
         // and buttonOrder didn't work at all (tried +AC+, but even +AC didn't work, i.e. no button was rendered,
         // although as per documentation that should work).
         hbox(5.0) {
             alignment = Pos.CENTER
             button("Apply") {
+                enableWhen {
+                    tableTree.getSelection().booleanBinding { value ->
+                        value != null && (value.isTable() || value.isIndex())
+                    }
+                }
                 action {
                     this@TableTreeSelectModalFragment.close()
                 }
@@ -44,6 +48,11 @@ class TableTreeSelectModalFragment : Fragment("Select Table or Index") {
     }
 
     fun getTableName(): String {
-        return tableTree.getTableName()
+        val value: DynamoDBTableTreeItemValue = tableTree.getSelection().value
+        return if (value.isTable() || value.isIndex()) {
+            value.getText()
+        } else {
+            ""
+        }
     }
 }

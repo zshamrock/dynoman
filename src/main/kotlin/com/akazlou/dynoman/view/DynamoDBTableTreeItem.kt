@@ -13,8 +13,8 @@ class DynamoDBTableTreeItem(private val value: DynamoDBTableTreeItemValue,
                             private var operation: SimpleObjectProperty<DynamoDBOperation>)
     : TreeItem<DynamoDBTableTreeItemValue>(value) {
     val description: TableDescription by lazy {
-        println("Fetch ${value.text} description")
-        operation.value.describeTable(value.text)
+        println("Fetch ${value.getText()} description")
+        operation.value.describeTable(value.getText())
     }
 
     override fun getChildren(): ObservableList<TreeItem<DynamoDBTableTreeItemValue>> {
