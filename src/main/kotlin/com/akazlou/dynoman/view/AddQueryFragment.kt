@@ -1,8 +1,11 @@
 package com.akazlou.dynoman.view
 
 import com.akazlou.dynoman.controller.MainController
+import com.akazlou.dynoman.domain.search.Operator
 import com.akazlou.dynoman.service.DynamoDBOperation
+import javafx.beans.property.SimpleObjectProperty
 import javafx.beans.property.SimpleStringProperty
+import javafx.geometry.Orientation
 import javafx.stage.StageStyle
 import tornadofx.*
 
@@ -10,6 +13,12 @@ import tornadofx.*
 class AddQueryFragment : Fragment("Add Query") {
     private val controller: MainController by inject()
     private val foreignTableProperty = SimpleStringProperty()
+    private val sourceTableAttributes = mutableListOf<String>().observable()
+    private val hashKeyNameProperty = SimpleStringProperty("")
+    private val sortKeyNameProperty = SimpleStringProperty("")
+    private val hashKeyProperty = SimpleStringProperty("")
+    private val sortKeyProperty = SimpleStringProperty("")
+    private val sortKeyOperatorProperty = SimpleObjectProperty(Operator.EQ)
 
     val operation: DynamoDBOperation by param()
 
@@ -31,6 +40,21 @@ class AddQueryFragment : Fragment("Add Query") {
                             foreignTableProperty.value = selector.getTableName()
                         }
                     }
+                }
+            }
+            field("Columns:", Orientation.VERTICAL) {
+                hbox(5.0) {
+                    label("Partition Key")
+                    label(hashKeyNameProperty)
+                    label("=")
+                    combobox(values = sourceTableAttributes, property = hashKeyProperty)
+                }
+                hbox(5.0) {
+                    label("Sort Key")
+                    label(sortKeyNameProperty)
+                    combobox(values = QueryWindowFragment.SORT_KEY_AVAILABLE_OPERATORS,
+                            property = sortKeyOperatorProperty)
+                    combobox(values = sourceTableAttributes, property = sortKeyProperty)
                 }
             }
         }
