@@ -102,7 +102,7 @@ class QueryTabFragment : Fragment("Query Tab") {
                     qwf = find(
                             params = mapOf(
                                     QueryWindowFragment::mode to QueryWindowFragment.Mode.INLINE,
-                                    QueryWindowFragment.SEARCH_TYPE_PARAM to search.type,
+                                    SearchCriteriaFragment.SEARCH_TYPE_PARAM to search.type,
                                     QueryWindowFragment::description to description,
                                     QueryWindowFragment::operation to params["operation"]))
                     val editor = tab("EDITOR", qwf.root)

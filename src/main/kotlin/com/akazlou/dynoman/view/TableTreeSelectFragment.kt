@@ -174,7 +174,7 @@ class TableTreeSelectFragment : Fragment("Table Tree") {
                 find<QueryWindowFragment>(
                         params = mapOf(
                                 QueryWindowFragment::mode to QueryWindowFragment.Mode.MODAL,
-                                QueryWindowFragment.SEARCH_TYPE_PARAM to SearchType.SCAN,
+                                SearchCriteriaFragment.SEARCH_TYPE_PARAM to SearchType.SCAN,
                                 QueryWindowFragment::description to description,
                                 QueryWindowFragment::operation to operation)).openModal()
             }
@@ -185,7 +185,7 @@ class TableTreeSelectFragment : Fragment("Table Tree") {
                 find<QueryWindowFragment>(
                         params = mapOf(
                                 QueryWindowFragment::mode to QueryWindowFragment.Mode.MODAL,
-                                QueryWindowFragment.SEARCH_TYPE_PARAM to SearchType.QUERY,
+                                SearchCriteriaFragment.SEARCH_TYPE_PARAM to SearchType.QUERY,
                                 QueryWindowFragment::description to description,
                                 QueryWindowFragment::operation to operation)).openModal()
             }

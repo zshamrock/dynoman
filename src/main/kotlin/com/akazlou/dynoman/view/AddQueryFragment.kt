@@ -52,7 +52,7 @@ class AddQueryFragment : Fragment("Add Query") {
                 hbox(5.0) {
                     label("Sort Key")
                     label(sortKeyNameProperty)
-                    combobox(values = QueryWindowFragment.SORT_KEY_AVAILABLE_OPERATORS,
+                    combobox(values = SearchCriteriaFragment.SORT_KEY_AVAILABLE_OPERATORS,
                             property = sortKeyOperatorProperty)
                     combobox(values = sourceTableAttributes, property = sortKeyProperty)
                 }
