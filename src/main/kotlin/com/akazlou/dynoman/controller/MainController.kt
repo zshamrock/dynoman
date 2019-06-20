@@ -33,6 +33,6 @@ class MainController : Controller() {
 
     // TODO: Pass the actual operation instead of the connection properties
     fun describeTable(table: DynamoDBTable, properties: ConnectionProperties): TableDescription {
-        return getClient(properties).describeTable(table.name)
+        return getClient(properties).describeTable(table.tableName)
     }
 }

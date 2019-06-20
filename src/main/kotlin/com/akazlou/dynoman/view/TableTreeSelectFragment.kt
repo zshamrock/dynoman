@@ -123,7 +123,7 @@ class TableTreeSelectFragment : Fragment("Table Tree") {
         // Initialize the cellFactory for the tree here in order to get the correct operation reference
         tablesTree.cellFactory = cellFactories.getValue(properties)
         filteredNameProperty.value = ""
-        masterTablesList.setAll(tables.map { DynamoDBTableTreeItemValue.tableValue(it.name) })
+        masterTablesList.setAll(tables.map { DynamoDBTableTreeItemValue.tableValue(it.tableName) })
         tablesList.predicate = FilterTablePredicate.ACCEPT_ALL_PREDICATE
     }
 

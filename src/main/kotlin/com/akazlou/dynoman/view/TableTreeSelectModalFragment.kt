@@ -2,6 +2,7 @@ package com.akazlou.dynoman.view
 
 import com.akazlou.dynoman.domain.ConnectionProperties
 import com.akazlou.dynoman.domain.DynamoDBTable
+import com.akazlou.dynoman.domain.DynamoDBTableIndex
 import com.akazlou.dynoman.service.DynamoDBOperation
 import javafx.geometry.Pos
 import tornadofx.*
@@ -49,12 +50,12 @@ class TableTreeSelectModalFragment : Fragment("Select Table or Index") {
 
     }
 
-    fun getTableName(): String {
+    fun getTable(): DynamoDBTable? {
         val value: DynamoDBTableTreeItemValue = tableTree.getSelection().value
-        return if (value.isTable() || value.isIndex()) {
-            value.getText()
-        } else {
-            ""
+        return when {
+            value.isTable() -> DynamoDBTable(value.getText())
+            value.isIndex() -> DynamoDBTableIndex((value as DynamoDBTableTreeIndexItem).tableName, value.indexName)
+            else -> null
         }
     }
 

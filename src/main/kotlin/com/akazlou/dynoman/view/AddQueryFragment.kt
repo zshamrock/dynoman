@@ -1,9 +1,8 @@
 package com.akazlou.dynoman.view
 
 import com.akazlou.dynoman.controller.MainController
-import com.akazlou.dynoman.domain.search.Operator
+import com.akazlou.dynoman.domain.search.SearchType
 import com.akazlou.dynoman.service.DynamoDBOperation
-import javafx.beans.property.SimpleObjectProperty
 import javafx.beans.property.SimpleStringProperty
 import javafx.geometry.Orientation
 import javafx.stage.StageStyle
@@ -13,14 +12,8 @@ import tornadofx.*
 class AddQueryFragment : Fragment("Add Query") {
     private val controller: MainController by inject()
     private val foreignTableProperty = SimpleStringProperty()
-    private val sourceTableAttributes = mutableListOf<String>().observable()
-    private val hashKeyNameProperty = SimpleStringProperty("")
-    private val sortKeyNameProperty = SimpleStringProperty("")
-    private val hashKeyProperty = SimpleStringProperty("")
-    private val sortKeyProperty = SimpleStringProperty("")
-    private val sortKeyOperatorProperty = SimpleObjectProperty(Operator.EQ)
-
     val operation: DynamoDBOperation by param()
+    private var columnsField: Field by singleAssign()
 
     override val root = form {
         fieldset("New Query") {
@@ -37,25 +30,20 @@ class AddQueryFragment : Fragment("Add Query") {
                         )
                         selector.openModal(stageStyle = StageStyle.UTILITY, block = true)
                         if (selector.isOk()) {
-                            foreignTableProperty.value = selector.getTableName()
+                            val table = selector.getTable()!!
+                            foreignTableProperty.value = table.name
+                            val searchCriteriaFragment = find<SearchCriteriaFragment>(params = mapOf(
+                                    "searchType" to SearchType.QUERY,
+                                    "description" to operation.describeTable(table.tableName)
+                            ))
+                            // TODO: handle multiple adds
+                            // TODO: handle correct sizing and scrolling
+                            columnsField.add(searchCriteriaFragment.root)
                         }
                     }
                 }
             }
-            field("Columns:", Orientation.VERTICAL) {
-                hbox(5.0) {
-                    label("Partition Key")
-                    label(hashKeyNameProperty)
-                    label("=")
-                    combobox(values = sourceTableAttributes, property = hashKeyProperty)
-                }
-                hbox(5.0) {
-                    label("Sort Key")
-                    label(sortKeyNameProperty)
-                    combobox(values = SearchCriteriaFragment.SORT_KEY_AVAILABLE_OPERATORS,
-                            property = sortKeyOperatorProperty)
-                    combobox(values = sourceTableAttributes, property = sortKeyProperty)
-                }
+            columnsField = field("Columns:", Orientation.VERTICAL) {
             }
         }
     }
