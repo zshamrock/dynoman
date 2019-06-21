@@ -5,17 +5,20 @@ import com.akazlou.dynoman.domain.search.SearchType
 import com.akazlou.dynoman.service.DynamoDBOperation
 import javafx.beans.property.SimpleStringProperty
 import javafx.geometry.Orientation
+import javafx.scene.control.ScrollPane
+import javafx.scene.layout.Background
 import javafx.stage.StageStyle
 import tornadofx.*
 
-// TODO: Can it be a view?
 class AddQueryFragment : Fragment("Add Query") {
     private val controller: MainController by inject()
     private val foreignTableProperty = SimpleStringProperty()
     val operation: DynamoDBOperation by param()
-    private var columnsField: Field by singleAssign()
+    private var pane: ScrollPane by singleAssign()
 
     override val root = form {
+        prefWidth = 850.0
+        prefHeight = 350.0
         fieldset("New Query") {
             field("Foreign table:") {
                 textfield(foreignTableProperty)
@@ -32,18 +35,35 @@ class AddQueryFragment : Fragment("Add Query") {
                         if (selector.isOk()) {
                             val table = selector.getTable()!!
                             foreignTableProperty.value = table.name
+                            // TODO: If it was the index, select it accordingly instead of table
                             val searchCriteriaFragment = find<SearchCriteriaFragment>(params = mapOf(
                                     "searchType" to SearchType.QUERY,
                                     "description" to operation.describeTable(table.tableName)
                             ))
-                            // TODO: handle multiple adds
-                            // TODO: handle correct sizing and scrolling
-                            columnsField.add(searchCriteriaFragment.root)
+                            pane.content = searchCriteriaFragment.root
                         }
                     }
                 }
             }
-            columnsField = field("Columns:", Orientation.VERTICAL) {
+            field("Columns:", Orientation.VERTICAL) {
+                pane = scrollpane {
+                    background = Background.EMPTY
+                    vbarPolicy = ScrollPane.ScrollBarPolicy.AS_NEEDED
+                    hbarPolicy = ScrollPane.ScrollBarPolicy.NEVER
+                }
+            }
+        }
+        // TODO: How always to put the buttonbar on the bottom no matter the size of the pane content
+        buttonbar {
+            button("Create") {
+                action {
+                    close()
+                }
+            }
+            button("Cancel") {
+                action {
+                    close()
+                }
             }
         }
     }
