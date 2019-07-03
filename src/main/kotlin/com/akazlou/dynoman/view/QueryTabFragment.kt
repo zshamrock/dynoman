@@ -34,6 +34,7 @@ class QueryTabFragment : Fragment("Query Tab") {
     private val paginationTextProperty = SimpleStringProperty("")
     private val data = FXCollections.observableArrayList<ResultData>()
     private var queryResult: QueryResult? = null
+    private var copyFieldMenu: Menu? = null
     private var copyAllByFieldMenu: Menu? = null
     private var copyAllDistinctByFieldMenu: Menu? = null
     private val allColumns: MutableSet<String> = mutableSetOf()
@@ -175,6 +176,7 @@ class QueryTabFragment : Fragment("Query Tab") {
                                 println(selectedValue)
                             }
                         }
+                        copyFieldMenu = menu("Copy Field")
                         separator()
                         item("Copy All") {
                             setOnAction {
@@ -275,27 +277,29 @@ class QueryTabFragment : Fragment("Query Tab") {
         updatePaginationTextProperty(pageNum)
         resultTable.columns.setAll(columns)
         data.setAll(results)
+        if (copyFieldMenu!!.items.isEmpty() && data.isNotEmpty()) {
+            addFieldsIntoMenuItem(copyFieldMenu!!, distinct = false, all = false)
+        }
         if (copyAllByFieldMenu!!.items.isEmpty() && data.isNotEmpty()) {
-            allColumns.forEach { key ->
-                val item = MenuItem(key)
-                item.setOnAction {
-                    println("Copy All by Field $key")
-                    val content = getDataByField(key, false).joinToString("\n")
-                    clipboard.putString(content)
-                }
-                copyAllByFieldMenu!!.items.add(item)
-            }
+            addFieldsIntoMenuItem(copyAllByFieldMenu!!, distinct = false, all = true)
         }
         if (copyAllDistinctByFieldMenu!!.items.isEmpty() && data.isNotEmpty()) {
-            allColumns.forEach { key ->
-                val item = MenuItem(key)
-                item.setOnAction {
-                    println("Copy All Distinct by Field $key")
-                    val content = getDataByField(key, true).joinToString("\n")
-                    clipboard.putString(content)
+            addFieldsIntoMenuItem(copyAllDistinctByFieldMenu!!, distinct = true, all = true)
+        }
+    }
+
+    private fun addFieldsIntoMenuItem(menu: Menu, distinct: Boolean, all: Boolean) {
+        allColumns.forEach { key ->
+            val item = MenuItem(key)
+            item.setOnAction {
+                val content = if (all) {
+                    getDataByField(key, distinct).joinToString("\n")
+                } else {
+                    resultTable.selectedItem?.getValue(key) ?: ""
                 }
-                copyAllDistinctByFieldMenu!!.items.add(item)
+                clipboard.putString(content)
             }
+            menu.items.add(item)
         }
     }
 
