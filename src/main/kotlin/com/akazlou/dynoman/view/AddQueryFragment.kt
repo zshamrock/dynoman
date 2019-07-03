@@ -5,8 +5,10 @@ import com.akazlou.dynoman.domain.search.SearchType
 import com.akazlou.dynoman.service.DynamoDBOperation
 import javafx.beans.property.SimpleStringProperty
 import javafx.geometry.Orientation
+import javafx.geometry.Pos
 import javafx.scene.control.ScrollPane
 import javafx.scene.layout.Background
+import javafx.scene.layout.Priority
 import javafx.stage.StageStyle
 import tornadofx.*
 
@@ -21,6 +23,8 @@ class AddQueryFragment : Fragment("Add Query") {
         prefHeight = 350.0
         fieldset("New Query") {
             field("Foreign table:") {
+                // TODO: Add listener to listen on the change and when the text matches the table name dynamically
+                //  replace the pane content (will although require to fetch the tables list to be able to do so)
                 textfield(foreignTableProperty)
                 button("...") {
                     addClass("button-select")
@@ -46,6 +50,7 @@ class AddQueryFragment : Fragment("Add Query") {
                 }
             }
             field("Columns:", Orientation.VERTICAL) {
+                // TODO: Define read-only placeholder to avoid empty space
                 pane = scrollpane {
                     background = Background.EMPTY
                     vbarPolicy = ScrollPane.ScrollBarPolicy.AS_NEEDED
@@ -53,16 +58,20 @@ class AddQueryFragment : Fragment("Add Query") {
                 }
             }
         }
-        // TODO: How always to put the buttonbar on the bottom no matter the size of the pane content
-        buttonbar {
-            button("Create") {
-                action {
-                    close()
+        hbox {
+            vgrow = Priority.ALWAYS
+            alignment = Pos.BOTTOM_RIGHT
+            isFillHeight = false
+            buttonbar {
+                button("Create") {
+                    action {
+                        close()
+                    }
                 }
-            }
-            button("Cancel") {
-                action {
-                    close()
+                button("Cancel") {
+                    action {
+                        close()
+                    }
                 }
             }
         }
