@@ -16,6 +16,7 @@ class AddQueryFragment : Fragment("Add Query") {
     private val controller: MainController by inject()
     private val foreignTableProperty = SimpleStringProperty()
     val operation: DynamoDBOperation by param()
+    val attributes: List<String> by param()
     private var pane: ScrollPane by singleAssign()
 
     override val root = form {
@@ -42,7 +43,8 @@ class AddQueryFragment : Fragment("Add Query") {
                             // TODO: If it was the index, select it accordingly instead of table
                             val searchCriteriaFragment = find<SearchCriteriaFragment>(params = mapOf(
                                     "searchType" to SearchType.QUERY,
-                                    "description" to operation.describeTable(table.tableName)
+                                    "description" to operation.describeTable(table.tableName),
+                                    "attributes" to attributes
                             ))
                             pane.content = searchCriteriaFragment.root
                         }

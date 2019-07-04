@@ -94,6 +94,8 @@ class SearchCriteriaFragment : Fragment("Search") {
     private val filterKeyValues = mutableListOf<SimpleStringProperty?>()
     private val filterKeyBetweenValues = mutableListOf<Pair<SimpleStringProperty, SimpleStringProperty>>()
     private var keysRowsCount = 0
+    @Suppress("UNCHECKED_CAST")
+    private val attributes: List<String> = (params["attributes"] as? List<String>?).orEmpty()
 
     init {
         val gsi = description.globalSecondaryIndexes.orEmpty()
@@ -252,7 +254,14 @@ class SearchCriteriaFragment : Fragment("Search") {
                     sortKeyOperatorComboBox.attachTo(this)
                 }
                 if (isHash) {
-                    textfield(hashKeyValueProperty) { }
+                    if (attributes.isEmpty()) {
+                        textfield(hashKeyValueProperty) { }
+                    } else {
+                        combobox(values = attributes, property = hashKeyValueProperty) {
+                            prefWidth = ATTRIBUTE_VALUE_COLUMN_WIDTH
+                            isEditable = true
+                        }
+                    }
                 } else {
                     sortKeyTextField.attachTo(this)
                 }
