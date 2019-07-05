@@ -263,7 +263,14 @@ class SearchCriteriaFragment : Fragment("Search") {
                         }
                     }
                 } else {
-                    sortKeyTextField.attachTo(this)
+                    if (attributes.isEmpty()) {
+                        sortKeyTextField.attachTo(this)
+                    } else {
+                        combobox(values = attributes, property = sortKeyProperty) {
+                            prefWidth = ATTRIBUTE_VALUE_COLUMN_WIDTH
+                            isEditable = true
+                        }
+                    }
                 }
             }
         }
