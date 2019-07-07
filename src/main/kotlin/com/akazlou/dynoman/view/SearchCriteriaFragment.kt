@@ -319,12 +319,30 @@ class SearchCriteriaFragment : Fragment("Search") {
                             filterKeyFrom,
                             filterKeyTo))
             if (filterKeyOperation.value.isBetween()) {
-                filterKeyFrom.value = condition?.values?.get(0)
-                filterKeyTo.value = condition?.values?.get(1)
-                filterKeyBetweenHBox.attachTo(this)
+                if (attributes.isEmpty()) {
+                    filterKeyFrom.value = condition?.values?.get(0)
+                    filterKeyTo.value = condition?.values?.get(1)
+                    filterKeyBetweenHBox.attachTo(this)
+                } else {
+                    combobox(values = attributes, property = filterKeyFrom) {
+                        prefWidth = ATTRIBUTE_VALUE_COLUMN_WIDTH
+                        isEditable = true
+                    }
+                    combobox(values = attributes, property = filterKeyTo) {
+                        prefWidth = ATTRIBUTE_VALUE_COLUMN_WIDTH
+                        isEditable = true
+                    }
+                }
             } else if (!filterKeyOperation.value.isNoArg()) {
-                filterKeyValue.value = condition?.values?.get(0)
-                filterKeyValueTextField.attachTo(this)
+                if (attributes.isEmpty()) {
+                    filterKeyValue.value = condition?.values?.get(0)
+                    filterKeyValueTextField.attachTo(this)
+                } else {
+                    combobox(values = attributes, property = filterKeyValue) {
+                        prefWidth = ATTRIBUTE_VALUE_COLUMN_WIDTH
+                        isEditable = true
+                    }
+                }
             }
             button("x") {
                 addClass("button-x")
