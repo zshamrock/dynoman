@@ -3,6 +3,7 @@ package com.akazlou.dynoman.view
 import com.akazlou.dynoman.controller.MainController
 import com.akazlou.dynoman.domain.search.SearchType
 import com.akazlou.dynoman.service.DynamoDBOperation
+import javafx.beans.binding.Bindings
 import javafx.beans.property.SimpleStringProperty
 import javafx.geometry.Orientation
 import javafx.geometry.Pos
@@ -14,6 +15,7 @@ import tornadofx.*
 
 class AddQueryFragment : Fragment("Add Query") {
     private val controller: MainController by inject()
+    private val queryNameProperty = SimpleStringProperty()
     private val foreignTableProperty = SimpleStringProperty()
     val operation: DynamoDBOperation by param()
     val attributes: List<String> by param()
@@ -23,6 +25,9 @@ class AddQueryFragment : Fragment("Add Query") {
         prefWidth = 850.0
         prefHeight = 350.0
         fieldset("New Query") {
+            field("Name:") {
+                textfield(queryNameProperty)
+            }
             field("Foreign table:") {
                 // TODO: Add listener to listen on the change and when the text matches the table name dynamically
                 //  replace the pane content (will although require to fetch the tables list to be able to do so)
@@ -66,6 +71,7 @@ class AddQueryFragment : Fragment("Add Query") {
             isFillHeight = false
             buttonbar {
                 button("Create") {
+                    enableWhen { Bindings.and(queryNameProperty.isNotEmpty, foreignTableProperty.isNotEmpty) }
                     action {
                         close()
                     }
