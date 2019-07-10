@@ -7,7 +7,6 @@ import com.akazlou.dynoman.domain.search.QuerySearch
 import com.akazlou.dynoman.domain.search.ScanSearch
 import com.akazlou.dynoman.domain.search.Search
 import com.akazlou.dynoman.domain.search.SearchType
-import com.akazlou.dynoman.domain.search.Type
 import tornadofx.*
 import java.io.StringWriter
 import java.nio.charset.StandardCharsets
@@ -17,8 +16,14 @@ import java.nio.file.StandardOpenOption
 import javax.json.Json
 import javax.json.JsonString
 import javax.json.stream.JsonGenerator
+import com.akazlou.dynoman.domain.search.Type as AttributeType
 
-class SessionSaverService {
+class QueriesSaverService {
+    enum class Type {
+        SESSION,
+        QUERY
+    }
+
     companion object {
         private const val SUFFIX = ".session"
         private const val SEARCH_TYPE = "type"
@@ -125,7 +130,7 @@ class SessionSaverService {
             val filters = obj.getJsonArray(FILTERS).orEmpty().map { it.asJsonObject() }.map { filter ->
                 Condition(
                         filter.getString(FILTER_NAME),
-                        Type.valueOf(filter.getString(FILTER_TYPE)),
+                        AttributeType.valueOf(filter.getString(FILTER_TYPE)),
                         Operator.valueOf(filter.getString(FILTER_OPERATOR)),
                         filter.getJsonArray(FILTER_VALUES)?.getValuesAs(JsonString::getString).orEmpty()
                 )
@@ -135,7 +140,7 @@ class SessionSaverService {
                     val hash = obj.getJsonObject(HASH)
                     val hashKey = Condition(
                             hash.getString(HASH_NAME),
-                            Type.valueOf(hash.getString(HASH_TYPE)),
+                            AttributeType.valueOf(hash.getString(HASH_TYPE)),
                             Operator.EQ,
                             listOf(hash.getString(HASH_VALUE, "")))
                     val sort = obj.getJsonObject(SORT)
@@ -144,7 +149,7 @@ class SessionSaverService {
                     } else {
                         Condition(
                                 sort.getString(SORT_NAME),
-                                Type.valueOf(sort.getString(SORT_TYPE)),
+                                AttributeType.valueOf(sort.getString(SORT_TYPE)),
                                 Operator.valueOf(sort.getString(SORT_OPERATOR)),
                                 sort.getJsonArray(SORT_VALUE).getValuesAs(JsonString::getString))
                     }

@@ -27,6 +27,7 @@ object Config {
     private const val DEFAULT_AWS_PROFILE = "default"
 
     private const val SESSIONS_STORE_PATH = "sessions"
+    private const val QUERIES_STORE_PATH = "queries"
 
     fun getRegion(config: ConfigProperties): String {
         return config.string(REGION, DEFAULT_REGION.getName())
@@ -70,5 +71,9 @@ object Config {
 
     fun getSavedSessionsPath(base: Path): Path {
         return base.resolve(SESSIONS_STORE_PATH)
+    }
+
+    fun getSavedQueriesPath(base: Path): Path {
+        return base.resolve(QUERIES_STORE_PATH)
     }
 }

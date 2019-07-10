@@ -1,12 +1,12 @@
 package com.akazlou.dynoman.controller
 
 import com.akazlou.dynoman.domain.search.Search
-import com.akazlou.dynoman.service.SessionSaverService
+import com.akazlou.dynoman.service.QueriesSaverService
 import tornadofx.*
 import java.nio.file.Path
 
-class SessionSaverController : Controller() {
-    private val service = SessionSaverService()
+class QueriesSaverController : Controller() {
+    private val service = QueriesSaverService()
 
     fun save(base: Path, name: String, searches: List<Search>, config: ConfigProperties) {
         service.save(base, name, searches)

@@ -16,7 +16,7 @@ import io.kotlintest.shouldBe
 import io.kotlintest.specs.StringSpec
 import java.nio.file.Paths
 
-class SessionSaverServiceSpec : StringSpec() {
+class QueriesSaverServiceSpec : StringSpec() {
     private val base = Paths.get("src", "test", "resources", "sessions")
 
     private val singleSearch = QuerySearch(
@@ -100,27 +100,27 @@ class SessionSaverServiceSpec : StringSpec() {
 
     init {
         "save single sessions" {
-            val service = SessionSaverService()
+            val service = QueriesSaverService()
             service.save(base, "test1_actual", listOf(singleSearch))
             "test1" shouldBe sameContent()
         }
 
         "save different type of sessions" {
-            val service = SessionSaverService()
+            val service = QueriesSaverService()
 
             service.save(base, "test2_actual", multipleSearches)
             "test2" shouldBe sameContent()
         }
 
         "restore empty sessions" {
-            val service = SessionSaverService()
+            val service = QueriesSaverService()
             val searches = service.restore(base, "test1_expected")
             searches.shouldHaveSize(1)
             searches[0] shouldBe sameSearch(singleSearch)
         }
 
         "restore different type of sessions" {
-            val service = SessionSaverService()
+            val service = QueriesSaverService()
             val searches = service.restore(base, "test2_expected")
             searches.shouldHaveSize(multipleSearches.size)
             searches.forEachIndexed { index, search ->
@@ -129,7 +129,7 @@ class SessionSaverServiceSpec : StringSpec() {
         }
 
         "list names" {
-            val service = SessionSaverService()
+            val service = QueriesSaverService()
             val names = service.listNames(base)
             names.shouldBeSorted()
             names.shouldContainInOrder("test1_expected", "test2_expected")

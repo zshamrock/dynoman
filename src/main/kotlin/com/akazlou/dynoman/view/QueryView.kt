@@ -1,7 +1,7 @@
 package com.akazlou.dynoman.view
 
+import com.akazlou.dynoman.controller.QueriesSaverController
 import com.akazlou.dynoman.controller.RunQueryController
-import com.akazlou.dynoman.controller.SessionSaverController
 import com.akazlou.dynoman.domain.search.QueryResult
 import com.akazlou.dynoman.domain.search.Search
 import com.akazlou.dynoman.ext.tab
@@ -28,7 +28,7 @@ class QueryView : View("Query") {
     }
 
     private val runQueryController: RunQueryController by inject()
-    private val sessionSaverController: SessionSaverController by inject()
+    private val sessionSaverController: QueriesSaverController by inject()
     private var queries: TabPane by singleAssign()
     private val region = SimpleStringProperty(Config.getRegion(app.config))
     private val local = SimpleStringProperty(buildLocalText(Config.isLocal(app.config)))
@@ -75,8 +75,8 @@ class QueryView : View("Query") {
                     val criterias = queries.tabs
                             .map { it.properties[QUERY_TAB_FRAGMENT_KEY] as QueryTabFragment }
                             .map { it.getSearch() }
-                    find<SaveQueryFragment>(params = mapOf(
-                            SaveQueryFragment::searches to criterias
+                    find<SaveSessionFragment>(params = mapOf(
+                            SaveSessionFragment::searches to criterias
                     )).openModal(stageStyle = StageStyle.UTILITY, block = true)
                     updateNamedQueries()
                 }
