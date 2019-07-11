@@ -1,6 +1,7 @@
 package com.akazlou.dynoman.view
 
 import com.akazlou.dynoman.controller.MainController
+import com.akazlou.dynoman.controller.QueriesSaverController
 import com.akazlou.dynoman.domain.search.SearchType
 import com.akazlou.dynoman.service.DynamoDBOperation
 import javafx.beans.binding.Bindings
@@ -15,11 +16,13 @@ import tornadofx.*
 
 class AddQueryFragment : Fragment("Add Query") {
     private val controller: MainController by inject()
+    private val queriesSaveController: QueriesSaverController by inject()
     private val queryNameProperty = SimpleStringProperty()
     private val foreignTableProperty = SimpleStringProperty()
     val operation: DynamoDBOperation by param()
     val attributes: List<String> by param()
     private var pane: ScrollPane by singleAssign()
+    private var searchCriteriaFragment: SearchCriteriaFragment by singleAssign()
 
     override val root = form {
         prefWidth = 850.0
@@ -46,7 +49,7 @@ class AddQueryFragment : Fragment("Add Query") {
                             val table = selector.getTable()!!
                             foreignTableProperty.value = table.name
                             // TODO: If it was the index, select it accordingly instead of table
-                            val searchCriteriaFragment = find<SearchCriteriaFragment>(params = mapOf(
+                            searchCriteriaFragment = find<SearchCriteriaFragment>(params = mapOf(
                                     "searchType" to SearchType.QUERY,
                                     "description" to operation.describeTable(table.tableName),
                                     "attributes" to attributes
@@ -73,7 +76,16 @@ class AddQueryFragment : Fragment("Add Query") {
                 button("Create") {
                     enableWhen { Bindings.and(queryNameProperty.isNotEmpty, foreignTableProperty.isNotEmpty) }
                     action {
-                        close()
+                        runAsyncWithProgress {
+                            val base = Config.getSavedQueriesPath(app.configBasePath)
+                            queriesSaveController.save(
+                                    base,
+                                    queryNameProperty.value,
+                                    listOf(searchCriteriaFragment.getSearch()),
+                                    config)
+                        } ui {
+                            close()
+                        }
                     }
                 }
                 button("Cancel") {
