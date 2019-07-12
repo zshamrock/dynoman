@@ -8,6 +8,7 @@ import java.nio.file.Path
 class QueriesSaverController : Controller() {
     private val service = QueriesSaverService()
 
+    // TODO: Pass the suffix/type of the save operation either session or query
     fun save(base: Path, name: String, searches: List<Search>, config: ConfigProperties) {
         service.save(base, name, searches)
     }
