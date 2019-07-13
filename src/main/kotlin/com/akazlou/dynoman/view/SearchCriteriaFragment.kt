@@ -400,18 +400,17 @@ class SearchCriteriaFragment : Fragment("Search") {
         }
     }
 
-    // TODO: Compare getSearch() and getSearch2() functions
     fun getSearch(): Search {
         val searchSource = searchSourceProperty.value
         val tableName = description.tableName
-        val index = if (searchSource.isIndex) {
+        val indexName = if (searchSource.isIndex) {
             searchSource.name
         } else {
             null
         }
         return when (searchTypeProperty.value!!) {
             SearchType.SCAN -> {
-                ScanSearch(tableName, index, buildSearchFilters())
+                ScanSearch(tableName, indexName, buildSearchConditions())
             }
             SearchType.QUERY -> {
                 val hashKeyName = searchSource.hashKey.attributeName
@@ -421,10 +420,19 @@ class SearchCriteriaFragment : Fragment("Search") {
                 } else {
                     val sortKeyName = sortKey.attributeName
                     val sortKeyOperator = sortKeyOperatorProperty.value
-                    val sortKeyValues = if (sortKeyOperator.isBetween()) {
-                        listOf(sortKeyFromProperty.value, sortKeyToProperty.value)
-                    } else {
-                        listOf(sortKeyProperty.value)
+                    val sortKeyValues = when {
+                        sortKeyOperator.isBetween() ->
+                            if (sortKeyFromProperty.value == null || sortKeyToProperty.value == null) {
+                                emptyList()
+                            } else {
+                                listOf(parseValue(sortKeyFromProperty.value), parseValue(sortKeyToProperty.value))
+                            }
+                        else ->
+                            if (sortKeyProperty.value.isNullOrEmpty()) {
+                                emptyList()
+                            } else {
+                                listOf(parseValue(sortKeyProperty.value))
+                            }
                     }
                     Condition(
                             sortKeyName,
@@ -434,104 +442,31 @@ class SearchCriteriaFragment : Fragment("Search") {
                 }
                 QuerySearch(
                         tableName,
-                        index,
+                        indexName,
                         Condition.hashKey(
                                 hashKeyName,
                                 attributeDefinitionTypes.getValue(hashKeyName),
                                 hashKeyValueProperty.value),
                         sortQueryCondition,
-                        buildSearchFilters(),
+                        buildSearchConditions(),
                         orderProperty.value)
             }
         }
     }
 
-    fun getSearch2(): Search? {
-        val searchType = searchTypeProperty.value
-        println("Search: ${searchTypeProperty.value}")
-        val skOp = sortKeyOperatorProperty.value
-        val skValues = when {
-            skOp.isBetween() ->
-                if (sortKeyFromProperty.value == null || sortKeyToProperty.value == null) {
-                    emptyList()
-                } else {
-                    listOf(parseValue(sortKeyFromProperty.value), parseValue(sortKeyToProperty.value))
-                }
-            else ->
-                if (sortKeyProperty.value.isNullOrEmpty()) {
-                    emptyList()
-                } else {
-                    listOf(parseValue(sortKeyProperty.value))
-                }
-        }
-        println("Hash Key = ${hashKeyValueProperty.value}, Sort Key $skOp ${sortKeyProperty.value}")
-        println("Sort By ${orderProperty.value}")
-        val qt = searchSourceProperty.value
-        println(qt)
-        if (!hashKeyValueProperty.value.isNullOrBlank() || searchType.isScan()) {
-            val conditions = filterKeys.mapIndexed { index, filterKey ->
-                val filterKeyOperation = filterKeyOperators[index].value
-                Condition(
-                        filterKey.value,
-                        filterKeyTypes[index].value,
-                        filterKeyOperation,
-                        if (filterKeyOperation.isBetween()) {
-                            val betweenPair = filterKeyBetweenValues[index]
-                            listOf(parseValue(betweenPair.first.value),
-                                    parseValue(betweenPair.second.value))
-                        } else {
-                            listOf(parseValue(filterKeyValues[index]!!.value))
-                        })
-            }
-
-            if (searchType.isScan()) {
-                val search = ScanSearch(
-                        description.tableName,
-                        if (qt.isIndex) qt.name else null,
-                        conditions)
-                return search
-            } else {
-                val hashKey = Condition(
-                        qt.hashKey.attributeName,
-                        attributeDefinitionTypes[qt.hashKey.attributeName]!!,
-                        Operator.EQ,
-                        listOf(parseValue(hashKeyValueProperty.value)))
-                val rangeKey = if (qt.sortKey == null) {
-                    null
-                } else {
-                    Condition(
-                            qt.sortKey.attributeName!!,
-                            attributeDefinitionTypes.getValue(qt.sortKey.attributeName),
-                            skOp,
-                            skValues)
-                }
-                val search = QuerySearch(
-                        description.tableName,
-                        if (qt.isIndex) qt.name else null,
-                        hashKey,
-                        rangeKey,
-                        conditions,
-                        orderProperty.value
-                )
-                return search
-            }
-        }
-        return null
-    }
-
-    private fun buildSearchFilters(): List<Condition> {
-        // TODO: Test various scenarios when the query filter row is incomplete in multiple ways
-        // TODO: Duplicate of the duplicate results in the strange behaviour, looks like it gets the value from the original tab
-        return filterKeys.mapIndexed { index, key ->
-            val operator = filterKeyOperators[index].value
-            Condition(key.value,
+    private fun buildSearchConditions(): List<Condition> {
+        return filterKeys.mapIndexed { index, filterKey ->
+            val filterKeyOperation = filterKeyOperators[index].value
+            Condition(
+                    filterKey.value,
                     filterKeyTypes[index].value,
-                    operator,
-                    if (operator.isBetween()) {
-                        val values = filterKeyBetweenValues[index]
-                        listOf(values.first.value, values.second.value)
+                    filterKeyOperation,
+                    if (filterKeyOperation.isBetween()) {
+                        val betweenPair = filterKeyBetweenValues[index]
+                        listOf(parseValue(betweenPair.first.value),
+                                parseValue(betweenPair.second.value))
                     } else {
-                        listOf(filterKeyValues[index]!!.value)
+                        listOf(parseValue(filterKeyValues[index]!!.value))
                     })
         }
     }

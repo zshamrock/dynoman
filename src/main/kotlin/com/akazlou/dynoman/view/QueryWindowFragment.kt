@@ -39,7 +39,7 @@ class QueryWindowFragment : Fragment("Query...") {
                         action {
                             // TODO: Is it possible instead to open the tab, and show the loader/spinner there,
                             //  instead of closing this modal window and display nothing
-                            val search = searchCriteriaFragment.getSearch2()
+                            val search = searchCriteriaFragment.getSearch()
                             if (search != null) {
                                 runAsyncWithProgress {
                                     val result = if (search.type.isScan()) {
