@@ -19,13 +19,12 @@ import javax.json.stream.JsonGenerator
 import com.akazlou.dynoman.domain.search.Type as AttributeType
 
 class QueriesSaverService {
-    enum class Type {
-        SESSION,
-        QUERY
+    enum class Type(val suffix: String) {
+        SESSION(".session"),
+        QUERY(".query")
     }
 
     companion object {
-        private const val SUFFIX = ".session"
         private const val SEARCH_TYPE = "type"
         private const val TABLE = "table"
         private const val INDEX = "index"
@@ -51,7 +50,7 @@ class QueriesSaverService {
             JsonGenerator.PRETTY_PRINTING to true))
     private val pf = Json.createParserFactory(mutableMapOf<String, Any>())
 
-    fun save(base: Path, name: String, searches: List<Search>) {
+    fun save(type: Type, base: Path, name: String, searches: List<Search>) {
         val json = JsonBuilder()
         val array = Json.createArrayBuilder()
         searches.forEach { search ->
@@ -107,7 +106,7 @@ class QueriesSaverService {
         val writer = StringWriter()
         wf.createWriter(writer).write(json.build())
         Files.createDirectories(base)
-        Files.write(resolve(base, name),
+        Files.write(resolve(type, base, name),
                 listOf(writer.toString()),
                 StandardCharsets.UTF_8,
                 StandardOpenOption.CREATE,
@@ -115,10 +114,10 @@ class QueriesSaverService {
                 StandardOpenOption.TRUNCATE_EXISTING)
     }
 
-    private fun resolve(base: Path, name: String) = base.resolve("$name$SUFFIX")
+    private fun resolve(type: Type, base: Path, name: String) = base.resolve("$name${type.suffix}")
 
-    fun restore(base: Path, name: String): List<Search> {
-        val path = resolve(base, name)
+    fun restore(type: Type, base: Path, name: String): List<Search> {
+        val path = resolve(type, base, name)
         val parser = pf.createParser(path.toFile().reader())
         parser.next()
         val sessions = parser.`object`.getJsonArray(SESSIONS).map { value ->

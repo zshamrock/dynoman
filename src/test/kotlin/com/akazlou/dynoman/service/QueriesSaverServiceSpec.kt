@@ -7,6 +7,7 @@ import com.akazlou.dynoman.domain.search.QuerySearch
 import com.akazlou.dynoman.domain.search.ScanSearch
 import com.akazlou.dynoman.domain.search.Search
 import com.akazlou.dynoman.domain.search.Type
+import com.akazlou.dynoman.service.QueriesSaverService.Type.SESSION
 import io.kotlintest.Matcher
 import io.kotlintest.Result
 import io.kotlintest.matchers.collections.shouldBeSorted
@@ -101,27 +102,27 @@ class QueriesSaverServiceSpec : StringSpec() {
     init {
         "save single sessions" {
             val service = QueriesSaverService()
-            service.save(base, "test1_actual", listOf(singleSearch))
+            service.save(SESSION, base, "test1_actual", listOf(singleSearch))
             "test1" shouldBe sameContent()
         }
 
         "save different type of sessions" {
             val service = QueriesSaverService()
 
-            service.save(base, "test2_actual", multipleSearches)
+            service.save(SESSION, base, "test2_actual", multipleSearches)
             "test2" shouldBe sameContent()
         }
 
         "restore empty sessions" {
             val service = QueriesSaverService()
-            val searches = service.restore(base, "test1_expected")
+            val searches = service.restore(SESSION, base, "test1_expected")
             searches.shouldHaveSize(1)
             searches[0] shouldBe sameSearch(singleSearch)
         }
 
         "restore different type of sessions" {
             val service = QueriesSaverService()
-            val searches = service.restore(base, "test2_expected")
+            val searches = service.restore(SESSION, base, "test2_expected")
             searches.shouldHaveSize(multipleSearches.size)
             searches.forEachIndexed { index, search ->
                 search shouldBe sameSearch(multipleSearches[index])

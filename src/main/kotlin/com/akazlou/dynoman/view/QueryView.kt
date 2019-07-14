@@ -6,6 +6,7 @@ import com.akazlou.dynoman.domain.search.QueryResult
 import com.akazlou.dynoman.domain.search.Search
 import com.akazlou.dynoman.ext.tab
 import com.akazlou.dynoman.service.DynamoDBOperation
+import com.akazlou.dynoman.service.QueriesSaverService
 import com.amazonaws.regions.Regions
 import com.amazonaws.services.dynamodbv2.document.Item
 import com.amazonaws.services.dynamodbv2.document.Page
@@ -96,7 +97,9 @@ class QueryView : View("Query") {
                 action {
                     runAsyncWithProgress {
                         sessionSaverController.restore(
-                                Config.getSavedSessionsPath(app.configBasePath), openSessionNameProperty.value)
+                                QueriesSaverService.Type.SESSION,
+                                Config.getSavedSessionsPath(app.configBasePath),
+                                openSessionNameProperty.value)
                     } ui { searches ->
                         searches.forEach { search ->
                             if (operation != null) {

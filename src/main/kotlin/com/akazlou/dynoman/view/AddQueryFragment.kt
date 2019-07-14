@@ -4,6 +4,7 @@ import com.akazlou.dynoman.controller.MainController
 import com.akazlou.dynoman.controller.QueriesSaverController
 import com.akazlou.dynoman.domain.search.SearchType
 import com.akazlou.dynoman.service.DynamoDBOperation
+import com.akazlou.dynoman.service.QueriesSaverService
 import javafx.beans.binding.Bindings
 import javafx.beans.property.SimpleStringProperty
 import javafx.geometry.Orientation
@@ -79,10 +80,10 @@ class AddQueryFragment : Fragment("Add Query") {
                         runAsyncWithProgress {
                             val base = Config.getSavedQueriesPath(app.configBasePath)
                             queriesSaveController.save(
+                                    QueriesSaverService.Type.QUERY,
                                     base,
                                     queryNameProperty.value,
-                                    listOf(searchCriteriaFragment.getSearch()),
-                                    config)
+                                    listOf(searchCriteriaFragment.getSearch()))
                         } ui {
                             close()
                         }
