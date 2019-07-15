@@ -19,9 +19,9 @@ import javax.json.stream.JsonGenerator
 import com.akazlou.dynoman.domain.search.Type as AttributeType
 
 class QueriesSaverService {
-    enum class Type(val suffix: String) {
-        SESSION(".session"),
-        QUERY(".query")
+    enum class Type(val root: String, val suffix: String) {
+        SESSION("sessions", ".session"),
+        QUERY("query", ".query")
     }
 
     companion object {
@@ -43,7 +43,6 @@ class QueriesSaverService {
         private const val FILTER_VALUES = "values"
         private const val FILTER_OPERATOR = "operator"
         private const val ORDER = "order"
-        private const val SESSIONS = "sessions"
     }
 
     private val wf = Json.createWriterFactory(mapOf(
@@ -102,7 +101,7 @@ class QueriesSaverService {
             }
             array.add(builder.build())
         }
-        json.add(SESSIONS, array)
+        json.add(type.root, array)
         val writer = StringWriter()
         wf.createWriter(writer).write(json.build())
         Files.createDirectories(base)
@@ -120,7 +119,7 @@ class QueriesSaverService {
         val path = resolve(type, base, name)
         val parser = pf.createParser(path.toFile().reader())
         parser.next()
-        val sessions = parser.`object`.getJsonArray(SESSIONS).map { value ->
+        val sessions = parser.`object`.getJsonArray(type.root).map { value ->
             val obj = value.asJsonObject()
             val searchType = SearchType.valueOf(obj.getString(SEARCH_TYPE))
             val table = obj.getString(TABLE)
