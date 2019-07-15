@@ -22,6 +22,7 @@ class AddQueryFragment : Fragment("Add Query") {
     private val foreignTableProperty = SimpleStringProperty()
     val operation: DynamoDBOperation by param()
     val attributes: List<String> by param()
+    val sourceTable: String by param()
     private var pane: ScrollPane by singleAssign()
     private var searchCriteriaFragment: SearchCriteriaFragment by singleAssign()
 

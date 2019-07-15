@@ -128,7 +128,8 @@ class QueryTabFragment : Fragment("Query Tab") {
                                     find<AddQueryFragment>(
                                             params = mapOf(
                                                     AddQueryFragment::operation to params["operation"],
-                                                    AddQueryFragment::attributes to allColumns.toList())
+                                                    AddQueryFragment::attributes to allColumns.toList(),
+                                                    AddQueryFragment::sourceTable to (params["description"] as TableDescription).tableName)
                                     ).openModal()
                                 }
                             }
