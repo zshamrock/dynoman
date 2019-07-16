@@ -83,7 +83,7 @@ class AddQueryFragment : Fragment("Add Query") {
                             queriesSaveController.save(
                                     QueriesSaverService.Type.QUERY,
                                     base,
-                                    queryNameProperty.value,
+                                    "$sourceTable@${queryNameProperty.value}",
                                     listOf(searchCriteriaFragment.getSearch()))
                         } ui {
                             close()
