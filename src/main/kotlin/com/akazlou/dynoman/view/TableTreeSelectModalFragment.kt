@@ -12,6 +12,7 @@ class TableTreeSelectModalFragment : Fragment("Select Table or Index") {
     val connectionProperties: ConnectionProperties by param()
     val tables: List<DynamoDBTable> by param()
 
+    private var applied = false
     private val tableTree: TableTreeSelectFragment = find()
 
     init {
@@ -35,6 +36,7 @@ class TableTreeSelectModalFragment : Fragment("Select Table or Index") {
                     }
                 }
                 action {
+                    applied = true
                     this@TableTreeSelectModalFragment.close()
                 }
             }
@@ -54,5 +56,9 @@ class TableTreeSelectModalFragment : Fragment("Select Table or Index") {
         } else {
             ""
         }
+    }
+
+    fun isOk(): Boolean {
+        return applied
     }
 }

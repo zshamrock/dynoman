@@ -27,7 +27,9 @@ class AddQueryFragment : Fragment("Add Query") {
                                         TableTreeSelectModalFragment::tables to controller.listTables(operation.properties))
                         )
                         selector.openModal(stageStyle = StageStyle.UTILITY, block = true)
-                        foreignTableProperty.value = selector.getTableName()
+                        if (selector.isOk()) {
+                            foreignTableProperty.value = selector.getTableName()
+                        }
                     }
                 }
             }
