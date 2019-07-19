@@ -12,7 +12,7 @@ class QueriesSaverController : Controller() {
         service.save(type, base, name, searches)
     }
 
-    fun listNames(path: Path): List<String> {
+    fun listNames(path: Path, refresh: Boolean = false): List<String> {
         return service.listNames(path)
     }
 

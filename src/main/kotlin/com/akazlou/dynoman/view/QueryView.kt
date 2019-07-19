@@ -148,7 +148,7 @@ class QueryView : View("Query") {
     }
 
     private fun updateNamedQueries() {
-        namedQueries.setAll(sessionSaverController.listNames(Config.getSavedSessionsPath(app.configBasePath)))
+        namedQueries.setAll(sessionSaverController.listNames(Config.getSavedSessionsPath(app.configBasePath), true))
     }
 
     fun setQueryResult(operation: DynamoDBOperation,
