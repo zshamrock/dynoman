@@ -13,7 +13,7 @@ class QueriesSaverController : Controller() {
     }
 
     fun listNames(path: Path, refresh: Boolean = false): List<String> {
-        return service.listNames(path)
+        return service.listNames(path, refresh)
     }
 
     fun restore(type: QueriesSaverService.Type, base: Path, name: String): List<Search> {

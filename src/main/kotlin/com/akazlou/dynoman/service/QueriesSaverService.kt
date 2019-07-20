@@ -9,6 +9,7 @@ import com.akazlou.dynoman.domain.search.Search
 import com.akazlou.dynoman.domain.search.SearchType
 import tornadofx.*
 import java.io.StringWriter
+import java.net.URI
 import java.nio.charset.StandardCharsets
 import java.nio.file.Files
 import java.nio.file.Path
@@ -48,6 +49,8 @@ class QueriesSaverService {
     private val wf = Json.createWriterFactory(mapOf(
             JsonGenerator.PRETTY_PRINTING to true))
     private val pf = Json.createParserFactory(mutableMapOf<String, Any>())
+
+    private val namesCache: MutableMap<URI, List<String>> = mutableMapOf()
 
     fun save(type: Type, base: Path, name: String, searches: List<Search>) {
         val json = JsonBuilder()
@@ -167,11 +170,16 @@ class QueriesSaverService {
         return sessions
     }
 
-    fun listNames(path: Path): List<String> {
+    fun listNames(path: Path, refresh: Boolean = false): List<String> {
+        if (!refresh) {
+            return namesCache.getOrElse(path.toUri(), { listOf() })
+        }
         val dir = path.toFile()
         if (!dir.exists()) {
             return listOf()
         }
-        return dir.listFiles().map { it.nameWithoutExtension }.sorted().toList()
+        val names = dir.listFiles().orEmpty().map { it.nameWithoutExtension }.sorted().toList()
+        namesCache[path.toUri()] = names
+        return names
     }
 }
