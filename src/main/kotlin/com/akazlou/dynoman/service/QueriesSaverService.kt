@@ -52,6 +52,9 @@ class QueriesSaverService {
 
     private val namesCache: MutableMap<URI, List<String>> = mutableMapOf()
 
+    // Allows to fetch the data when called for the first time, and even refresh is false
+    private val cacheInitialized: MutableSet<URI> = mutableSetOf()
+
     fun save(type: Type, base: Path, name: String, searches: List<Search>) {
         val json = JsonBuilder()
         val array = Json.createArrayBuilder()
@@ -171,15 +174,17 @@ class QueriesSaverService {
     }
 
     fun listNames(path: Path, refresh: Boolean = false): List<String> {
-        if (!refresh) {
-            return namesCache.getOrElse(path.toUri(), { listOf() })
+        val uri = path.toUri()
+        if (!refresh && cacheInitialized.contains(uri)) {
+            return namesCache.getOrElse(uri, { listOf() })
         }
         val dir = path.toFile()
         if (!dir.exists()) {
             return listOf()
         }
-        val names = dir.listFiles().orEmpty().map { it.nameWithoutExtension }.sorted().toList()
-        namesCache[path.toUri()] = names
+        val names = dir.listFiles().orEmpty().map { it.nameWithoutExtension }.sortedWith(String.CASE_INSENSITIVE_ORDER).toList()
+        namesCache[uri] = names
+        cacheInitialized.add(uri)
         return names
     }
 }
