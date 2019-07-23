@@ -1,15 +1,14 @@
 package com.akazlou.dynoman.view
 
-import com.akazlou.dynoman.controller.QueriesSaverController
+import com.akazlou.dynoman.controller.SessionSaverController
 import com.akazlou.dynoman.domain.search.Search
-import com.akazlou.dynoman.service.QueriesSaverService
 import javafx.beans.property.SimpleStringProperty
 import tornadofx.*
 
 class SaveSessionFragment : Fragment("Save Session") {
 
     val searches: List<Search> by param()
-    private val controller: QueriesSaverController by inject()
+    private val controller: SessionSaverController by inject()
 
     private val sessionNameProperty = SimpleStringProperty()
 
@@ -25,7 +24,7 @@ class SaveSessionFragment : Fragment("Save Session") {
                 action {
                     runAsyncWithProgress {
                         val base = Config.getSavedSessionsPath(app.configBasePath)
-                        controller.save(QueriesSaverService.Type.SESSION, base, sessionNameProperty.value, searches)
+                        controller.save(base, sessionNameProperty.value, searches)
                     } ui {
                         close()
                     }

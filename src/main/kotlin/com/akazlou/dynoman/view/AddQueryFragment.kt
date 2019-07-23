@@ -1,10 +1,9 @@
 package com.akazlou.dynoman.view
 
+import com.akazlou.dynoman.controller.AddQuerySaverController
 import com.akazlou.dynoman.controller.MainController
-import com.akazlou.dynoman.controller.QueriesSaverController
 import com.akazlou.dynoman.domain.search.SearchType
 import com.akazlou.dynoman.service.DynamoDBOperation
-import com.akazlou.dynoman.service.QueriesSaverService
 import javafx.beans.binding.Bindings
 import javafx.beans.property.SimpleStringProperty
 import javafx.geometry.Orientation
@@ -17,7 +16,7 @@ import tornadofx.*
 
 class AddQueryFragment : Fragment("Add Query") {
     private val controller: MainController by inject()
-    private val queriesSaveController: QueriesSaverController by inject()
+    private val addQuerySaverController: AddQuerySaverController by inject()
     private val queryNameProperty = SimpleStringProperty()
     private val foreignTableProperty = SimpleStringProperty()
     val operation: DynamoDBOperation by param()
@@ -80,11 +79,11 @@ class AddQueryFragment : Fragment("Add Query") {
                     action {
                         runAsyncWithProgress {
                             val base = Config.getSavedQueriesPath(app.configBasePath)
-                            queriesSaveController.save(
-                                    QueriesSaverService.Type.QUERY,
+                            addQuerySaverController.save(
+                                    sourceTable,
                                     base,
-                                    "$sourceTable@${queryNameProperty.value}",
-                                    listOf(searchCriteriaFragment.getSearch()))
+                                    queryNameProperty.value,
+                                    searchCriteriaFragment.getSearch())
                         } ui {
                             close()
                         }

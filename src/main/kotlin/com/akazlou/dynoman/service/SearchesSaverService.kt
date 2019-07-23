@@ -19,7 +19,7 @@ import javax.json.JsonString
 import javax.json.stream.JsonGenerator
 import com.akazlou.dynoman.domain.search.Type as AttributeType
 
-class QueriesSaverService {
+class SearchesSaverService {
     enum class Type(val root: String, val suffix: String) {
         SESSION("sessions", ".session"),
         QUERY("query", ".query")
@@ -182,7 +182,10 @@ class QueriesSaverService {
         if (!dir.exists()) {
             return listOf()
         }
-        val names = dir.listFiles().orEmpty().map { it.nameWithoutExtension }.sortedWith(String.CASE_INSENSITIVE_ORDER).toList()
+        val names = dir.listFiles().orEmpty()
+                .map { it.nameWithoutExtension }
+                .sortedWith(String.CASE_INSENSITIVE_ORDER)
+                .toList()
         namesCache[uri] = names
         cacheInitialized.add(uri)
         return names

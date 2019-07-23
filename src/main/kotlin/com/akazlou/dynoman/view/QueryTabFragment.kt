@@ -1,6 +1,6 @@
 package com.akazlou.dynoman.view
 
-import com.akazlou.dynoman.controller.QueriesSaverController
+import com.akazlou.dynoman.controller.AddQuerySaverController
 import com.akazlou.dynoman.domain.search.QueryResult
 import com.akazlou.dynoman.domain.search.ResultData
 import com.akazlou.dynoman.domain.search.Search
@@ -27,7 +27,7 @@ import javafx.util.Callback
 import tornadofx.*
 
 class QueryTabFragment : Fragment("Query Tab") {
-    private val queriesSaverController: QueriesSaverController by inject()
+    private val addQuerySaverController: AddQuerySaverController by inject()
     private var queryArea: TextArea by singleAssign()
     private var resultTable: TableView<ResultData> by singleAssign()
     private var pageNum = 1
@@ -136,21 +136,16 @@ class QueryTabFragment : Fragment("Query Tab") {
                                 }
                             }
                             separator()
-                            val names = queriesSaverController.listNames(Config.getSavedQueriesPath(app.configBasePath))
-                            if (names.isEmpty()) {
-                                return@menu
-                            }
                             val description = params["description"] as TableDescription
-                            names.filter { it.startsWith(description.tableName) }
-                                    // TODO: Unify the logic of adding and removing @, as it is also defined in the AddQueryFragment (at least put @ into the constant)
-                                    .map { it.removePrefix("${description.tableName}@") }
-                                    .forEach { name ->
-                                        item(name) {
-                                            setOnAction {
-                                                println("Run $name")
-                                            }
-                                        }
+                            val names = addQuerySaverController.listNames(
+                                    description.tableName, Config.getSavedQueriesPath(app.configBasePath))
+                            names.forEach { name ->
+                                item(name) {
+                                    setOnAction {
+                                        println("Run $name")
                                     }
+                                }
+                            }
                         }
                         separator()
                         item("Copy Row") {
