@@ -14,12 +14,12 @@ class AddQuerySaverService {
     private val service = SearchesSaverService()
 
     fun save(table: String, base: Path, name: String, search: Search) {
-        service.save(SAVER_TYPE, base, "$table${TABLE_NAME_SEPARATOR}name", listOf(search))
+        service.save(SAVER_TYPE, base, "$table$TABLE_NAME_SEPARATOR$name", listOf(search))
     }
 
     fun listNames(table: String, path: Path, refresh: Boolean = false): List<String> {
         val names = service.listNames(path, refresh)
-        return names.filter { it.startsWith(table) }
+        return names.filter { it.startsWith("$table$TABLE_NAME_SEPARATOR") }
                 .map { it.removePrefix("$table$TABLE_NAME_SEPARATOR") }
 
     }
