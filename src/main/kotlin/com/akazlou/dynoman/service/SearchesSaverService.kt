@@ -56,6 +56,8 @@ class SearchesSaverService {
     private val cacheInitialized: MutableSet<URI> = mutableSetOf()
 
     fun save(type: Type, base: Path, name: String, searches: List<Search>) {
+        // Clean up the cache on the save, so next call to the listNames will fetch the up to date values
+        cacheInitialized.remove(base.toUri())
         val json = JsonBuilder()
         val array = Json.createArrayBuilder()
         searches.forEach { search ->
@@ -173,9 +175,9 @@ class SearchesSaverService {
         return sessions
     }
 
-    fun listNames(path: Path, refresh: Boolean = false): List<String> {
+    fun listNames(path: Path): List<String> {
         val uri = path.toUri()
-        if (!refresh && cacheInitialized.contains(uri)) {
+        if (cacheInitialized.contains(uri)) {
             return namesCache.getOrElse(uri, { listOf() })
         }
         val dir = path.toFile()

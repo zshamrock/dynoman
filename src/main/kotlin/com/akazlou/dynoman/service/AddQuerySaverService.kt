@@ -17,8 +17,8 @@ class AddQuerySaverService {
         service.save(SAVER_TYPE, base, "$table$TABLE_NAME_SEPARATOR$name", listOf(search))
     }
 
-    fun listNames(table: String, path: Path, refresh: Boolean = false): List<String> {
-        val names = service.listNames(path, refresh)
+    fun listNames(table: String, path: Path): List<String> {
+        val names = service.listNames(path)
         return names.filter { it.startsWith("$table$TABLE_NAME_SEPARATOR") }
                 .map { it.removePrefix("$table$TABLE_NAME_SEPARATOR") }
 

@@ -17,8 +17,8 @@ class SessionSaverController : Controller() {
         service.save(SAVER_TYPE, base, name, searches)
     }
 
-    fun listNames(path: Path, refresh: Boolean = false): List<String> {
-        return service.listNames(path, refresh)
+    fun listNames(path: Path): List<String> {
+        return service.listNames(path)
     }
 
     fun restore(base: Path, name: String): List<Search> {
