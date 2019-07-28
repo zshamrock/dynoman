@@ -9,7 +9,7 @@ import com.akazlou.dynoman.domain.search.Search
 import com.akazlou.dynoman.domain.search.Type
 import com.akazlou.dynoman.service.SearchesSaverService.Type.SESSION
 import io.kotlintest.Matcher
-import io.kotlintest.Result
+import io.kotlintest.MatcherResult
 import io.kotlintest.matchers.collections.shouldBeSorted
 import io.kotlintest.matchers.collections.shouldContainInOrder
 import io.kotlintest.matchers.collections.shouldHaveSize
@@ -138,10 +138,10 @@ class SearchesSaverServiceSpec : StringSpec() {
     }
 
     private fun sameContent() = object : Matcher<String> {
-        override fun test(value: String): Result {
+        override fun test(value: String): MatcherResult {
             val actual = "${value}_actual.session"
             val expected = "${value}_expected.session"
-            return Result(
+            return MatcherResult(
                     base.resolve(actual).toFile().readText() == base.resolve(expected).toFile().readText(),
                     "Contents of the files $actual and $expected don't match",
                     "Contents of the files $actual and $expected match"
@@ -150,30 +150,30 @@ class SearchesSaverServiceSpec : StringSpec() {
     }
 
     private fun sameSearch(search: Search) = object : Matcher<Search> {
-        override fun test(value: Search): Result {
+        override fun test(value: Search): MatcherResult {
             if (search.type != value.type) {
-                return Result(false, "Search types don't match", "")
+                return MatcherResult(false, "Search types don't match", "")
             }
             if (search.table != value.table
                     || search.index != value.index
                     || search.filters != value.filters
                     || search.order != value.order) {
-                return Result(false, "Base search properties don't match", "")
+                return MatcherResult(false, "Base search properties don't match", "")
             }
             if (search is QuerySearch && value is QuerySearch) {
                 if (search.getHashKeyName() != value.getHashKeyName()
                         || search.getHashKeyType() != value.getHashKeyType()
                         || search.getHashKeyValue() != value.getHashKeyValue()) {
-                    return Result(false, "Query hash key properties don't match", "")
+                    return MatcherResult(false, "Query hash key properties don't match", "")
                 }
                 if (search.getRangeKeyName() != value.getRangeKeyName()
                         || search.getRangeKeyType() != value.getRangeKeyType()
                         || search.getRangeKeyOperator() != value.getRangeKeyOperator()
                         || search.getRangeKeyValues() != value.getRangeKeyValues()) {
-                    return Result(false, "Query range key properties don't match", "")
+                    return MatcherResult(false, "Query range key properties don't match", "")
                 }
             }
-            return Result(true, "", "")
+            return MatcherResult(true, "", "")
         }
     }
 }

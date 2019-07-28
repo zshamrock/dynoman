@@ -42,13 +42,13 @@ repositories {
 dependencies {
     compile(kotlin("stdlib-jdk8", kotlin_version))
     compile(kotlin("reflect", kotlin_version))
-    compile("com.amazonaws", "aws-java-sdk-dynamodb", "1.11.546")
-    compile("com.github.ben-manes.caffeine", "caffeine", "2.7.0")
-    compile("no.tornado", "tornadofx", "1.7.18")
+    compile("com.amazonaws", "aws-java-sdk-dynamodb", "1.11.609")
+    compile("com.github.ben-manes.caffeine", "caffeine", "2.8.0")
+    compile("no.tornado", "tornadofx", "1.7.19")
     compile("org.reflections", "reflections", "0.9.11")
 
-    testImplementation("io.kotlintest:kotlintest-runner-junit5:3.3.2")
-    testCompile("org.testcontainers:testcontainers:1.10.6")
+    testImplementation("io.kotlintest:kotlintest-runner-junit5:3.4.0")
+    testCompile("org.testcontainers:testcontainers:1.12.0")
 }
 
 configure<JavaPluginConvention> {
@@ -72,6 +72,6 @@ tasks.withType<KotlinCompile> {
     kotlinOptions.jvmTarget = "1.8"
 }
 
-tasks.getting(Test::class) {
-    useJUnitPlatform()
+val test by tasks.getting(Test::class) {
+    useJUnitPlatform { }
 }

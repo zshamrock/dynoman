@@ -118,7 +118,7 @@ class SearchCriteriaFragment : Fragment("Search") {
         sortKeyBetweenHBox = HBox(sortKeyFromTextField, andLabel, sortKeyToTextField)
         sortKeyBetweenHBox.alignment = Pos.CENTER
 
-        sortKeyOperatorComboBox = ComboBox<Operator>(SORT_KEY_AVAILABLE_OPERATORS.observable())
+        sortKeyOperatorComboBox = ComboBox<Operator>(SORT_KEY_AVAILABLE_OPERATORS.asObservable())
         sortKeyOperatorComboBox.bind(sortKeyOperatorProperty)
         sortKeyOperatorComboBox.prefWidth = ATTRIBUTE_OPERATION_COLUMN_WIDTH
         sortKeyOperatorComboBox.valueProperty()

@@ -33,7 +33,7 @@ class QueryView : View("Query") {
     private val region = SimpleStringProperty(Config.getRegion(app.config))
     private val local = SimpleStringProperty(buildLocalText(Config.isLocal(app.config)))
     private val tabContextMenu: ContextMenu
-    private val namedQueries = mutableListOf<String>().observable()
+    private val namedQueries = mutableListOf<String>().asObservable()
     private val openSessionNameProperty = SimpleStringProperty()
     private var operation: DynamoDBOperation? = null
 
