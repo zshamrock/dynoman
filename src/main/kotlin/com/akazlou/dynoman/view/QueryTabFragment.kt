@@ -16,6 +16,7 @@ import javafx.scene.Cursor
 import javafx.scene.control.Menu
 import javafx.scene.control.MenuItem
 import javafx.scene.control.SelectionMode
+import javafx.scene.control.SeparatorMenuItem
 import javafx.scene.control.TabPane
 import javafx.scene.control.TableColumn
 import javafx.scene.control.TablePosition
@@ -41,6 +42,7 @@ class QueryTabFragment : Fragment("Query Tab") {
     private var copyAllDistinctByFieldMenu: Menu? = null
     private val allColumns: MutableSet<String> = mutableSetOf()
     private var qwf: QueryWindowFragment by singleAssign()
+    private var queryMenu: Menu by singleAssign()
 
     override val root = vbox {
         println("initialize new query tab fragment")
@@ -123,30 +125,8 @@ class QueryTabFragment : Fragment("Query Tab") {
                             }
                         }
                         separator()
-                        menu("Query") {
-                            item("Add Query...") {
-                                setOnAction {
-                                    println("Add Query...")
-                                    find<AddQueryFragment>(
-                                            params = mapOf(
-                                                    AddQueryFragment::operation to params["operation"],
-                                                    AddQueryFragment::attributes to allColumns.toList(),
-                                                    AddQueryFragment::sourceTable to (params["description"] as TableDescription).tableName)
-                                    ).openModal()
-                                }
-                            }
-                            separator()
-                            val description = params["description"] as TableDescription
-                            val names = addQuerySaverController.listNames(
-                                    description.tableName, Config.getSavedQueriesPath(app.configBasePath))
-                            names.forEach { name ->
-                                item(name) {
-                                    setOnAction {
-                                        println("Run $name")
-                                    }
-                                }
-                            }
-                        }
+                        queryMenu = menu("Query")
+                        setupQueryMenu(queryMenu)
                         separator()
                         item("Copy Row") {
                             setOnAction {
@@ -232,6 +212,32 @@ class QueryTabFragment : Fragment("Query Tab") {
                     selectionMode = SelectionMode.SINGLE
                 }
             }
+        }
+    }
+
+    private fun setupQueryMenu(queryMenu: Menu) {
+        val addQueryItem = MenuItem("Add Query...")
+        addQueryItem.action {
+            println("Add Query...")
+            find<AddQueryFragment>(
+                    params = mapOf(
+                            AddQueryFragment::operation to params["operation"],
+                            AddQueryFragment::attributes to allColumns.toList(),
+                            AddQueryFragment::sourceTable to (params["description"] as TableDescription).tableName)
+            ).openModal(block = true)
+            queryMenu.items.clear()
+            setupQueryMenu(queryMenu)
+        }
+        queryMenu.items.addAll(addQueryItem, SeparatorMenuItem())
+        val description = params["description"] as TableDescription
+        val names = addQuerySaverController.listNames(
+                description.tableName, Config.getSavedQueriesPath(app.configBasePath))
+        names.forEach { name ->
+            val item = MenuItem(name)
+            item.action {
+                println("Run $name")
+            }
+            queryMenu.items.add(item)
         }
     }
 
