@@ -16,7 +16,7 @@ class AddQuerySaverController : Controller() {
         return service.listNames(table, path)
     }
 
-    fun restore(base: Path, name: String): List<Search> {
-        return service.restore(base, name)
+    fun restore(table: String, base: Path, name: String): Search {
+        return service.restore(table, base, name)
     }
 }

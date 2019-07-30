@@ -14,17 +14,21 @@ class AddQuerySaverService {
     private val service = SearchesSaverService()
 
     fun save(table: String, base: Path, name: String, search: Search) {
-        service.save(SAVER_TYPE, base, "$table$TABLE_NAME_SEPARATOR$name", listOf(search))
+        service.save(SAVER_TYPE, base, nameWithPrefix(name, table), listOf(search))
     }
 
     fun listNames(table: String, path: Path): List<String> {
         val names = service.listNames(path)
-        return names.filter { it.startsWith("$table$TABLE_NAME_SEPARATOR") }
-                .map { it.removePrefix("$table$TABLE_NAME_SEPARATOR") }
-
+        return names.filter { startsWithPrefix(it, table) }.map { removePrefix(it, table) }
     }
 
-    fun restore(base: Path, name: String): List<Search> {
-        return service.restore(SAVER_TYPE, base, name)
+    fun restore(table: String, base: Path, name: String): Search {
+        return service.restore(SAVER_TYPE, base, nameWithPrefix(name, table)).first()
     }
+
+    private fun startsWithPrefix(name: String, table: String) = name.startsWith("$table$TABLE_NAME_SEPARATOR")
+
+    private fun removePrefix(name: String, table: String) = name.removePrefix("$table$TABLE_NAME_SEPARATOR")
+
+    private fun nameWithPrefix(name: String, table: String) = "$table$TABLE_NAME_SEPARATOR$name"
 }

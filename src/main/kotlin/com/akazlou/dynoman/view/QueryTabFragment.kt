@@ -230,11 +230,13 @@ class QueryTabFragment : Fragment("Query Tab") {
         }
         queryMenu.items.addAll(addQueryItem, SeparatorMenuItem())
         val description = params["description"] as TableDescription
-        val names = addQuerySaverController.listNames(
-                description.tableName, Config.getSavedQueriesPath(app.configBasePath))
+        val table = description.tableName
+        val base = Config.getSavedQueriesPath(app.configBasePath)
+        val names = addQuerySaverController.listNames(table, base)
         names.forEach { name ->
             val item = MenuItem(name)
             item.action {
+                val search = addQuerySaverController.restore(table, base, name)
                 println("Run $name")
             }
             queryMenu.items.add(item)
