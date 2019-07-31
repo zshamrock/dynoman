@@ -9,7 +9,8 @@ sealed class Search(val type: SearchType,
                     val table: String,
                     val index: String?,
                     val filters: List<Condition>,
-                    val order: Order) : JsonModel {
+                    val order: Order,
+                    private val mapping: Map<String, String>) : JsonModel {
     fun isAscOrdered(): Boolean {
         return order == Order.ASC
     }
@@ -20,7 +21,9 @@ class QuerySearch(table: String,
                   private val hashKey: Condition,
                   private val rangeKey: Condition?,
                   filters: List<Condition>,
-                  order: Order) : Search(SearchType.QUERY, table, index, filters, order) {
+                  order: Order,
+                  private val mapping: Map<String, String> = mapOf())
+    : Search(SearchType.QUERY, table, index, filters, order, mapping) {
 
     fun getHashKeyName(): String {
         return hashKey.name
@@ -77,8 +80,9 @@ class QuerySearch(table: String,
 
 class ScanSearch(table: String,
                  index: String?,
-                 filters: List<Condition>) :
-        Search(SearchType.SCAN, table, index, filters, Order.ASC) {
+                 filters: List<Condition>,
+                 private val mapping: Map<String, String> = mapOf()) :
+        Search(SearchType.SCAN, table, index, filters, Order.ASC, mapping) {
     fun toScanSpec(maxPageSize: Int = 0): ScanSpec {
         val spec = ScanSpec()
         spec.withScanFilters(*(filters.map { it.toScanFilter() }.toTypedArray()))
