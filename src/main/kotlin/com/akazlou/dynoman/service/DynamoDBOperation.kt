@@ -28,8 +28,8 @@ class DynamoDBOperation(val properties: ConnectionProperties, private val offlin
         return if (offline) emptyList() else dynamodb!!.listTables().map { it.tableName }
     }
 
-    fun scan(search: ScanSearch): Page<Item, ScanOutcome> {
-        val spec = search.toScanSpec(QueryResult.SCAN_MAX_PAGE_RESULT_SIZE)
+    fun scan(search: ScanSearch, mapping: Map<String, String> = mapOf()): Page<Item, ScanOutcome> {
+        val spec = search.toScanSpec(QueryResult.SCAN_MAX_PAGE_RESULT_SIZE, mapping)
         val table = getTable(search.table)
         val result = if (search.index != null) {
             table.getIndex(search.index).scan(spec)
@@ -46,8 +46,8 @@ class DynamoDBOperation(val properties: ConnectionProperties, private val offlin
         return dynamodb!!.getTable(name)
     }
 
-    fun query(search: QuerySearch): Page<Item, QueryOutcome> {
-        val spec = search.toQuerySpec(QueryResult.QUERY_MAX_PAGE_RESULT_SIZE)
+    fun query(search: QuerySearch, mapping: Map<String, String> = mapOf()): Page<Item, QueryOutcome> {
+        val spec = search.toQuerySpec(QueryResult.QUERY_MAX_PAGE_RESULT_SIZE, mapping)
         println("Run query")
         var page: Page<Item, QueryOutcome>? = null
         val runTime = measureTimeMillis {
