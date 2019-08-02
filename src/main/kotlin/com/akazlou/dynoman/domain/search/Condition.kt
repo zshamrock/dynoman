@@ -7,13 +7,16 @@ import com.amazonaws.services.dynamodbv2.document.internal.Filter
 import java.util.Locale
 
 data class Condition(val name: String, val type: Type, val operator: Operator, val values: List<String>) {
-    fun toQueryFilter(): QueryFilter {
-        return operator.toQueryFilter(name, type, *values.toTypedArray())
+    fun toQueryFilter(mapping: Map<String, String> = mapOf()): QueryFilter {
+        return operator.toQueryFilter(name, type, *mapValues(values, mapping))
     }
 
-    fun toScanFilter(): ScanFilter {
-        return operator.toScanFilter(name, type, *values.toTypedArray())
+    fun toScanFilter(mapping: Map<String, String> = mapOf()): ScanFilter {
+        return operator.toScanFilter(name, type, *mapValues(values, mapping))
     }
+
+    private fun mapValues(values: List<String>, mapping: Map<String, String>) =
+            values.map { Search.mapValue(it, mapping) }.toTypedArray()
 
     companion object {
         fun hashKey(name: String, type: Type, value: String): Condition {
