@@ -22,4 +22,6 @@ data class ResultData(val data: Map<String, Any?>, val hashKey: KeySchemaElement
     fun getValues(keys: Set<String>): List<String> {
         return keys.map { getValue(it) }
     }
+
+    fun asMap(): Map<String, String> = data.keys.associateWith { getValue(it) }
 }

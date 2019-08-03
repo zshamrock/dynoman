@@ -236,8 +236,13 @@ class QueryTabFragment : Fragment("Query Tab") {
         names.forEach { name ->
             val item = MenuItem(name)
             item.action {
-                val search = addQuerySaverController.restore(table, base, name)
                 println("Run $name")
+                if (resultTable.selectedItem != null) {
+                    val resultData = resultTable.selectedItem as ResultData
+                    val mapping = resultData.asMap()
+                    val search = addQuerySaverController.restore(table, base, name)
+                    println("Run $name using mapping $mapping")
+                }
             }
             queryMenu.items.add(item)
         }
