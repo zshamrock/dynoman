@@ -1,5 +1,17 @@
 package com.akazlou.dynoman.domain.search
 
+import com.akazlou.dynoman.domain.search.Operator.BEGINS_WITH
+import com.akazlou.dynoman.domain.search.Operator.BETWEEN
+import com.akazlou.dynoman.domain.search.Operator.CONTAINS
+import com.akazlou.dynoman.domain.search.Operator.EQ
+import com.akazlou.dynoman.domain.search.Operator.EXISTS
+import com.akazlou.dynoman.domain.search.Operator.GE
+import com.akazlou.dynoman.domain.search.Operator.GT
+import com.akazlou.dynoman.domain.search.Operator.LE
+import com.akazlou.dynoman.domain.search.Operator.LT
+import com.akazlou.dynoman.domain.search.Operator.NE
+import com.akazlou.dynoman.domain.search.Operator.NOT_CONTAINS
+import com.akazlou.dynoman.domain.search.Operator.NOT_EXISTS
 import com.amazonaws.services.dynamodbv2.document.QueryFilter
 import com.amazonaws.services.dynamodbv2.document.RangeKeyCondition
 import com.amazonaws.services.dynamodbv2.document.ScanFilter
@@ -20,21 +32,29 @@ data class Condition(val name: String, val type: Type, val operator: Operator, v
 
     companion object {
         fun hashKey(name: String, type: Type, value: String): Condition {
-            return Condition(name, type, Operator.EQ, listOf(value))
+            return Condition(name, type, EQ, listOf(value))
         }
     }
 }
 
-enum class Type {
-    STRING,
-    NUMBER,
-    BINARY;
+enum class Type(val sortOperators: List<Operator>, val filterOperators: List<Operator>) {
+    STRING(listOf(EQ, NE, LE, LT, GE, GT, BETWEEN, CONTAINS, NOT_CONTAINS, BEGINS_WITH),
+            listOf(EQ, NE, LE, LT, GE, GT, BETWEEN, EXISTS, NOT_EXISTS, CONTAINS, NOT_CONTAINS, BEGINS_WITH)),
+    BINARY(listOf(EQ, NE, LE, LT, GE, GT, BETWEEN, CONTAINS, NOT_CONTAINS, BEGINS_WITH),
+            listOf(EQ, NE, LE, LT, GE, GT, BETWEEN, EXISTS, NOT_EXISTS, CONTAINS, NOT_CONTAINS, BEGINS_WITH)),
+    NUMBER(listOf(EQ, NE, LE, LT, GE, GT, BETWEEN),
+            listOf(EQ, NE, LE, LT, GE, GT, BETWEEN, EXISTS, NOT_EXISTS)),
+    BOOLEAN(listOf(EQ, NE),
+            listOf(EQ, NE, EXISTS, NOT_EXISTS)),
+    NULL(listOf(), listOf(EXISTS, NOT_EXISTS));
 
     companion object {
         fun fromString(s: String): Type {
             return when (s) {
                 "S" -> STRING
                 "N" -> NUMBER
+                "B" -> BOOLEAN
+                // TODO: Actually properly handle other types and abbr
                 else -> throw UnsupportedOperationException("Unsupported $s type")
             }
         }

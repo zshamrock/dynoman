@@ -29,31 +29,7 @@ import tornadofx.*
 class SearchCriteriaFragment : Fragment("Search") {
     companion object {
         @JvmField
-        val SORT_KEY_AVAILABLE_OPERATORS: List<Operator> = listOf(
-                Operator.EQ,
-                Operator.LT,
-                Operator.LE,
-                Operator.GT,
-                Operator.GE,
-                Operator.BETWEEN)
-
-        @JvmField
-        val FILTER_KEY_AVAILABLE_OPERATORS: List<Operator> = listOf(
-                Operator.EQ,
-                Operator.NE,
-                Operator.LT,
-                Operator.LE,
-                Operator.GT,
-                Operator.GE,
-                Operator.BETWEEN,
-                Operator.EXISTS,
-                Operator.NOT_EXISTS,
-                Operator.CONTAINS,
-                Operator.NOT_CONTAINS,
-                Operator.BEGINS_WITH)
-
-        @JvmField
-        val FILTER_KEY_TYPES: List<Type> = listOf(Type.STRING, Type.NUMBER)
+        val FILTER_KEY_TYPES: List<Type> = listOf(Type.STRING, Type.BINARY, Type.NUMBER, Type.BOOLEAN, Type.NULL)
 
         const val KEY_TYPE_COLUMN_WIDTH = 90.0
         const val ATTRIBUTE_NAME_COLUMN_WIDTH = 140.0
@@ -82,17 +58,18 @@ class SearchCriteriaFragment : Fragment("Search") {
     // TODO: Create 5 between hbox-es for the filters and reuse them (as we do limit support only up to 5 filters)
     private val searchSourceProperty = SimpleObjectProperty<SearchSource>()
     private val hashKeyValueProperty = SimpleStringProperty("")
+    private val sortKeyOperators = mutableListOf<Operator>().asObservable()
     private val sortKeyProperty = SimpleStringProperty("")
     private val sortKeyFromProperty = SimpleStringProperty("")
     private val sortKeyToProperty = SimpleStringProperty("")
     private val sortKeyOperatorProperty = SimpleObjectProperty<Operator>(Operator.EQ)
     private val orderProperty = SimpleObjectProperty<Order>(Order.ASC)
-    private val filterKeys = mutableListOf<SimpleStringProperty>()
-    private val filterLabels = mutableListOf<SimpleStringProperty>()
-    private val filterKeyTypes = mutableListOf<SimpleObjectProperty<Type>>()
-    private val filterKeyOperators = mutableListOf<SimpleObjectProperty<Operator>>()
-    private val filterKeyValues = mutableListOf<SimpleStringProperty?>()
-    private val filterKeyBetweenValues = mutableListOf<Pair<SimpleStringProperty, SimpleStringProperty>>()
+    private val filterKeyProperties = mutableListOf<SimpleStringProperty>()
+    private val filterLabelProperties = mutableListOf<SimpleStringProperty>()
+    private val filterKeyTypeProperties = mutableListOf<SimpleObjectProperty<Type>>()
+    private val filterKeyOperatorProperties = mutableListOf<SimpleObjectProperty<Operator>>()
+    private val filterKeyValueProperties = mutableListOf<SimpleStringProperty?>()
+    private val filterKeyBetweenValueProperties = mutableListOf<Pair<SimpleStringProperty, SimpleStringProperty>>()
     private var keysRowsCount = 0
     @Suppress("UNCHECKED_CAST")
     private val attributes: List<String> = (params["attributes"] as? List<String>?).orEmpty()
@@ -118,7 +95,7 @@ class SearchCriteriaFragment : Fragment("Search") {
         sortKeyBetweenHBox = HBox(sortKeyFromTextField, andLabel, sortKeyToTextField)
         sortKeyBetweenHBox.alignment = Pos.CENTER
 
-        sortKeyOperatorComboBox = ComboBox<Operator>(SORT_KEY_AVAILABLE_OPERATORS.asObservable())
+        sortKeyOperatorComboBox = ComboBox<Operator>(sortKeyOperators)
         sortKeyOperatorComboBox.bind(sortKeyOperatorProperty)
         sortKeyOperatorComboBox.prefWidth = ATTRIBUTE_OPERATION_COLUMN_WIDTH
         sortKeyOperatorComboBox.valueProperty()
@@ -198,24 +175,24 @@ class SearchCriteriaFragment : Fragment("Search") {
         sortKeyToProperty.value = ""
         // Collect current filters into the QueryFilter-s before clean them up
         val filters = mutableListOf<Condition>()
-        filterKeys.forEachIndexed { index, filterKey ->
-            val filterKeyOperator = filterKeyOperators[index].value
+        filterKeyProperties.forEachIndexed { index, filterKey ->
+            val filterKeyOperator = filterKeyOperatorProperties[index].value
             filters.add(Condition(
                     filterKey.value.orEmpty(),
-                    filterKeyTypes[index].value,
+                    filterKeyTypeProperties[index].value,
                     filterKeyOperator,
                     when {
                         filterKeyOperator.isNoArg() -> emptyList()
-                        filterKeyOperator.isBetween() -> filterKeyBetweenValues[index].toList().map { it.value.orEmpty() }
-                        else -> listOf(filterKeyValues[index]?.value.orEmpty())
+                        filterKeyOperator.isBetween() -> filterKeyBetweenValueProperties[index].toList().map { it.value.orEmpty() }
+                        else -> listOf(filterKeyValueProperties[index]?.value.orEmpty())
                     }))
         }
-        filterLabels.clear()
-        filterKeys.clear()
-        filterKeyTypes.clear()
-        filterKeyOperators.clear()
-        filterKeyValues.clear()
-        filterKeyBetweenValues.clear()
+        filterLabelProperties.clear()
+        filterKeyProperties.clear()
+        filterKeyTypeProperties.clear()
+        filterKeyOperatorProperties.clear()
+        filterKeyValueProperties.clear()
+        filterKeyBetweenValueProperties.clear()
         return filters
     }
 
@@ -242,15 +219,12 @@ class SearchCriteriaFragment : Fragment("Search") {
                 val isHash = it.keyType == KeyType.HASH.name
                 text(if (isHash) "Partition Key" else "Sort Key")
                 label(it.attributeName)
-                label(when (attributeDefinitionTypes[it.attributeName]) {
-                    Type.STRING -> "String"
-                    Type.NUMBER -> "Number"
-                    Type.BINARY -> "Binary"
-                    else -> "?"
-                })
+                val attributeType = attributeDefinitionTypes[it.attributeName] as Type
+                label(attributeType.toString())
                 if (isHash) {
                     label("=")
                 } else {
+                    sortKeyOperators.setAll(attributeType.sortOperators)
                     sortKeyOperatorComboBox.attachTo(this)
                 }
                 if (isHash) {
@@ -280,22 +254,29 @@ class SearchCriteriaFragment : Fragment("Search") {
         println("grid properties: ${queryGridPane.properties}")
         queryGridPane.row {
             val filterLabel = SimpleStringProperty(
-                    if (filterKeys.isEmpty()) FILTER_PRIMARY_LABEL else FILTER_SECONDARY_LABEL)
-            filterLabels.add(filterLabel)
+                    if (filterKeyProperties.isEmpty()) FILTER_PRIMARY_LABEL else FILTER_SECONDARY_LABEL)
+            filterLabelProperties.add(filterLabel)
             text(filterLabel)
             val filterKey = SimpleStringProperty(condition?.name)
-            filterKeys.add(filterKey)
+            filterKeyProperties.add(filterKey)
             textfield(filterKey) { }
-            val filterKeyType = SimpleObjectProperty<Type>(condition?.type ?: Type.STRING)
-            filterKeyTypes.add(filterKeyType)
+            val type = condition?.type ?: Type.STRING
+            val filterKeyType = SimpleObjectProperty<Type>(type)
+            filterKeyTypeProperties.add(filterKeyType)
             combobox(values = FILTER_KEY_TYPES, property = filterKeyType)
             val filterKeyOperation = SimpleObjectProperty<Operator>(condition?.operator ?: Operator.EQ)
-            filterKeyOperators.add(filterKeyOperation)
+            filterKeyOperatorProperties.add(filterKeyOperation)
+            val filterKeyOperators = mutableListOf<Operator>().asObservable()
+            filterKeyOperators.setAll(type.filterOperators)
             val filterKeyOperationComboBox = combobox(
-                    values = FILTER_KEY_AVAILABLE_OPERATORS, property = filterKeyOperation)
+                    values = filterKeyOperators, property = filterKeyOperation)
             filterKeyOperationComboBox.prefWidth = ATTRIBUTE_OPERATION_COLUMN_WIDTH
+            filterKeyType.addListener { _, _, newValue ->
+                filterKeyOperators.setAll(newValue.filterOperators)
+                filterKeyOperation.value = newValue.filterOperators.first()
+            }
             val filterKeyValue = SimpleStringProperty("")
-            filterKeyValues.add(filterKeyValue)
+            filterKeyValueProperties.add(filterKeyValue)
             val filterKeyValueTextField = TextField()
             filterKeyValueTextField.bind(filterKeyValue)
             val filterKeyFromTextField = TextField()
@@ -309,7 +290,7 @@ class SearchCriteriaFragment : Fragment("Search") {
             andLabel.alignment = Pos.CENTER
             val filterKeyBetweenHBox = HBox(filterKeyFromTextField, andLabel, filterKeyToTextField)
             filterKeyBetweenHBox.alignment = Pos.CENTER
-            filterKeyBetweenValues.add(Pair(filterKeyFrom, filterKeyTo))
+            filterKeyBetweenValueProperties.add(Pair(filterKeyFrom, filterKeyTo))
             filterKeyOperationComboBox.valueProperty()
                     .addListener(this@SearchCriteriaFragment.OperatorChangeListener(
                             filterKeyOperationComboBox,
@@ -350,14 +331,14 @@ class SearchCriteriaFragment : Fragment("Search") {
                     val rowIndex = queryGridPane.removeRow(this)
                     val index = rowIndex - keysRowsCount
                     println("Remove index $index")
-                    filterLabels.removeAt(index)
-                    filterKeys.removeAt(index)
-                    filterKeyTypes.removeAt(index)
-                    filterKeyOperators.removeAt(index)
-                    filterKeyValues.removeAt(index)
-                    filterKeyBetweenValues.removeAt(index)
-                    if (index == 0 && filterLabels.isNotEmpty()) {
-                        filterLabels[0].value = FILTER_PRIMARY_LABEL
+                    filterLabelProperties.removeAt(index)
+                    filterKeyProperties.removeAt(index)
+                    filterKeyTypeProperties.removeAt(index)
+                    filterKeyOperatorProperties.removeAt(index)
+                    filterKeyValueProperties.removeAt(index)
+                    filterKeyBetweenValueProperties.removeAt(index)
+                    if (index == 0 && filterLabelProperties.isNotEmpty()) {
+                        filterLabelProperties[0].value = FILTER_PRIMARY_LABEL
                     }
                 }
             }
@@ -455,18 +436,18 @@ class SearchCriteriaFragment : Fragment("Search") {
     }
 
     private fun buildSearchConditions(): List<Condition> {
-        return filterKeys.mapIndexed { index, filterKey ->
-            val filterKeyOperation = filterKeyOperators[index].value
+        return filterKeyProperties.mapIndexed { index, filterKey ->
+            val filterKeyOperation = filterKeyOperatorProperties[index].value
             Condition(
                     filterKey.value,
-                    filterKeyTypes[index].value,
+                    filterKeyTypeProperties[index].value,
                     filterKeyOperation,
                     if (filterKeyOperation.isBetween()) {
-                        val betweenPair = filterKeyBetweenValues[index]
+                        val betweenPair = filterKeyBetweenValueProperties[index]
                         listOf(parseValue(betweenPair.first.value),
                                 parseValue(betweenPair.second.value))
                     } else {
-                        listOf(parseValue(filterKeyValues[index]!!.value))
+                        listOf(parseValue(filterKeyValueProperties[index]!!.value))
                     })
         }
     }
