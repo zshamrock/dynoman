@@ -137,6 +137,16 @@ enum class Operator(val text: String) {
     }
 
     private fun cast(index: Int, type: Type, values: Array<out String>): Any? {
+        // Only process and cast the values where the corresponding operator support/expects the value at the specified
+        // index.
+        // Ex.: no arg operators, like Exists/Contains, do not expect any of the values, while only Between expects the
+        // second value (i.e. at index 1).
+        if (isNoArg()) {
+            return null
+        }
+        if (index == 1 && !isBetween()) {
+            return null
+        }
         return if (values.size > index) {
             if (type == Type.STRING) values[index] else values[index].toLong()
         } else null
