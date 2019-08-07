@@ -2,10 +2,13 @@ package com.akazlou.dynoman.view
 
 import com.akazlou.dynoman.controller.AddQuerySaverController
 import com.akazlou.dynoman.domain.search.QueryResult
+import com.akazlou.dynoman.domain.search.QuerySearch
 import com.akazlou.dynoman.domain.search.ResultData
+import com.akazlou.dynoman.domain.search.ScanSearch
 import com.akazlou.dynoman.domain.search.Search
 import com.akazlou.dynoman.domain.search.SearchType
 import com.akazlou.dynoman.function.Functions
+import com.akazlou.dynoman.service.DynamoDBOperation
 import com.amazonaws.services.dynamodbv2.model.TableDescription
 import javafx.beans.property.SimpleBooleanProperty
 import javafx.beans.property.SimpleStringProperty
@@ -43,6 +46,7 @@ class QueryTabFragment : Fragment("Query Tab") {
     private val allColumns: MutableSet<String> = mutableSetOf()
     private var qwf: QueryWindowFragment by singleAssign()
     private var queryMenu: Menu by singleAssign()
+    private val queryView: QueryView by inject()
 
     override val root = vbox {
         println("initialize new query tab fragment")
@@ -241,7 +245,21 @@ class QueryTabFragment : Fragment("Query Tab") {
                     val resultData = resultTable.selectedItem as ResultData
                     val mapping = resultData.asMap()
                     val search = addQuerySaverController.restore(table, base, name)
+                    val operation = params["operation"] as DynamoDBOperation
+                    val page = when (search) {
+                        is ScanSearch -> {
+                            operation.scan(search, mapping)
+                        }
+                        is QuerySearch -> {
+                            operation.query(search, mapping)
+                        }
+                    }
                     println("Run $name using mapping $mapping")
+                    queryView.setQueryResult(
+                            operation,
+                            operation.describeTable(search.table),
+                            search,
+                            page)
                 }
             }
             queryMenu.items.add(item)
