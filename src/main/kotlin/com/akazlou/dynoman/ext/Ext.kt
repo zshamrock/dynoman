@@ -10,3 +10,11 @@ fun <T : Node> TabPane.tab(index: Int, text: String, content: T, op: T.() -> Uni
     op(content)
     return tab
 }
+
+fun String.expand(mapping: Map<String, String>): String {
+    return if (mapping.isEmpty()) {
+        return this
+    } else {
+        mapping.getOrDefault(this, this)
+    }
+}

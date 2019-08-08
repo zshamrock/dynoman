@@ -12,6 +12,7 @@ import com.akazlou.dynoman.domain.search.Operator.LT
 import com.akazlou.dynoman.domain.search.Operator.NE
 import com.akazlou.dynoman.domain.search.Operator.NOT_CONTAINS
 import com.akazlou.dynoman.domain.search.Operator.NOT_EXISTS
+import com.akazlou.dynoman.ext.expand
 import com.amazonaws.services.dynamodbv2.document.QueryFilter
 import com.amazonaws.services.dynamodbv2.document.RangeKeyCondition
 import com.amazonaws.services.dynamodbv2.document.ScanFilter
@@ -19,16 +20,21 @@ import com.amazonaws.services.dynamodbv2.document.internal.Filter
 import java.util.Locale
 
 data class Condition(val name: String, val type: Type, val operator: Operator, val values: List<String>) {
-    fun toQueryFilter(mapping: Map<String, String> = mapOf()): QueryFilter {
-        return operator.toQueryFilter(name, type, *mapValues(values, mapping))
+    fun toQueryFilter(): QueryFilter {
+        return operator.toQueryFilter(name, type, *values.toTypedArray())
     }
 
-    fun toScanFilter(mapping: Map<String, String> = mapOf()): ScanFilter {
-        return operator.toScanFilter(name, type, *mapValues(values, mapping))
+    fun toScanFilter(): ScanFilter {
+        return operator.toScanFilter(name, type, *values.toTypedArray())
     }
 
-    private fun mapValues(values: List<String>, mapping: Map<String, String>) =
-            values.map { Search.mapValue(it, mapping) }.toTypedArray()
+    fun expand(mapping: Map<String, String>): Condition {
+        return if (mapping.isEmpty()) {
+            this
+        } else {
+            Condition(name, type, operator, values.map { it.expand(mapping) })
+        }
+    }
 
     companion object {
         fun hashKey(name: String, type: Type, value: String): Condition {
