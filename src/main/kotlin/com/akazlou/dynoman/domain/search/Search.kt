@@ -45,8 +45,8 @@ sealed class Search(val type: SearchType,
 
 class QuerySearch(table: String,
                   index: String?,
-                  private val hashKey: Condition,
-                  private val rangeKey: Condition?,
+                  val hashKey: Condition,
+                  val rangeKey: Condition?,
                   filters: List<Condition>,
                   order: Order)
     : Search(SearchType.QUERY, table, index, filters, order) {

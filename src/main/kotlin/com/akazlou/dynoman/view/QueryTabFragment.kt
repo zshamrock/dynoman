@@ -244,7 +244,8 @@ class QueryTabFragment : Fragment("Query Tab") {
                 if (resultTable.selectedItem != null) {
                     val resultData = resultTable.selectedItem as ResultData
                     val mapping = resultData.asMap()
-                    val search = addQuerySaverController.restore(table, base, name).expand(mapping)
+                    val raw = addQuerySaverController.restore(table, base, name)
+                    val search = raw.expand(mapping)
                     val operation = params["operation"] as DynamoDBOperation
                     val page = when (search) {
                         is ScanSearch -> {
