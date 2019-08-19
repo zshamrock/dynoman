@@ -11,6 +11,10 @@ sealed class Search(val type: SearchType,
                     val index: String?,
                     val filters: List<Condition>,
                     val order: Order) : JsonModel {
+    companion object {
+        const val USER_INPUT_MARK = '?'
+    }
+
     fun isAscOrdered(): Boolean {
         return order == Order.ASC
     }

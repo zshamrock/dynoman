@@ -1,11 +1,13 @@
 package com.akazlou.dynoman.view
 
 import com.akazlou.dynoman.controller.AddQuerySaverController
+import com.akazlou.dynoman.domain.search.Condition
 import com.akazlou.dynoman.domain.search.QueryResult
 import com.akazlou.dynoman.domain.search.QuerySearch
 import com.akazlou.dynoman.domain.search.ResultData
 import com.akazlou.dynoman.domain.search.ScanSearch
 import com.akazlou.dynoman.domain.search.Search
+import com.akazlou.dynoman.domain.search.SearchInput
 import com.akazlou.dynoman.domain.search.SearchType
 import com.akazlou.dynoman.function.Functions
 import com.akazlou.dynoman.service.DynamoDBOperation
@@ -243,9 +245,18 @@ class QueryTabFragment : Fragment("Query Tab") {
                 println("Run $name")
                 if (resultTable.selectedItem != null) {
                     val resultData = resultTable.selectedItem as ResultData
-                    val mapping = resultData.asMap()
+                    val mapping = resultData.asMap().toMutableMap()
                     val raw = addQuerySaverController.restore(table, base, name)
                     val search = raw.expand(mapping)
+                    val inputs = findSearchInputs(search)
+                    if (inputs.isNotEmpty()) {
+                        val confirmation = find<UserQueryInputFragment>(params = mapOf(UserQueryInputFragment::inputs to inputs))
+                        confirmation.openModal(block = true)
+                        if (confirmation.isCancel()) {
+                            return@action
+                        }
+                        mapping.putAll(confirmation.getMappings())
+                    }
                     val operation = params["operation"] as DynamoDBOperation
                     val page = when (search) {
                         is ScanSearch -> {
@@ -265,6 +276,38 @@ class QueryTabFragment : Fragment("Query Tab") {
             }
             queryMenu.items.add(item)
         }
+    }
+
+    private fun findSearchInputs(search: Search): List<SearchInput> {
+        return when (search) {
+            is ScanSearch -> {
+                mapToSearchInputs(search.filters)
+            }
+            is QuerySearch -> {
+                val inputs = mutableListOf<SearchInput>()
+                if (requiresUserInput(search.getHashKeyValue())) {
+                    inputs.add(SearchInput(search.getHashKeyName(), search.getHashKeyType(), search.getHashKeyValue()))
+                }
+                // TODO: Handle Between case (and so also maybe display the operator in the user search input modal)
+                if (search.getRangeKeyValues().isNotEmpty() && requiresUserInput(search.getRangeKeyValues()[0])) {
+                    inputs.add(SearchInput(
+                            search.getRangeKeyName()!!, search.getRangeKeyType(), search.getRangeKeyValues()[0]))
+                }
+                inputs.addAll(mapToSearchInputs(search.filters))
+                inputs
+            }
+        }
+    }
+
+    private fun mapToSearchInputs(conditions: List<Condition>): List<SearchInput> {
+        return conditions
+                .filter { condition -> condition.values.any(::requiresUserInput) }
+                // TODO: Handle Between case (and so also maybe display the operator in the user search input modal)
+                .map { condition -> SearchInput(condition.name, condition.type, condition.values[0]) }
+    }
+
+    private fun requiresUserInput(value: String): Boolean {
+        return value.startsWith(Search.USER_INPUT_MARK)
     }
 
     fun getQuery(): String {

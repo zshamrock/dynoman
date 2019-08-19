@@ -13,8 +13,6 @@ class AddQuerySaverService {
         val SAVER_TYPE = SearchesSaverService.Type.QUERY
 
         private const val TABLE_NAME_SEPARATOR = "@"
-
-        private const val USER_INPUT_MARK = '?'
     }
 
     private val service = SearchesSaverService()
@@ -47,7 +45,7 @@ class AddQuerySaverService {
                 condition.type,
                 condition.operator,
                 condition.values.map { value ->
-                    if (value.startsWith(USER_INPUT_MARK)) {
+                    if (value.startsWith(Search.USER_INPUT_MARK)) {
                         "$value${index.getAndIncrement()}"
                     } else {
                         value
