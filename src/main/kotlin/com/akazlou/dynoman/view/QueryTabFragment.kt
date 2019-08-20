@@ -247,10 +247,10 @@ class QueryTabFragment : Fragment("Query Tab") {
                     val resultData = resultTable.selectedItem as ResultData
                     val mapping = resultData.asMap().toMutableMap()
                     val raw = addQuerySaverController.restore(table, base, name)
-                    val search = raw.expand(mapping)
-                    val inputs = findSearchInputs(search)
+                    val inputs = findSearchInputs(raw)
                     if (inputs.isNotEmpty()) {
-                        val confirmation = find<UserQueryInputFragment>(params = mapOf(UserQueryInputFragment::inputs to inputs))
+                        val confirmation = find<UserQueryInputFragment>(
+                                params = mapOf(UserQueryInputFragment::inputs to inputs))
                         confirmation.openModal(block = true)
                         if (confirmation.isCancel()) {
                             return@action
@@ -258,6 +258,7 @@ class QueryTabFragment : Fragment("Query Tab") {
                         mapping.putAll(confirmation.getMappings())
                     }
                     val operation = params["operation"] as DynamoDBOperation
+                    val search = raw.expand(mapping)
                     val page = when (search) {
                         is ScanSearch -> {
                             operation.scan(search)
