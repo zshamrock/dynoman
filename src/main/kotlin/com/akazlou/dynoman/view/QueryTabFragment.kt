@@ -50,6 +50,11 @@ class QueryTabFragment : Fragment("Query Tab") {
     private var queryMenu: Menu by singleAssign()
     private val queryView: QueryView by inject()
 
+    companion object {
+        private val USER_INPUT_MARK_LIST = listOf(Search.USER_INPUT_MARK)
+    }
+
+
     override val root = vbox {
         println("initialize new query tab fragment")
         hbox(alignment = Pos.CENTER_RIGHT) {
@@ -228,7 +233,7 @@ class QueryTabFragment : Fragment("Query Tab") {
             find<AddQueryFragment>(
                     params = mapOf(
                             AddQueryFragment::operation to params["operation"],
-                            AddQueryFragment::attributes to allColumns.toList(),
+                            AddQueryFragment::attributes to USER_INPUT_MARK_LIST.plus(allColumns.toList()),
                             AddQueryFragment::sourceTable to (params["description"] as TableDescription).tableName)
             ).openModal(block = true)
             queryMenu.items.clear()

@@ -12,7 +12,7 @@ sealed class Search(val type: SearchType,
                     val filters: List<Condition>,
                     val order: Order) : JsonModel {
     companion object {
-        const val USER_INPUT_MARK = '?'
+        const val USER_INPUT_MARK = "?"
     }
 
     fun isAscOrdered(): Boolean {

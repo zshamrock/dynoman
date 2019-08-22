@@ -27,8 +27,12 @@ class AddQueryFragment : Fragment("Add Query") {
 
     override val root = form {
         prefWidth = 850.0
-        prefHeight = 350.0
+        prefHeight = 380.0
         fieldset("New Query") {
+            text("You can use \"?\" as the placeholder for the values where when search is applied you will be asked " +
+                    "to manually enter the values.\nThis allows to create parametrized search.") {
+                addClass("hint")
+            }
             field("Name:") {
                 textfield(queryNameProperty)
             }
