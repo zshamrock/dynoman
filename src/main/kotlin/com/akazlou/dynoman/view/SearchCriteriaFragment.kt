@@ -17,7 +17,9 @@ import javafx.beans.property.SimpleObjectProperty
 import javafx.beans.property.SimpleStringProperty
 import javafx.beans.value.ChangeListener
 import javafx.beans.value.ObservableValue
+import javafx.collections.ObservableList
 import javafx.geometry.Pos
+import javafx.scene.Node
 import javafx.scene.control.ComboBox
 import javafx.scene.control.Label
 import javafx.scene.control.TextField
@@ -44,6 +46,11 @@ class SearchCriteriaFragment : Fragment("Search") {
         const val SEARCH_TYPE_PARAM = "searchType"
     }
 
+    private enum class Mode {
+        NORMAL,
+        FOREIGN
+    }
+
     val description: TableDescription by param()
     private val searchTypes: List<SearchType> = listOf(SearchType.SCAN, SearchType.QUERY)
     private val searchTypeProperty = SimpleObjectProperty(params["searchType"] as SearchType)
@@ -53,6 +60,7 @@ class SearchCriteriaFragment : Fragment("Search") {
     private var queryGridPane: GridPane by singleAssign()
     private val functions = Functions.getAvailableFunctions()
     private var sortKeyTextField: TextField by singleAssign()
+    private var sortKeyComboBox: ComboBox<String> by singleAssign()
     private val sortKeyBetweenHBox: HBox
     private val sortKeyOperatorComboBox: ComboBox<Operator>
     // TODO: Create 5 between hbox-es for the filters and reuse them (as we do limit support only up to 5 filters)
@@ -72,7 +80,8 @@ class SearchCriteriaFragment : Fragment("Search") {
     private val filterKeyBetweenValueProperties = mutableListOf<Pair<SimpleStringProperty, SimpleStringProperty>>()
     private var keysRowsCount = 0
     @Suppress("UNCHECKED_CAST")
-    private val attributes: List<String> = (params["attributes"] as? List<String>?).orEmpty()
+    private val attributes: ObservableList<String> = (params["attributes"] as? List<String>?).orEmpty().asObservable()
+    private val mode = if (attributes.isEmpty()) Mode.NORMAL else Mode.FOREIGN
 
     init {
         val gsi = description.globalSecondaryIndexes.orEmpty()
@@ -83,17 +92,37 @@ class SearchCriteriaFragment : Fragment("Search") {
         searchSourceProperty.value = searchSources[0]
         attributeDefinitionTypes = description.attributeDefinitions.associateBy({ it.attributeName }, { Type.fromString(it.attributeType) })
 
-        val sortKeyFromTextField = TextField()
-        sortKeyFromTextField.textProperty().bindBidirectional(sortKeyFromProperty)
-        val sortKeyToTextField = TextField()
-        sortKeyToTextField.textProperty().bindBidirectional(sortKeyToProperty)
         val andLabel = Label("And")
         andLabel.minWidth = 40.0
         andLabel.alignment = Pos.CENTER
+        when (mode) {
+            Mode.NORMAL -> {
+                val sortKeyFromTextField = TextField()
+                sortKeyFromTextField.textProperty().bindBidirectional(sortKeyFromProperty)
+                val sortKeyToTextField = TextField()
+                sortKeyToTextField.textProperty().bindBidirectional(sortKeyToProperty)
+                sortKeyBetweenHBox = HBox(sortKeyFromTextField, andLabel, sortKeyToTextField)
+            }
+            Mode.FOREIGN -> {
+                val sortKeyFromComboBox = ComboBox(attributes).apply {
+                    isEditable = true
+                    bind(sortKeyFromProperty)
+                }
+                val sortKeyToComboBox = ComboBox(attributes).apply {
+                    isEditable = true
+                    bind(sortKeyToProperty)
+                }
+                sortKeyBetweenHBox = HBox(sortKeyFromComboBox, andLabel, sortKeyToComboBox)
+            }
+        }
+        sortKeyBetweenHBox.alignment = Pos.CENTER
         sortKeyTextField = TextField()
         sortKeyTextField.bind(sortKeyProperty)
-        sortKeyBetweenHBox = HBox(sortKeyFromTextField, andLabel, sortKeyToTextField)
-        sortKeyBetweenHBox.alignment = Pos.CENTER
+        sortKeyComboBox = ComboBox(attributes).apply {
+            prefWidth = ATTRIBUTE_VALUE_COLUMN_WIDTH
+            isEditable = true
+            bind(sortKeyProperty)
+        }
 
         sortKeyOperatorComboBox = ComboBox<Operator>(sortKeyOperators)
         sortKeyOperatorComboBox.bind(sortKeyOperatorProperty)
@@ -101,7 +130,11 @@ class SearchCriteriaFragment : Fragment("Search") {
         sortKeyOperatorComboBox.valueProperty()
                 .addListener(this.OperatorChangeListener(
                         sortKeyOperatorComboBox,
-                        sortKeyTextField,
+                        if (mode == Mode.NORMAL) {
+                            sortKeyTextField
+                        } else {
+                            sortKeyComboBox
+                        },
                         sortKeyProperty,
                         sortKeyBetweenHBox,
                         sortKeyFromProperty,
@@ -228,7 +261,7 @@ class SearchCriteriaFragment : Fragment("Search") {
                     sortKeyOperatorComboBox.attachTo(this)
                 }
                 if (isHash) {
-                    if (attributes.isEmpty()) {
+                    if (mode == Mode.NORMAL) {
                         textfield(hashKeyValueProperty) { }
                     } else {
                         combobox(values = attributes, property = hashKeyValueProperty) {
@@ -237,13 +270,10 @@ class SearchCriteriaFragment : Fragment("Search") {
                         }
                     }
                 } else {
-                    if (attributes.isEmpty()) {
+                    if (mode == Mode.NORMAL) {
                         sortKeyTextField.attachTo(this)
                     } else {
-                        combobox(values = attributes, property = sortKeyProperty) {
-                            prefWidth = ATTRIBUTE_VALUE_COLUMN_WIDTH
-                            isEditable = true
-                        }
+                        sortKeyComboBox.attachTo(this)
                     }
                 }
             }
@@ -300,7 +330,7 @@ class SearchCriteriaFragment : Fragment("Search") {
                             filterKeyFrom,
                             filterKeyTo))
             if (filterKeyOperation.value.isBetween()) {
-                if (attributes.isEmpty()) {
+                if (mode == Mode.NORMAL) {
                     filterKeyFrom.value = condition?.values?.get(0)
                     filterKeyTo.value = condition?.values?.get(1)
                     filterKeyBetweenHBox.attachTo(this)
@@ -315,7 +345,7 @@ class SearchCriteriaFragment : Fragment("Search") {
                     }
                 }
             } else if (!filterKeyOperation.value.isNoArg()) {
-                if (attributes.isEmpty()) {
+                if (mode == Mode.NORMAL) {
                     filterKeyValue.value = condition?.values?.get(0)
                     filterKeyValueTextField.attachTo(this)
                 } else {
@@ -453,27 +483,27 @@ class SearchCriteriaFragment : Fragment("Search") {
     }
 
     inner class OperatorChangeListener(private val operators: ComboBox<Operator>,
-                                       private val textField: TextField,
-                                       private val textFieldValue: SimpleStringProperty,
+                                       private val field: Node,
+                                       private val fieldValue: SimpleStringProperty,
                                        private val betweenHBox: HBox,
                                        private val textFieldFrom: SimpleStringProperty,
                                        private val textFieldTo: SimpleStringProperty) : ChangeListener<Operator> {
         override fun changed(observable: ObservableValue<out Operator>, oldValue: Operator, newValue: Operator) {
             when (newValue) {
                 Operator.BETWEEN -> {
-                    val columnIndex = GridPane.getColumnIndex(textField)
-                    val rowIndex = GridPane.getRowIndex(textField)
+                    val columnIndex = GridPane.getColumnIndex(field)
+                    val rowIndex = GridPane.getRowIndex(field)
                     queryGridPane.add(betweenHBox, columnIndex, rowIndex)
-                    queryGridPane.children.remove(textField)
-                    textFieldValue.value = ""
+                    queryGridPane.children.remove(field)
+                    fieldValue.value = ""
                 }
                 Operator.EXISTS, Operator.NOT_EXISTS -> {
                     if (oldValue.isNoArg()) {
                         // The textfield then has been already removed
                         return
                     }
-                    queryGridPane.children.remove(textField)
-                    textFieldValue.value = ""
+                    queryGridPane.children.remove(field)
+                    fieldValue.value = ""
                 }
                 else -> {
                     // noop
@@ -483,7 +513,7 @@ class SearchCriteriaFragment : Fragment("Search") {
                 Operator.BETWEEN -> {
                     val columnIndex = GridPane.getColumnIndex(betweenHBox)
                     val rowIndex = GridPane.getRowIndex(betweenHBox)
-                    queryGridPane.add(textField, columnIndex, rowIndex)
+                    queryGridPane.add(field, columnIndex, rowIndex)
                     queryGridPane.children.remove(betweenHBox)
                     textFieldFrom.value = ""
                     textFieldTo.value = ""
@@ -494,7 +524,7 @@ class SearchCriteriaFragment : Fragment("Search") {
                     }
                     val columnIndex = GridPane.getColumnIndex(operators)
                     val rowIndex = GridPane.getRowIndex(operators)
-                    queryGridPane.add(textField, columnIndex + 1, rowIndex)
+                    queryGridPane.add(field, columnIndex + 1, rowIndex)
                 }
                 else -> {
                     // noop
