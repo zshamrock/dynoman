@@ -104,25 +104,15 @@ class SearchCriteriaFragment : Fragment("Search") {
                 sortKeyBetweenHBox = HBox(sortKeyFromTextField, andLabel, sortKeyToTextField)
             }
             Mode.FOREIGN -> {
-                val sortKeyFromComboBox = ComboBox(attributes).apply {
-                    isEditable = true
-                    bind(sortKeyFromProperty)
-                }
-                val sortKeyToComboBox = ComboBox(attributes).apply {
-                    isEditable = true
-                    bind(sortKeyToProperty)
-                }
+                val sortKeyFromComboBox = createAttributesComboBox(sortKeyFromProperty)
+                val sortKeyToComboBox = createAttributesComboBox(sortKeyToProperty)
                 sortKeyBetweenHBox = HBox(sortKeyFromComboBox, andLabel, sortKeyToComboBox)
             }
         }
         sortKeyBetweenHBox.alignment = Pos.CENTER
         sortKeyTextField = TextField()
         sortKeyTextField.bind(sortKeyProperty)
-        sortKeyComboBox = ComboBox(attributes).apply {
-            prefWidth = ATTRIBUTE_VALUE_COLUMN_WIDTH
-            isEditable = true
-            bind(sortKeyProperty)
-        }
+        sortKeyComboBox = createAttributesComboBox(sortKeyProperty)
 
         sortKeyOperatorComboBox = ComboBox<Operator>(sortKeyOperators)
         sortKeyOperatorComboBox.bind(sortKeyOperatorProperty)
@@ -264,10 +254,7 @@ class SearchCriteriaFragment : Fragment("Search") {
                     if (mode == Mode.NORMAL) {
                         textfield(hashKeyValueProperty) { }
                     } else {
-                        combobox(values = attributes, property = hashKeyValueProperty) {
-                            prefWidth = ATTRIBUTE_VALUE_COLUMN_WIDTH
-                            isEditable = true
-                        }
+                        createAttributesComboBox(hashKeyValueProperty).attachTo(this)
                     }
                 } else {
                     if (mode == Mode.NORMAL) {
@@ -306,53 +293,53 @@ class SearchCriteriaFragment : Fragment("Search") {
                 filterKeyOperation.value = newValue.filterOperators.first()
             }
             val filterKeyValue = SimpleStringProperty("")
-            filterKeyValueProperties.add(filterKeyValue)
             val filterKeyValueTextField = TextField()
             filterKeyValueTextField.bind(filterKeyValue)
-            val filterKeyFromTextField = TextField()
+            val filterKeyValueComboBox = createAttributesComboBox(filterKeyValue)
+            filterKeyValueProperties.add(filterKeyValue)
             val filterKeyFrom = SimpleStringProperty("")
-            filterKeyFromTextField.textProperty().bindBidirectional(filterKeyFrom)
-            val filterKeyToTextField = TextField()
             val filterKeyTo = SimpleStringProperty("")
-            filterKeyToTextField.textProperty().bindBidirectional(filterKeyTo)
             val andLabel = Label("And")
             andLabel.minWidth = 40.0
             andLabel.alignment = Pos.CENTER
-            val filterKeyBetweenHBox = HBox(filterKeyFromTextField, andLabel, filterKeyToTextField)
+            val filterKeyBetweenHBox = when (mode) {
+                Mode.NORMAL -> {
+                    val filterKeyFromTextField = TextField()
+                    filterKeyFromTextField.textProperty().bindBidirectional(filterKeyFrom)
+                    val filterKeyToTextField = TextField()
+                    filterKeyToTextField.textProperty().bindBidirectional(filterKeyTo)
+                    HBox(filterKeyFromTextField, andLabel, filterKeyToTextField)
+                }
+                Mode.FOREIGN -> {
+                    val filterKeyFromComboBox = createAttributesComboBox(filterKeyFrom)
+                    val filterKeyToComboBox = createAttributesComboBox(filterKeyTo)
+                    HBox(filterKeyFromComboBox, andLabel, filterKeyToComboBox)
+                }
+            }
             filterKeyBetweenHBox.alignment = Pos.CENTER
             filterKeyBetweenValueProperties.add(Pair(filterKeyFrom, filterKeyTo))
             filterKeyOperationComboBox.valueProperty()
                     .addListener(this@SearchCriteriaFragment.OperatorChangeListener(
                             filterKeyOperationComboBox,
-                            filterKeyValueTextField,
+                            if (mode == Mode.NORMAL) {
+                                filterKeyValueTextField
+                            } else {
+                                filterKeyValueComboBox
+                            },
                             filterKeyValue,
                             filterKeyBetweenHBox,
                             filterKeyFrom,
                             filterKeyTo))
             if (filterKeyOperation.value.isBetween()) {
-                if (mode == Mode.NORMAL) {
-                    filterKeyFrom.value = condition?.values?.get(0)
-                    filterKeyTo.value = condition?.values?.get(1)
-                    filterKeyBetweenHBox.attachTo(this)
-                } else {
-                    combobox(values = attributes, property = filterKeyFrom) {
-                        prefWidth = ATTRIBUTE_VALUE_COLUMN_WIDTH
-                        isEditable = true
-                    }
-                    combobox(values = attributes, property = filterKeyTo) {
-                        prefWidth = ATTRIBUTE_VALUE_COLUMN_WIDTH
-                        isEditable = true
-                    }
-                }
+                filterKeyFrom.value = condition?.values?.get(0)
+                filterKeyTo.value = condition?.values?.get(1)
+                filterKeyBetweenHBox.attachTo(this)
             } else if (!filterKeyOperation.value.isNoArg()) {
+                filterKeyValue.value = condition?.values?.get(0)
                 if (mode == Mode.NORMAL) {
-                    filterKeyValue.value = condition?.values?.get(0)
                     filterKeyValueTextField.attachTo(this)
                 } else {
-                    combobox(values = attributes, property = filterKeyValue) {
-                        prefWidth = ATTRIBUTE_VALUE_COLUMN_WIDTH
-                        isEditable = true
-                    }
+                    filterKeyValueComboBox.attachTo(this)
                 }
             }
             button("x") {
@@ -372,6 +359,14 @@ class SearchCriteriaFragment : Fragment("Search") {
                     }
                 }
             }
+        }
+    }
+
+    private fun createAttributesComboBox(property: SimpleStringProperty): ComboBox<String> {
+        return ComboBox(attributes).apply {
+            isEditable = true
+            prefWidth = ATTRIBUTE_VALUE_COLUMN_WIDTH
+            bind(property)
         }
     }
 
