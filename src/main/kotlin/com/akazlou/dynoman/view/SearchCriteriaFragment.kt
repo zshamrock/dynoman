@@ -486,43 +486,48 @@ class SearchCriteriaFragment : Fragment("Search") {
         override fun changed(observable: ObservableValue<out Operator>, oldValue: Operator, newValue: Operator) {
             when (newValue) {
                 Operator.BETWEEN -> {
-                    val columnIndex = GridPane.getColumnIndex(field)
-                    val rowIndex = GridPane.getRowIndex(field)
+                    val columnIndex: Int
+                    val rowIndex: Int
+                    if (oldValue.isNoArg()) {
+                        columnIndex = GridPane.getColumnIndex(operators) + 1
+                        rowIndex = GridPane.getRowIndex(operators)
+                    } else {
+                        columnIndex = GridPane.getColumnIndex(field)
+                        rowIndex = GridPane.getRowIndex(field)
+                    }
                     queryGridPane.add(betweenHBox, columnIndex, rowIndex)
-                    queryGridPane.children.remove(field)
-                    fieldValue.value = ""
+                    if (!oldValue.isNoArg()) {
+                        queryGridPane.children.remove(field)
+                        fieldValue.value = ""
+                    }
                 }
                 Operator.EXISTS, Operator.NOT_EXISTS -> {
                     if (oldValue.isNoArg()) {
                         // The textfield then has been already removed
                         return
                     }
-                    queryGridPane.children.remove(field)
-                    fieldValue.value = ""
-                }
-                else -> {
-                    // noop
-                }
-            }
-            when (oldValue) {
-                Operator.BETWEEN -> {
-                    val columnIndex = GridPane.getColumnIndex(betweenHBox)
-                    val rowIndex = GridPane.getRowIndex(betweenHBox)
-                    queryGridPane.add(field, columnIndex, rowIndex)
-                    queryGridPane.children.remove(betweenHBox)
-                    textFieldFrom.value = ""
-                    textFieldTo.value = ""
-                }
-                Operator.EXISTS, Operator.NOT_EXISTS -> {
-                    if (newValue.isNoArg()) {
-                        return
+                    if (oldValue.isBetween()) {
+                        queryGridPane.children.remove(betweenHBox)
+                        textFieldFrom.value = ""
+                        textFieldTo.value = ""
+                    } else {
+                        queryGridPane.children.remove(field)
+                        fieldValue.value = ""
                     }
-                    val columnIndex = GridPane.getColumnIndex(operators)
-                    val rowIndex = GridPane.getRowIndex(operators)
-                    queryGridPane.add(field, columnIndex + 1, rowIndex)
                 }
                 else -> {
-                    // noop
+                    if (oldValue.isBetween()) {
+                        val columnIndex = GridPane.getColumnIndex(betweenHBox)
+                        val rowIndex = GridPane.getRowIndex(betweenHBox)
+                        queryGridPane.add(field, columnIndex, rowIndex)
+                        queryGridPane.children.remove(betweenHBox)
+                        textFieldFrom.value = ""
+                        textFieldTo.value = ""
+                    } else if (oldValue.isNoArg()) {
+                        val columnIndex = GridPane.getColumnIndex(operators)
+                        val rowIndex = GridPane.getRowIndex(operators)
+                        queryGridPane.add(field, columnIndex + 1, rowIndex)
+                    }
                 }
             }
         }
