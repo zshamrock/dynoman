@@ -486,14 +486,10 @@ class SearchCriteriaFragment : Fragment("Search") {
         override fun changed(observable: ObservableValue<out Operator>, oldValue: Operator, newValue: Operator) {
             when (newValue) {
                 Operator.BETWEEN -> {
-                    val columnIndex: Int
-                    val rowIndex: Int
-                    if (oldValue.isNoArg()) {
-                        columnIndex = GridPane.getColumnIndex(operators) + 1
-                        rowIndex = GridPane.getRowIndex(operators)
+                    val (columnIndex, rowIndex) = if (oldValue.isNoArg()) {
+                        getNoArgColumnRowIndexes()
                     } else {
-                        columnIndex = GridPane.getColumnIndex(field)
-                        rowIndex = GridPane.getRowIndex(field)
+                        Pair(GridPane.getColumnIndex(field), GridPane.getRowIndex(field))
                     }
                     queryGridPane.add(betweenHBox, columnIndex, rowIndex)
                     if (!oldValue.isNoArg()) {
@@ -524,12 +520,17 @@ class SearchCriteriaFragment : Fragment("Search") {
                         textFieldFrom.value = ""
                         textFieldTo.value = ""
                     } else if (oldValue.isNoArg()) {
-                        val columnIndex = GridPane.getColumnIndex(operators)
-                        val rowIndex = GridPane.getRowIndex(operators)
-                        queryGridPane.add(field, columnIndex + 1, rowIndex)
+                        val (columnIndex, rowIndex) = getNoArgColumnRowIndexes()
+                        queryGridPane.add(field, columnIndex, rowIndex)
                     }
                 }
             }
+        }
+
+        private fun getNoArgColumnRowIndexes(): Pair<Int, Int> {
+            val columnIndex = GridPane.getColumnIndex(operators) + 1
+            val rowIndex = GridPane.getRowIndex(operators)
+            return Pair(columnIndex, rowIndex)
         }
     }
 }
