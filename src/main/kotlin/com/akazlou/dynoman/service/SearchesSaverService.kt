@@ -86,6 +86,14 @@ class SearchesSaverService {
                             search.getRangeKeyValues().forEach {
                                 values.add(it)
                             }
+                            if (search.getRangeKeyValues().isEmpty()) {
+                                if (search.getRangeKeyOperator().isBetween()) {
+                                    values.add("")
+                                    values.add("")
+                                } else if (!search.getRangeKeyOperator().isNoArg()) {
+                                    values.add("")
+                                }
+                            }
                             add(SORT_VALUE, values.build())
                         }
                         add(SORT, sort.build())
@@ -153,11 +161,16 @@ class SearchesSaverService {
                     val sortKey = if (sort == null) {
                         null
                     } else {
+                        val values = sort.getJsonArray(SORT_VALUE).getValuesAs(JsonString::getString)
                         Condition(
                                 sort.getString(SORT_NAME),
                                 AttributeType.valueOf(sort.getString(SORT_TYPE)),
                                 Operator.valueOf(sort.getString(SORT_OPERATOR)),
-                                sort.getJsonArray(SORT_VALUE).getValuesAs(JsonString::getString))
+                                if (values.all { it.isEmpty() }) {
+                                    emptyList<String>()
+                                } else {
+                                    values
+                                })
                     }
                     QuerySearch(
                             table,
