@@ -25,6 +25,11 @@ class AddQueryFragment : Fragment("Add Query") {
     private var pane: ScrollPane by singleAssign()
     private var searchCriteriaFragment: SearchCriteriaFragment by singleAssign()
 
+    companion object {
+        private const val QUERY_NAME_STANDARD_PREFIX = "Get"
+        private const val TABLE_NAME_ENV_SEPARATOR = "."
+    }
+
     override val root = form {
         prefWidth = 850.0
         prefHeight = 380.0
@@ -53,6 +58,10 @@ class AddQueryFragment : Fragment("Add Query") {
                         if (selector.isOk()) {
                             val table = selector.getTable()!!
                             foreignTableProperty.value = table.name
+                            if (queryNameProperty.value.isNullOrEmpty()) {
+                                queryNameProperty.value = QUERY_NAME_STANDARD_PREFIX +
+                                        (table.name.split(TABLE_NAME_ENV_SEPARATOR).last()).capitalize()
+                            }
                             // TODO: If it was the index, select it accordingly instead of table
                             searchCriteriaFragment = find<SearchCriteriaFragment>(params = mapOf(
                                     "searchType" to SearchType.QUERY,
