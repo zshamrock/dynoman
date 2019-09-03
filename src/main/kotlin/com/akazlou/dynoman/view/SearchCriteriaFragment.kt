@@ -38,6 +38,7 @@ class SearchCriteriaFragment : Fragment("Search") {
         const val ATTRIBUTE_TYPE_COLUMN_WIDTH = 100.0
         const val ATTRIBUTE_OPERATION_COLUMN_WIDTH = 140.0
         const val ATTRIBUTE_VALUE_COLUMN_WIDTH = 200.0
+        const val AND_LABEL_MIN_WIDTH = 40.0
 
         const val FILTER_PRIMARY_LABEL = "Filter"
         const val FILTER_SECONDARY_LABEL = "And"
@@ -92,21 +93,22 @@ class SearchCriteriaFragment : Fragment("Search") {
         searchSourceProperty.value = searchSources[0]
         attributeDefinitionTypes = description.attributeDefinitions.associateBy({ it.attributeName }, { Type.fromString(it.attributeType) })
 
-        val andLabel = Label("And")
-        andLabel.minWidth = 40.0
-        andLabel.alignment = Pos.CENTER
-        when (mode) {
+        val andLabel = Label("And").apply {
+            minWidth = AND_LABEL_MIN_WIDTH
+            alignment = Pos.CENTER
+        }
+        sortKeyBetweenHBox = when (mode) {
             Mode.NORMAL -> {
                 val sortKeyFromTextField = TextField()
                 sortKeyFromTextField.textProperty().bindBidirectional(sortKeyFromProperty)
                 val sortKeyToTextField = TextField()
                 sortKeyToTextField.textProperty().bindBidirectional(sortKeyToProperty)
-                sortKeyBetweenHBox = HBox(sortKeyFromTextField, andLabel, sortKeyToTextField)
+                HBox(sortKeyFromTextField, andLabel, sortKeyToTextField)
             }
             Mode.FOREIGN -> {
                 val sortKeyFromComboBox = createAttributesComboBox(sortKeyFromProperty)
                 val sortKeyToComboBox = createAttributesComboBox(sortKeyToProperty)
-                sortKeyBetweenHBox = HBox(sortKeyFromComboBox, andLabel, sortKeyToComboBox)
+                HBox(sortKeyFromComboBox, andLabel, sortKeyToComboBox)
             }
         }
         sortKeyBetweenHBox.alignment = Pos.CENTER

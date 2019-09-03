@@ -13,6 +13,10 @@ sealed class Search(val type: SearchType,
                     val order: Order) : JsonModel {
     companion object {
         const val USER_INPUT_MARK = "?"
+
+        fun requiresUserInput(value: String): Boolean {
+            return value.startsWith(Search.USER_INPUT_MARK)
+        }
     }
 
     fun isAscOrdered(): Boolean {

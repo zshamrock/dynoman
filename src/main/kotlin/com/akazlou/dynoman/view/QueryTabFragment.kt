@@ -2,6 +2,7 @@ package com.akazlou.dynoman.view
 
 import com.akazlou.dynoman.controller.AddQuerySaverController
 import com.akazlou.dynoman.domain.search.Condition
+import com.akazlou.dynoman.domain.search.Operator
 import com.akazlou.dynoman.domain.search.QueryResult
 import com.akazlou.dynoman.domain.search.QuerySearch
 import com.akazlou.dynoman.domain.search.ResultData
@@ -291,13 +292,20 @@ class QueryTabFragment : Fragment("Query Tab") {
             }
             is QuerySearch -> {
                 val inputs = mutableListOf<SearchInput>()
-                if (requiresUserInput(search.getHashKeyValue())) {
-                    inputs.add(SearchInput(search.getHashKeyName(), search.getHashKeyType(), search.getHashKeyValue()))
-                }
-                // TODO: Handle Between case (and so also maybe display the operator in the user search input modal)
-                if (search.getRangeKeyValues().isNotEmpty() && requiresUserInput(search.getRangeKeyValues()[0])) {
+                if (Search.requiresUserInput(search.getHashKeyValue())) {
                     inputs.add(SearchInput(
-                            search.getRangeKeyName()!!, search.getRangeKeyType(), search.getRangeKeyValues()[0]))
+                            search.getHashKeyName(),
+                            search.getHashKeyType(),
+                            Operator.EQ,
+                            listOf(search.getHashKeyValue())))
+                }
+                if (search.getRangeKeyValues().isNotEmpty()
+                        && search.getRangeKeyValues().any { Search.requiresUserInput(it) }) {
+                    inputs.add(SearchInput(
+                            search.getRangeKeyName()!!,
+                            search.getRangeKeyType(),
+                            search.getRangeKeyOperator(),
+                            search.getRangeKeyValues()))
                 }
                 inputs.addAll(mapToSearchInputs(search.filters))
                 inputs
@@ -307,13 +315,8 @@ class QueryTabFragment : Fragment("Query Tab") {
 
     private fun mapToSearchInputs(conditions: List<Condition>): List<SearchInput> {
         return conditions
-                .filter { condition -> condition.values.any(::requiresUserInput) }
-                // TODO: Handle Between case (and so also maybe display the operator in the user search input modal)
-                .map { condition -> SearchInput(condition.name, condition.type, condition.values[0]) }
-    }
-
-    private fun requiresUserInput(value: String): Boolean {
-        return value.startsWith(Search.USER_INPUT_MARK)
+                .filter { condition -> condition.values.any { Search.requiresUserInput(it) } }
+                .map { condition -> SearchInput(condition.name, condition.type, condition.operator, condition.values) }
     }
 
     fun getQuery(): String {
