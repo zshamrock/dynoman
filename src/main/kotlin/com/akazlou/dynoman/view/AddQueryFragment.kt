@@ -23,7 +23,7 @@ class AddQueryFragment : Fragment("Add Query") {
     val attributes: List<String> by param()
     val sourceTable: String by param()
     private var pane: ScrollPane by singleAssign()
-    private var searchCriteriaFragment: SearchCriteriaFragment by singleAssign()
+    private var searchCriteriaFragment: SearchCriteriaFragment? = null
 
     companion object {
         private const val QUERY_NAME_STANDARD_PREFIX = "Get"
@@ -68,7 +68,7 @@ class AddQueryFragment : Fragment("Add Query") {
                                     "description" to operation.describeTable(table.tableName),
                                     "attributes" to attributes
                             ))
-                            pane.content = searchCriteriaFragment.root
+                            pane.content = searchCriteriaFragment!!.root
                         }
                     }
                 }
@@ -96,7 +96,7 @@ class AddQueryFragment : Fragment("Add Query") {
                                     sourceTable,
                                     base,
                                     queryNameProperty.value,
-                                    searchCriteriaFragment.getSearch())
+                                    searchCriteriaFragment!!.getSearch())
                         } ui {
                             close()
                         }
