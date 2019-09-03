@@ -233,7 +233,7 @@ class QueryTabFragment : Fragment("Query Tab") {
             find<AddQueryFragment>(
                     params = mapOf(
                             AddQueryFragment::operation to params["operation"],
-                            AddQueryFragment::attributes to USER_INPUT_MARK_LIST.plus(allColumns.toList().sorted()),
+                            AddQueryFragment::attributes to USER_INPUT_MARK_LIST.plus(allColumns.toList()),
                             AddQueryFragment::sourceTable to (params["description"] as TableDescription).tableName)
             ).openModal(block = true)
             queryMenu.items.clear()
