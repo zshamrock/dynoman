@@ -19,7 +19,7 @@ class MainView : View("DynamoDB Manager") {
                 }
                 menu("_Help") {
                     item("_About").action {
-                        println("Dynoman ${Config.VERSION}")
+                        find<AboutFragment>().openModal()
                     }
                 }
             }
