@@ -7,7 +7,10 @@ data class ForeignSearchName(val table: String, val name: String, val flags: Enu
         private const val SEPARATOR = "@"
         private const val NAME_FLAGS_SEPARATOR = "/"
         @JvmField
-        val EMPTY_FLAGS: EnumSet<Flag> = EnumSet.noneOf(ForeignSearchName.Flag::class.java)
+        val EMPTY_FLAGS: EnumSet<Flag> = EnumSet.noneOf(Flag::class.java)
+        @JvmField
+        val HIDDEN_FLAGS: EnumSet<Flag> = EnumSet.of(Flag.ENVIRONMENT_STRIPPED)
+
 
         fun of(fullName: String): ForeignSearchName {
             val parts = fullName.split(SEPARATOR)
@@ -54,7 +57,7 @@ data class ForeignSearchName(val table: String, val name: String, val flags: Enu
     }
 
     fun getNameWithFlags(): String {
-        if (flags.isEmpty()) {
+        if (flags.isEmpty() || (flags - HIDDEN_FLAGS).isEmpty()) {
             return name
         }
         return name + NAME_FLAGS_SEPARATOR + flags.map(Flag::mnemonic).joinToString("")
