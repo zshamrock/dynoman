@@ -11,7 +11,7 @@ class ForeignSearchNameSpec : StringSpec({
     "get full name" {
         forall(
                 row("dev.TableA", "NameA", EnumSet.noneOf(ForeignSearchName.Flag::class.java), "dev.TableA@0@NameA"),
-                row("dev.TableA", "NameA", EnumSet.of(ForeignSearchName.Flag.QUESTION), "dev.TableA@2@NameA")
+                row("dev.TableA", "NameA", EnumSet.of(ForeignSearchName.Flag.QUESTION), "dev.TableA@1@NameA")
         ) { table, name, flags, fullName ->
             ForeignSearchName(table, name, flags).getFullName() shouldBe fullName
         }
@@ -41,7 +41,7 @@ class ForeignSearchNameSpec : StringSpec({
     "build instance from full name" {
         forall(
                 row("dev.TableA@0@NameA", "dev.TableA", "NameA", EnumSet.noneOf(ForeignSearchName.Flag::class.java)),
-                row("dev.TableA@2@NameA", "dev.TableA", "NameA", EnumSet.of(ForeignSearchName.Flag.QUESTION))
+                row("dev.TableA@1@NameA", "dev.TableA", "NameA", EnumSet.of(ForeignSearchName.Flag.QUESTION))
         ) { fullName, table, name, flags ->
             val fsn = ForeignSearchName.of(fullName)
             fsn.table shouldBe table

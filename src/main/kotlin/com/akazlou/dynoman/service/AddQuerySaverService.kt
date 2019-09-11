@@ -61,13 +61,12 @@ class AddQuerySaverService {
                 })
     }
 
-    fun listNames(table: String, path: Path): List<String> {
+    fun listNames(table: String, path: Path): List<ForeignSearchName> {
         val names = service.listNames(path)
-        return names.map { ForeignSearchName.of(it) }.filter { it.matches(table) }.map { it.getNameWithFlags() }
+        return names.map { ForeignSearchName.of(it) }.filter { it.matches(table) }
     }
 
-    fun restore(table: String, base: Path, name: String): Search {
-        val fsn = ForeignSearchName.of(table, name)
+    fun restore(table: String, base: Path, fsn: ForeignSearchName): Search {
         return service.restore(SAVER_TYPE, base, fsn.getFullName()).first()
     }
 }

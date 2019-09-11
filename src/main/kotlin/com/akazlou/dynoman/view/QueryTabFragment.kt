@@ -246,7 +246,7 @@ class QueryTabFragment : Fragment("Query Tab") {
         val base = Config.getSavedQueriesPath(app.configBasePath)
         val names = addQuerySaverController.listNames(table, base)
         names.forEach { name ->
-            val item = MenuItem(name)
+            val item = MenuItem(name.getNameWithFlags())
             item.action {
                 println("Run $name")
                 if (resultTable.selectedItem != null) {
