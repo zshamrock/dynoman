@@ -11,24 +11,35 @@ import java.util.concurrent.atomic.AtomicInteger
 
 class AddQuerySaverService {
     companion object {
+        private const val QUESTION_INDEX_INITIAL_VALUE = 1
         @JvmField
         val SAVER_TYPE = SearchesSaverService.Type.QUERY
+        // TODO: Environment separator and the complete logic of the environment detection and stripping should be moved
+        // to the application settings
+        private const val ENVIRONMENT_SEPARATOR = "."
+        private const val NO_ENVIRONMENT = ""
     }
 
     private val service = SearchesSaverService()
 
     fun save(table: String, base: Path, name: String, search: Search) {
-        val questionIndex = AtomicInteger(1)
+        val parts = table.split(ENVIRONMENT_SEPARATOR, limit = 2)
+        val (env, envlessTable) = if (parts.size == 2) {
+            Pair(parts[0], parts[1])
+        } else {
+            Pair(NO_ENVIRONMENT, table)
+        }
+        val questionIndex = AtomicInteger(QUESTION_INDEX_INITIAL_VALUE)
         val preprocessed = when (search) {
             is ScanSearch -> {
                 ScanSearch(
-                        search.table,
+                        envlessTable,
                         search.index,
                         search.filters.map { preprocess(it, questionIndex) })
             }
             is QuerySearch -> {
                 QuerySearch(
-                        search.table,
+                        envlessTable,
                         search.index,
                         preprocess(search.hashKey, questionIndex),
                         search.rangeKey?.let { preprocess(it, questionIndex) },
@@ -36,14 +47,17 @@ class AddQuerySaverService {
                         search.order)
             }
         }
+        val flags = EnumSet.noneOf(ForeignSearchName.Flag::class.java)
+        if (questionIndex.get() != QUESTION_INDEX_INITIAL_VALUE) {
+            flags.add(ForeignSearchName.Flag.QUESTION)
+        }
+        if (env != NO_ENVIRONMENT) {
+            flags.add(ForeignSearchName.Flag.ENVIRONMENT_STRIPPED)
+        }
         val fsn = ForeignSearchName(
-                table,
+                envlessTable,
                 name,
-                if (questionIndex.get() == 1) {
-                    ForeignSearchName.EMPTY_FLAGS
-                } else {
-                    EnumSet.of(ForeignSearchName.Flag.QUESTION)
-                })
+                flags)
         service.save(SAVER_TYPE, base, fsn.getFullName(), listOf(preprocessed))
     }
 
