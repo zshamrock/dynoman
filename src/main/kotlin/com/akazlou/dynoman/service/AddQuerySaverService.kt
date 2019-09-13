@@ -23,12 +23,7 @@ class AddQuerySaverService {
     private val service = SearchesSaverService()
 
     fun save(table: String, base: Path, name: String, search: Search) {
-        val parts = table.split(ENVIRONMENT_SEPARATOR, limit = 2)
-        val (env, envlessTable) = if (parts.size == 2) {
-            Pair(parts[0], parts[1])
-        } else {
-            Pair(NO_ENVIRONMENT, table)
-        }
+        val (env, envlessTable) = stripEnvironment(table)
         val questionIndex = AtomicInteger(QUESTION_INDEX_INITIAL_VALUE)
         val preprocessed = when (search) {
             is ScanSearch -> {
@@ -61,6 +56,15 @@ class AddQuerySaverService {
         service.save(SAVER_TYPE, base, fsn.getFullName(), listOf(preprocessed))
     }
 
+    private fun stripEnvironment(table: String): Pair<String, String> {
+        val parts = table.split(ENVIRONMENT_SEPARATOR, limit = 2)
+        return if (parts.size == 2) {
+            Pair(parts[0], parts[1])
+        } else {
+            Pair(NO_ENVIRONMENT, table)
+        }
+    }
+
     private fun preprocess(condition: Condition, index: AtomicInteger): Condition {
         return Condition(
                 condition.name,
@@ -77,7 +81,8 @@ class AddQuerySaverService {
 
     fun listNames(table: String, path: Path): List<ForeignSearchName> {
         val names = service.listNames(path)
-        return names.map { ForeignSearchName.of(it) }.filter { it.matches(table) }
+        val (env, envlessTable) = stripEnvironment(table)
+        return names.map { ForeignSearchName.of(it) }.filter { it.matches(envlessTable) }
     }
 
     fun restore(table: String, base: Path, fsn: ForeignSearchName): Search {
