@@ -29,13 +29,13 @@ class AddQuerySaverService {
             is ScanSearch -> {
                 ScanSearch(
                         envlessTable,
-                        search.index,
+                        search.index?.let { stripEnvironment(it).second },
                         search.filters.map { preprocess(it, questionIndex) })
             }
             is QuerySearch -> {
                 QuerySearch(
                         envlessTable,
-                        search.index,
+                        search.index?.let { stripEnvironment(it).second },
                         preprocess(search.hashKey, questionIndex),
                         search.rangeKey?.let { preprocess(it, questionIndex) },
                         search.filters.map { preprocess(it, questionIndex) },
