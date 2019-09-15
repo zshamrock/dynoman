@@ -2,6 +2,7 @@ package com.akazlou.dynoman.view
 
 import com.akazlou.dynoman.controller.AddQuerySaverController
 import com.akazlou.dynoman.controller.MainController
+import com.akazlou.dynoman.domain.Environment
 import com.akazlou.dynoman.domain.search.SearchType
 import com.akazlou.dynoman.service.DynamoDBOperation
 import javafx.beans.binding.Bindings
@@ -27,7 +28,6 @@ class AddQueryFragment : Fragment("Add Query") {
 
     companion object {
         private const val QUERY_NAME_STANDARD_PREFIX = "Get"
-        private const val TABLE_NAME_ENV_SEPARATOR = "."
     }
 
     override val root = form {
@@ -60,7 +60,7 @@ class AddQueryFragment : Fragment("Add Query") {
                             foreignTableProperty.value = table.name
                             if (queryNameProperty.value.isNullOrEmpty()) {
                                 queryNameProperty.value = QUERY_NAME_STANDARD_PREFIX +
-                                        (table.name.split(TABLE_NAME_ENV_SEPARATOR).last()).capitalize()
+                                        Environment(table.name).envlessTableOrIndex.capitalize()
                             }
                             // TODO: If it was the index, select it accordingly instead of table
                             searchCriteriaFragment = find<SearchCriteriaFragment>(params = mapOf(
