@@ -29,4 +29,11 @@ data class Environment(val tableOrIndex: String) {
     fun isNotEmpty(): Boolean {
         return !isEmpty()
     }
+
+    fun prefix(value: String): String {
+        if (isEmpty()) {
+            return value
+        }
+        return name + ENVIRONMENT_SEPARATOR + value
+    }
 }

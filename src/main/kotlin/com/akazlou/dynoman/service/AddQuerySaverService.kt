@@ -20,7 +20,7 @@ class AddQuerySaverService {
     private val service = SearchesSaverService()
 
     fun save(table: String, base: Path, name: String, search: Search) {
-        val env = Environment(table)
+        val env = Environment(search.table)
         val questionIndex = AtomicInteger(QUESTION_INDEX_INITIAL_VALUE)
         val preprocessed = when (search) {
             is ScanSearch -> {
@@ -47,7 +47,7 @@ class AddQuerySaverService {
             flags.add(ForeignSearchName.Flag.ENVIRONMENT_STRIPPED)
         }
         val fsn = ForeignSearchName(
-                env.envlessTableOrIndex,
+                Environment(table).envlessTableOrIndex,
                 name,
                 flags)
         service.save(SAVER_TYPE, base, fsn.getFullName(), listOf(preprocessed))
@@ -74,6 +74,20 @@ class AddQuerySaverService {
     }
 
     fun restore(table: String, base: Path, fsn: ForeignSearchName): Search {
-        return service.restore(SAVER_TYPE, base, fsn.getFullName()).first()
+        val search = service.restore(SAVER_TYPE, base, fsn.getFullName()).first()
+        val env = Environment(table)
+        if (env.isEmpty()) {
+            return search
+        }
+        val prefixedTable = env.prefix(search.table)
+        val prefixedIndex = search.index?.let { env.prefix(it) }
+        return when (search) {
+            is ScanSearch -> {
+                ScanSearch(prefixedTable, prefixedIndex, search.filters)
+            }
+            is QuerySearch -> {
+                QuerySearch(prefixedTable, prefixedIndex, search.hashKey, search.rangeKey, search.filters, search.order)
+            }
+        }
     }
 }

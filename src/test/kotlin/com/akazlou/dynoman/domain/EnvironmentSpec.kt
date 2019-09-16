@@ -7,17 +7,18 @@ import io.kotlintest.specs.StringSpec
 import io.kotlintest.tables.row
 
 class EnvironmentSpec : StringSpec({
-    "strip env" {
+    "verify env" {
         forall(
-                row("dev.TableA", "dev", "TableA", false),
-                row("prod.TableA.Description", "prod", "TableA.Description", false),
-                row("TableA", "", "TableA", true)
-        ) { table, name, envless, empty ->
+                row("dev.TableA", "dev", "TableA", false, "dev.TableA"),
+                row("prod.TableA.Description", "prod", "TableA.Description", false, "prod.TableA.Description"),
+                row("TableA", "", "TableA", true, "TableA")
+        ) { table, name, envless, empty, prefixed ->
             val env = Environment(table)
             env.name shouldBe name
             env.envlessTableOrIndex shouldBe envless
             env.isEmpty() shouldBe empty
             env.isNotEmpty() shouldNotBe empty
+            env.prefix(table) == prefixed
         }
     }
 })
