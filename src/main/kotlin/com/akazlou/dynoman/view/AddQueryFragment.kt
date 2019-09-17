@@ -60,7 +60,7 @@ class AddQueryFragment : Fragment("Add Query") {
                             foreignTableProperty.value = table.name
                             if (queryNameProperty.value.isNullOrEmpty()) {
                                 queryNameProperty.value = QUERY_NAME_STANDARD_PREFIX +
-                                        Environment(table.name).envlessTableOrIndex.capitalize()
+                                        Environment(table.name).value.capitalize()
                             }
                             // TODO: If it was the index, select it accordingly instead of table
                             searchCriteriaFragment = find<SearchCriteriaFragment>(params = mapOf(

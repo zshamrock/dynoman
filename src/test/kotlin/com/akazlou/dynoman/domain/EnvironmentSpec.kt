@@ -12,10 +12,10 @@ class EnvironmentSpec : StringSpec({
                 row("dev.TableA", "dev", "TableA", false, "dev.TableA"),
                 row("prod.TableA.Description", "prod", "TableA.Description", false, "prod.TableA.Description"),
                 row("TableA", "", "TableA", true, "TableA")
-        ) { table, name, envless, empty, prefixed ->
+        ) { table, name, value, empty, prefixed ->
             val env = Environment(table)
             env.name shouldBe name
-            env.envlessTableOrIndex shouldBe envless
+            env.value shouldBe value
             env.isEmpty() shouldBe empty
             env.isNotEmpty() shouldNotBe empty
             env.prefix(table) == prefixed

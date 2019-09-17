@@ -25,14 +25,14 @@ class AddQuerySaverService {
         val preprocessed = when (search) {
             is ScanSearch -> {
                 ScanSearch(
-                        env.envlessTableOrIndex,
-                        search.index?.let { Environment(it).envlessTableOrIndex },
+                        env.value,
+                        search.index?.let { Environment(it).value },
                         search.filters.map { preprocess(it, questionIndex) })
             }
             is QuerySearch -> {
                 QuerySearch(
-                        env.envlessTableOrIndex,
-                        search.index?.let { Environment(it).envlessTableOrIndex },
+                        env.value,
+                        search.index?.let { Environment(it).value },
                         preprocess(search.hashKey, questionIndex),
                         search.rangeKey?.let { preprocess(it, questionIndex) },
                         search.filters.map { preprocess(it, questionIndex) },
@@ -47,7 +47,7 @@ class AddQuerySaverService {
             flags.add(ForeignSearchName.Flag.ENVIRONMENT_STRIPPED)
         }
         val fsn = ForeignSearchName(
-                Environment(table).envlessTableOrIndex,
+                Environment(table).value,
                 name,
                 flags)
         service.save(SAVER_TYPE, base, fsn.getFullName(), listOf(preprocessed))
@@ -70,7 +70,7 @@ class AddQuerySaverService {
     fun listNames(table: String, path: Path): List<ForeignSearchName> {
         val names = service.listNames(path)
         val env = Environment(table)
-        return names.map { ForeignSearchName.of(it) }.filter { it.matches(env.envlessTableOrIndex) }
+        return names.map { ForeignSearchName.of(it) }.filter { it.matches(env.value) }
     }
 
     fun restore(table: String, base: Path, fsn: ForeignSearchName): Search {
