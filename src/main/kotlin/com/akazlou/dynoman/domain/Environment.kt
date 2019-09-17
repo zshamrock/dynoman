@@ -2,9 +2,9 @@ package com.akazlou.dynoman.domain
 
 // TODO: Environment separator and the complete logic of the environment detection and stripping should be moved
 // to the application settings
-data class Environment(val tableOrIndex: String) {
+data class Environment(val tableOrIndex: String, private val separator: String = DEFAULT_ENVIRONMENT_SEPARATOR) {
     companion object {
-        private const val ENVIRONMENT_SEPARATOR = "."
+        const val DEFAULT_ENVIRONMENT_SEPARATOR = "."
         private const val NO_ENVIRONMENT = ""
     }
 
@@ -12,7 +12,7 @@ data class Environment(val tableOrIndex: String) {
     val envlessTableOrIndex: String
 
     init {
-        val parts = tableOrIndex.split(ENVIRONMENT_SEPARATOR, limit = 2)
+        val parts = tableOrIndex.split(separator, limit = 2)
         if (parts.size == 2) {
             name = parts[0]
             envlessTableOrIndex = parts[1]
@@ -34,6 +34,6 @@ data class Environment(val tableOrIndex: String) {
         if (isEmpty()) {
             return value
         }
-        return name + ENVIRONMENT_SEPARATOR + value
+        return name + separator + value
     }
 }
