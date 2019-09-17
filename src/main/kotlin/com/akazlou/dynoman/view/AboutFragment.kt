@@ -1,5 +1,6 @@
 package com.akazlou.dynoman.view
 
+import com.akazlou.dynoman.domain.Support
 import javafx.geometry.Pos
 import javafx.scene.control.Hyperlink
 import tornadofx.*
@@ -13,19 +14,19 @@ class AboutFragment : Fragment("About") {
         hbox {
             alignment = Pos.CENTER
             text("Built with love and passion by")
-            hyperlink("Aliaksandr Kazlou", op = setup("https://github.com/zshamrock"))
+            hyperlink("Aliaksandr Kazlou", op = setup(Support.GITHUB_PROFILE_LINK))
             text(".")
         }
         separator()
         hbox {
             alignment = Pos.CENTER
             text("You can help and support the project by becoming the patron on")
-            hyperlink("Patreon", op = setup("https://www.patreon.com/akazlou"))
+            hyperlink("Patreon", op = setup(Support.PATREON_LINK))
         }
         hbox {
             alignment = Pos.CENTER
             text("and star the project on")
-            hyperlink("GitHub", op = setup("https://github.com/zshamrock/dynoman"))
+            hyperlink("GitHub", op = setup(Support.GITHUB_PROJECT_LINK))
             text("!")
         }
         button("Close") {

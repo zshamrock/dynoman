@@ -1,5 +1,6 @@
 package com.akazlou.dynoman.view
 
+import com.akazlou.dynoman.domain.Support
 import javafx.scene.input.KeyCombination
 import tornadofx.*
 
@@ -20,6 +21,14 @@ class MainView : View("DynamoDB Manager") {
                 menu("_Help") {
                     item("_About").action {
                         find<AboutFragment>().openModal()
+                    }
+                }
+                menu("_Support") {
+                    item("Become _Patron").action {
+                        hostServices.showDocument(Support.PATREON_LINK)
+                    }
+                    item("Star on _GitHub").action {
+                        hostServices.showDocument(Support.GITHUB_PROJECT_LINK)
                     }
                 }
             }
