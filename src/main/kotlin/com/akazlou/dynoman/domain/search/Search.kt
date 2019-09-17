@@ -32,7 +32,7 @@ sealed class Search(val type: SearchType,
      *
      * Possible references are:
      * - environment variables
-     * - input from user:
+     * - input from user
      * - managed environment/context variable
      * - master table column's name (in the case of the foreign query)
      */
