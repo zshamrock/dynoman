@@ -1,2 +1,4 @@
-1.0.1
-Enable new version notification
+- Enable new version notification
+- Custom query management
+
+Download from https://github.com/zshamrock/dynoman/blob/master/release/version.
