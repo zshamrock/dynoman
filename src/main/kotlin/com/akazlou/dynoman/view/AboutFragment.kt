@@ -1,6 +1,7 @@
 package com.akazlou.dynoman.view
 
 import com.akazlou.dynoman.domain.Support
+import com.akazlou.dynoman.domain.Version
 import javafx.geometry.Pos
 import javafx.scene.control.Hyperlink
 import tornadofx.*
@@ -10,7 +11,7 @@ class AboutFragment : Fragment("About") {
         prefWidth = 540.0
         prefHeight = 220.0
         alignment = Pos.CENTER
-        text("Dynoman (aka DynamoDB Manager) ${Config.VERSION}")
+        text("Dynoman (aka DynamoDB Manager) ${Version.CURRENT}")
         hbox {
             alignment = Pos.CENTER
             text("Built with love and passion by")

@@ -1,24 +1,44 @@
 package com.akazlou.dynoman.view
 
+import com.akazlou.dynoman.domain.UpdateAnnouncement
+import javafx.geometry.Orientation
 import javafx.geometry.Pos
+import javafx.scene.layout.Priority
 import javafx.scene.text.TextAlignment
 import tornadofx.*
 
 class UpdateAnnouncementFragment : Fragment("Announcement") {
-    val version: String by param()
-    val announcement: String by param()
+    val update: UpdateAnnouncement by param()
 
-    override val root = vbox(5.0, Pos.CENTER) {
-        prefWidth = 380.0
-        prefHeight = 120.0
-        text("New version $version is available")
-        separator()
-        text(announcement) {
+    override val root = vbox(5.0) {
+        prefWidth = 570.0
+        prefHeight = 300.0
+        text(update.announcement) {
+            paddingTop = 20.0
             textAlignment = TextAlignment.CENTER
+            alignment = Pos.TOP_CENTER
         }
-        button("Ok") {
-            action {
-                close()
+        separator()
+        form {
+            fieldset("Changelog", labelPosition = Orientation.VERTICAL) {
+                field("", Orientation.VERTICAL) {
+                    textarea(update.changelog) {
+                        prefRowCount = 8
+                        vgrow = Priority.ALWAYS
+                    }
+                }
+            }
+            buttonbar {
+                button("Ok") {
+                    action {
+                        close()
+                    }
+                }
+                button("Download") {
+                    action {
+                        hostServices.showDocument(update.url)
+                    }
+                }
             }
         }
     }
