@@ -1,10 +1,13 @@
 package com.akazlou.dynoman.view
 
+import com.akazlou.dynoman.controller.UpdateCheckController
 import com.akazlou.dynoman.domain.Support
 import javafx.scene.input.KeyCombination
 import tornadofx.*
 
 class MainView : View("DynamoDB Manager") {
+    private val controller: UpdateCheckController by inject()
+
     override val root = borderpane {
         prefWidth = 970.0
         prefHeight = 730.0
@@ -19,6 +22,13 @@ class MainView : View("DynamoDB Manager") {
                     }
                 }
                 menu("_Help") {
+                    item("Check for _Updates...").action {
+                        val update = controller.getUpdate()
+                        find<UpdateAnnouncementFragment>(
+                                params = mapOf(
+                                        UpdateAnnouncementFragment::update to update,
+                                        UpdateAnnouncementFragment::confirm to true)).openModal()
+                    }
                     item("_About").action {
                         find<AboutFragment>().openModal()
                     }

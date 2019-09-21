@@ -11,7 +11,7 @@ class DynomanApp : App(MainView::class, AppStyle::class) {
 
     init {
         runAsync {
-            controller.getAnnouncement()
+            controller.getUpdate()
         } ui { update ->
             if (update.shouldAnnounce()) {
                 find<UpdateAnnouncementFragment>(

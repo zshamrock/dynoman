@@ -21,7 +21,7 @@ class UpdateCheckService {
 
     private val client: OkHttpClient = OkHttpClient()
 
-    fun getAnnouncement(): UpdateAnnouncement {
+    fun getUpdate(): UpdateAnnouncement {
         var version: String = Config.VERSION
         var announcement = ""
         var changelog = ""
@@ -29,6 +29,7 @@ class UpdateCheckService {
         try {
             version = get(Type.VERSION, Version.CURRENT)
             if (version != Config.VERSION) {
+                // TODO: Might combine this into the single REST call and return combined output, could be JSON
                 announcement = get(Type.ANNOUNCEMENT)
                 changelog = get(Type.CHANGELOG)
                 url = get(Type.URL)
