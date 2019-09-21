@@ -26,7 +26,7 @@ https://stackoverflow.com/questions/20541038/how-to-have-the-menu-mnemonic-under
     -fx-pref-height: 20px;
 }
 
-.text, .hint {
+.text, .hint, .status {
     -fx-font-family: "Verdana";
 }
 

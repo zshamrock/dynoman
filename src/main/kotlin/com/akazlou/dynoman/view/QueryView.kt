@@ -2,6 +2,7 @@ package com.akazlou.dynoman.view
 
 import com.akazlou.dynoman.controller.RunQueryController
 import com.akazlou.dynoman.controller.SessionSaverController
+import com.akazlou.dynoman.domain.Version
 import com.akazlou.dynoman.domain.search.QueryResult
 import com.akazlou.dynoman.domain.search.Search
 import com.akazlou.dynoman.ext.tab
@@ -18,7 +19,6 @@ import javafx.scene.control.ContextMenu
 import javafx.scene.control.MenuItem
 import javafx.scene.control.TabPane
 import javafx.scene.layout.Priority
-import javafx.scene.text.Font
 import javafx.stage.StageStyle
 import tornadofx.*
 
@@ -131,16 +131,12 @@ class QueryView : View("Query") {
                 maxHeight = 35.0
             }
             textflow {
+                addClass("status")
                 alignment = Pos.CENTER_RIGHT
-                text("Region: ") {
-                    font = Font.font("Verdana")
-                }
-                text(region) {
-                    font = Font.font("Verdana")
-                }
-                text(local) {
-                    font = Font.font("Verdana")
-                }
+                text("Region: ")
+                text(region)
+                text(local)
+                text(" / v${Version.CURRENT}")
             }
         }
     }
