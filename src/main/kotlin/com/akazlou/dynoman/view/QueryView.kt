@@ -2,6 +2,7 @@ package com.akazlou.dynoman.view
 
 import com.akazlou.dynoman.controller.RunQueryController
 import com.akazlou.dynoman.controller.SessionSaverController
+import com.akazlou.dynoman.domain.Config
 import com.akazlou.dynoman.domain.Version
 import com.akazlou.dynoman.domain.search.QueryResult
 import com.akazlou.dynoman.domain.search.Search

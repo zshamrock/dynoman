@@ -2,6 +2,7 @@ package com.akazlou.dynoman.view
 
 import com.akazlou.dynoman.controller.AddQuerySaverController
 import com.akazlou.dynoman.controller.MainController
+import com.akazlou.dynoman.domain.Config
 import com.akazlou.dynoman.domain.Environment
 import com.akazlou.dynoman.domain.search.SearchType
 import com.akazlou.dynoman.service.DynamoDBOperation

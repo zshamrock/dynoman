@@ -1,6 +1,7 @@
 package com.akazlou.dynoman.view
 
 import com.akazlou.dynoman.controller.SessionSaverController
+import com.akazlou.dynoman.domain.Config
 import com.akazlou.dynoman.domain.search.Search
 import javafx.beans.property.SimpleStringProperty
 import tornadofx.*

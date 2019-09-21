@@ -1,9 +1,9 @@
 package com.akazlou.dynoman.controller
 
+import com.akazlou.dynoman.domain.Config
 import com.akazlou.dynoman.domain.ConnectionProperties
 import com.akazlou.dynoman.domain.DynamoDBTable
 import com.akazlou.dynoman.service.DynamoDBOperation
-import com.akazlou.dynoman.view.Config
 import com.amazonaws.services.dynamodbv2.model.TableDescription
 import tornadofx.*
 

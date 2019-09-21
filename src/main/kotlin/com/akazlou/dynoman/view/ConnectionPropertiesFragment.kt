@@ -1,6 +1,7 @@
 package com.akazlou.dynoman.view
 
 import com.akazlou.dynoman.controller.MainController
+import com.akazlou.dynoman.domain.Config
 import com.amazonaws.regions.Regions
 import javafx.beans.property.SimpleBooleanProperty
 import javafx.beans.property.SimpleStringProperty

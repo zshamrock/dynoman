@@ -1,6 +1,5 @@
-package com.akazlou.dynoman.view
+package com.akazlou.dynoman.domain
 
-import com.akazlou.dynoman.domain.ConnectionProperties
 import com.amazonaws.regions.Regions
 import tornadofx.*
 import java.nio.file.Path
@@ -10,7 +9,6 @@ import java.nio.file.Path
  */
 // XXX: Should use instead the instance of the class, and inject it accordingly to each of the view
 // (or research on how enable it the global wide similar to the app.config)
-// TODO: Move this class into Controller level instead if nothing prevents of doing that
 object Config {
     const val REGION = "region"
     const val ACCESS_KEY = "access_key"
@@ -20,7 +18,6 @@ object Config {
     @JvmField
     val DEFAULT_REGION = Regions.US_WEST_2
     const val LOCAL = "local"
-    const val VERSION = "1.0.0"
 
     private const val SYSTEM_PROPERTY_PROFILE_NAME = "aws.profile"
     private const val ENV_PROPERTY_PROFILE_NAME = "AWS_PROFILE"
