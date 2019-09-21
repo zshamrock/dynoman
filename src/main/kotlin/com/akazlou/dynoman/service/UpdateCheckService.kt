@@ -2,33 +2,42 @@ package com.akazlou.dynoman.service
 
 import com.akazlou.dynoman.domain.UpdateAnnouncement
 import com.akazlou.dynoman.domain.Version
-import com.akazlou.dynoman.view.Config
 import okhttp3.OkHttpClient
 import okhttp3.Request
-import java.util.Locale
+import java.nio.file.Files
+import java.nio.file.Paths
 
 class UpdateCheckService {
     companion object {
         private const val BASE_RELEASE_URL = "https://raw.githubusercontent.com/zshamrock/dynoman/master/release"
+        @JvmField
+        val DEFAULT_ANNOUNCEMENT = UpdateAnnouncement(version = Version.CURRENT)
     }
 
-    private enum class Type {
-        VERSION,
-        ANNOUNCEMENT,
-        CHANGELOG,
-        URL
+    private val debug = (System.getProperty("dynoman.debug").ifEmpty { "true" } ?: "false").toBoolean()
+    private val noUpdate = (System.getProperty("dynoman.noupdate") ?: "false").toBoolean()
+
+    private enum class Type(val filename: String) {
+        VERSION("version"),
+        ANNOUNCEMENT("announcement"),
+        CHANGELOG("changelog"),
+        URL("url")
     }
 
     private val client: OkHttpClient = OkHttpClient()
 
     fun getUpdate(): UpdateAnnouncement {
-        var version: String = Config.VERSION
+        if (noUpdate) {
+            println("Skip checking update on start up")
+            return DEFAULT_ANNOUNCEMENT
+        }
+        var version: String = Version.CURRENT
         var announcement = ""
         var changelog = ""
         var url = ""
         try {
             version = get(Type.VERSION, Version.CURRENT)
-            if (version != Config.VERSION) {
+            if (version != Version.CURRENT) {
                 // TODO: Might combine this into the single REST call and return combined output, could be JSON
                 announcement = get(Type.ANNOUNCEMENT)
                 changelog = get(Type.CHANGELOG)
@@ -41,8 +50,12 @@ class UpdateCheckService {
     }
 
     private fun get(type: Type, def: String = ""): String {
+        if (debug) {
+            return Files.readAllLines(Paths.get(System.getProperty("user.dir"), "release", type.filename))
+                    .joinToString(separator = System.lineSeparator())
+        }
         val call = client.newCall(Request.Builder()
-                .url("${BASE_RELEASE_URL}/${type.name.toLowerCase(Locale.ROOT)}")
+                .url("${BASE_RELEASE_URL}/${type.filename}")
                 .build())
         return call.execute().use { response ->
             response.body?.string() ?: def
