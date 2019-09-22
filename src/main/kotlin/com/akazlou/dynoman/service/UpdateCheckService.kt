@@ -7,6 +7,7 @@ import okhttp3.Request
 import java.nio.file.Files
 import java.nio.file.Paths
 
+// TODO: Check for the update only once per day, utilize TornadoFX preferences wrapper
 class UpdateCheckService {
     companion object {
         private const val BASE_RELEASE_URL = "https://raw.githubusercontent.com/zshamrock/dynoman/master/release"
@@ -65,12 +66,6 @@ class UpdateCheckService {
     }
 
     private fun getSystemBooleanProperty(name: String, presenceAsTrue: Boolean = false): Boolean {
-        return System.getProperty(name).orEmpty().ifEmpty {
-            if (presenceAsTrue) {
-                "true"
-            } else {
-                "false"
-            }
-        }.toBoolean()
+        return System.getProperty(name).orEmpty().ifEmpty { presenceAsTrue.toString() }.toBoolean()
     }
 }
