@@ -4,6 +4,7 @@ import com.akazlou.dynoman.domain.ConnectionProperties
 import com.akazlou.dynoman.domain.DynamoDBTable
 import com.akazlou.dynoman.service.DynamoDBOperation
 import javafx.beans.property.SimpleObjectProperty
+import javafx.scene.layout.Priority
 import tornadofx.*
 
 class TableListView : View() {
@@ -22,7 +23,9 @@ class TableListView : View() {
                 find(ConnectionPropertiesFragment::class).openModal(block = true)
             }
         }
-        add(tableTree.root)
+        val tableTree = tableTree.root
+        tableTree.vgrow = Priority.ALWAYS
+        add(tableTree)
         textarea {
             vboxConstraints {
                 prefHeight = 200.0
