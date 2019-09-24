@@ -454,7 +454,7 @@ class SearchCriteriaFragment : Fragment("Search") {
                         Condition.hashKey(
                                 hashKeyName,
                                 attributeDefinitionTypes.getValue(hashKeyName),
-                                hashKeyValueProperty.value),
+                                parseValue(hashKeyValueProperty.value)),
                         sortQueryCondition,
                         buildSearchConditions(),
                         orderProperty.value)
