@@ -6,24 +6,26 @@ description: |
 
 grade: devel # must be 'stable' to release into candidate/stable channels
 confinement: devmode # use 'strict' once you have the right plugs and slots
+base: core18
 
 architectures:
   - build-on: amd64
 
 apps:
   dynoman:
-    command: desktop-launch java -jar $SNAP/dynoman-1.0.0-SNAPSHOT/dynoman-1.0.0-SNAPSHOT-all.jar
+    command: java -jar build/libs/dynoman-1.0.0-SNAPSHOT.jar
     plugs: [network, desktop]
 
 parts:
   dynoman:
-    after: [desktop-glib-only]
+    #    after: [desktop-gtk3]
+    source-type: local
     plugin: gradle
-    source: dynoman
-    build: |
-      export JAVA_HOME="/usr/lib/jvm/java-8-openjdk-amd64"
-    gradle-options: [shadowJar]
-    install: |
-      cp build/libs/dynoman-1.0.0-SNAPSHOT-all.jar $SNAPCRAFT_PART_INSTALL/
+    source: .
+    override-build: |
+      ./gradlew shadowJar
+    gradle-output-dir:
+      build/libs
     build-packages:
-      - openjdk-8-jdk
+      - openjdk-11-jdk
+      - openjfx

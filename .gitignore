@@ -45,3 +45,6 @@ data/
 
 # Kotlin
 .kotlintest/
+
+# Misc
+~*/
