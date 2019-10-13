@@ -7,7 +7,7 @@ import tornadofx.*
 class UpdateCheckController : Controller() {
     private val service = UpdateCheckService()
 
-    fun getUpdate(): UpdateAnnouncement {
-        return service.getUpdate()
+    fun getUpdate(manual: Boolean = false): UpdateAnnouncement {
+        return service.getUpdate(manual)
     }
 }

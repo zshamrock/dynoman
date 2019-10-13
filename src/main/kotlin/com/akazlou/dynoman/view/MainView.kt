@@ -23,7 +23,7 @@ class MainView : View("DynamoDB Manager") {
                 }
                 menu("_Help") {
                     item("Check for _Updates...").action {
-                        val update = controller.getUpdate()
+                        val update = controller.getUpdate(true)
                         find<UpdateAnnouncementFragment>(
                                 params = mapOf(
                                         UpdateAnnouncementFragment::update to update,

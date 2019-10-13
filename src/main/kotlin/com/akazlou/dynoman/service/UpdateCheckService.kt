@@ -30,8 +30,8 @@ class UpdateCheckService {
 
     private val client: OkHttpClient = OkHttpClient()
 
-    fun getUpdate(): UpdateAnnouncement {
-        if (noUpdate) {
+    fun getUpdate(manual: Boolean = false): UpdateAnnouncement {
+        if (!manual && noUpdate) {
             return DEFAULT_ANNOUNCEMENT
         }
         var version: String = Version.CURRENT
