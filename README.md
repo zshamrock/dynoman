@@ -21,3 +21,7 @@
 ### To run
 
 `AWS_PROFILE=<application specific profile> ./gradlew run` or simply run `./run.sh`.
+
+### Support :heart:
+
+You can support this (and other projects) on [Patreon](https://www.patreon.com/akazlou) :+1: and :star2: it here on GitHub! 
