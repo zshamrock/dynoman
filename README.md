@@ -20,7 +20,9 @@
 
 ### To run
 
-`AWS_PROFILE=<application specific profile> ./gradlew run` or simply run `./run.sh`.
+`gradle run`
+
+To install `gradle` best way is to use [SDKMAN!](https://sdkman.io/): `sdk install gradle`.
 
 ### Support :heart:
 
