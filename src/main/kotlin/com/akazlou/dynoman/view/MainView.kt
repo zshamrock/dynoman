@@ -1,12 +1,15 @@
 package com.akazlou.dynoman.view
 
 import com.akazlou.dynoman.controller.UpdateCheckController
+import com.akazlou.dynoman.controller.WebBrowserLinkController
 import com.akazlou.dynoman.domain.Support
 import javafx.scene.input.KeyCombination
 import tornadofx.*
+import kotlin.system.exitProcess
 
 class MainView : View("DynamoDB Manager") {
     private val controller: UpdateCheckController by inject()
+    private val webBrowserLinkController: WebBrowserLinkController by inject()
 
     override val root = borderpane {
         prefWidth = 970.0
@@ -18,7 +21,7 @@ class MainView : View("DynamoDB Manager") {
                 }
                 menu("_File") {
                     item("E_xit", KeyCombination.keyCombination("Ctrl+X")).action {
-                        System.exit(0)
+                        exitProcess(0)
                     }
                 }
                 menu("_Help") {
@@ -35,10 +38,10 @@ class MainView : View("DynamoDB Manager") {
                 }
                 menu("_Support") {
                     item("Become _Patron").action {
-                        hostServices.showDocument(Support.PATREON_LINK)
+                        webBrowserLinkController.open(Support.PATREON_LINK)
                     }
                     item("Star on _GitHub").action {
-                        hostServices.showDocument(Support.GITHUB_PROJECT_LINK)
+                        webBrowserLinkController.open(Support.GITHUB_PROJECT_LINK)
                     }
                 }
             }

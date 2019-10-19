@@ -1,3 +1,4 @@
+import com.google.cloud.tools.jib.gradle.JibExtension
 import no.tornado.fxlauncher.gradle.FXLauncherExtension
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
@@ -18,6 +19,7 @@ buildscript {
 plugins {
     java
     application
+    id("com.google.cloud.tools.jib") version "1.7.0"
 }
 
 application {
@@ -61,6 +63,20 @@ configure<FXLauncherExtension> {
     applicationUrl = "http://com.akazlou.dynoman.s3-website-us-west-2.amazonaws.com"
     applicationMainClass = "com.akazlou.dynoman.DynomanApp"
     acceptDowngrade = false
+}
+
+configure<JibExtension> {
+    from {
+        image = "amazoncorretto:8u232"
+    }
+    to {
+        image = "dynoman:latest"
+        tags = setOf("amazoncorretto", "amazoncorretto-8u232")
+    }
+    container {
+        mainClass = "com.akazlou.dynoman.DynomanApp"
+        creationTime = "USE_CURRENT_TIMESTAMP"
+    }
 }
 
 tasks.getting(Jar::class) {

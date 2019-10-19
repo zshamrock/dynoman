@@ -1,5 +1,6 @@
 package com.akazlou.dynoman.view
 
+import com.akazlou.dynoman.controller.WebBrowserLinkController
 import com.akazlou.dynoman.domain.UpdateAnnouncement
 import javafx.geometry.Orientation
 import javafx.geometry.Pos
@@ -8,6 +9,8 @@ import javafx.scene.text.TextAlignment
 import tornadofx.*
 
 class UpdateAnnouncementFragment : Fragment("Announcement") {
+    private val webBrowserLinkController: WebBrowserLinkController by inject()
+
     val update: UpdateAnnouncement by param()
     val confirm: Boolean by param(false)
 
@@ -38,7 +41,7 @@ class UpdateAnnouncementFragment : Fragment("Announcement") {
                     }
                     button("Download") {
                         action {
-                            hostServices.showDocument(update.url)
+                            webBrowserLinkController.open(update.url)
                         }
                     }
                 }

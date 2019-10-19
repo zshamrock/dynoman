@@ -1,5 +1,6 @@
 package com.akazlou.dynoman.view
 
+import com.akazlou.dynoman.controller.WebBrowserLinkController
 import com.akazlou.dynoman.domain.Support
 import com.akazlou.dynoman.domain.Version
 import javafx.geometry.Pos
@@ -7,6 +8,8 @@ import javafx.scene.control.Hyperlink
 import tornadofx.*
 
 class AboutFragment : Fragment("About") {
+    private val webBrowserLinkController: WebBrowserLinkController by inject()
+
     override val root = vbox {
         prefWidth = 540.0
         prefHeight = 220.0
@@ -40,7 +43,7 @@ class AboutFragment : Fragment("About") {
     private fun setup(link: String): Hyperlink.() -> Unit {
         return {
             action {
-                hostServices.showDocument(link)
+                webBrowserLinkController.open(link)
             }
         }
     }
