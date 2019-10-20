@@ -61,10 +61,11 @@ configure<JavaPluginConvention> {
 configure<FXLauncherExtension> {
     applicationVendor = "Aliaksandr Kazlou (aliaksandr.kazlou@gmail.com)"
     applicationUrl = "http://com.akazlou.dynoman.s3-website-us-west-2.amazonaws.com"
-    applicationMainClass = "com.akazlou.dynoman.DynomanApp"
+    applicationMainClass = application.mainClassName
     acceptDowngrade = false
 }
 
+// docker run --net host -v /tmp/.X11-unix:/tmp/.X11-unix -v $HOME/.Xauthority:/root/.Xauthority -e DISPLAY=unix$DISPLAY dynoman
 configure<JibExtension> {
     from {
         image = "amazoncorretto:8u232"
@@ -74,14 +75,18 @@ configure<JibExtension> {
         tags = setOf("amazoncorretto", "amazoncorretto-8u232")
     }
     container {
-        mainClass = "com.akazlou.dynoman.DynomanApp"
+        mainClass = application.mainClassName
         creationTime = "USE_CURRENT_TIMESTAMP"
+        jvmFlags = listOf(
+                "-Djdk.gtk.verbose=true",
+                "-Djavafx.verbose=true"
+        )
     }
 }
 
 tasks.getting(Jar::class) {
     manifest {
-        attributes(mapOf("Main-Class" to "com.akazlou.dynoman.DynomanApp"))
+        attributes(mapOf("Main-Class" to application.mainClassName))
     }
 }
 
