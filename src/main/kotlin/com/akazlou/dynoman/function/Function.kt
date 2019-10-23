@@ -47,9 +47,8 @@ abstract class Function<T> {
         if (arg.isNotEmpty()) {
             args += cast(arg.trim())
         }
-        if (tokens.isNotEmpty()) {
-            throw IllegalArgumentException("Can't parse the function statement '$text'. "
-                    + "Please, check it is syntactically correct.")
+        require(tokens.isEmpty()) {
+            "Can't parse the function statement '$text'. Please, check it is syntactically correct."
         }
         return args.toTypedArray()
     }
