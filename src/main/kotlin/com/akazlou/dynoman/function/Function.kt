@@ -62,8 +62,8 @@ abstract class Function<T> {
             // Boolean type
             arg.toBoolean()
         } else {
-            // Long type
-            arg.toLong()
+            // Double type
+            arg.toDouble()
         }
     }
 

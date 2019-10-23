@@ -110,7 +110,8 @@ class QuerySearch(table: String,
 
     private fun cast(value: String, type: Type): Any {
         return when (type) {
-            Type.NUMBER -> value.toLong()
+            Type.BOOLEAN -> value.toBoolean()
+            Type.NUMBER -> value.toDouble()
             else -> value
         }
     }

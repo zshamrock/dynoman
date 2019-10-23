@@ -154,7 +154,11 @@ enum class Operator(val text: String) {
             return null
         }
         return if (values.size > index) {
-            if (type == Type.STRING) values[index] else values[index].toLong()
+            when (type) {
+                Type.BOOLEAN -> values[index].toBoolean()
+                Type.NUMBER -> values[index].toDouble()
+                else -> values[index]
+            }
         } else null
     }
 
