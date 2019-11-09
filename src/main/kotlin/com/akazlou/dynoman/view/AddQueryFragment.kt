@@ -4,6 +4,7 @@ import com.akazlou.dynoman.controller.AddQuerySaverController
 import com.akazlou.dynoman.controller.MainController
 import com.akazlou.dynoman.domain.Config
 import com.akazlou.dynoman.domain.Environment
+import com.akazlou.dynoman.domain.ForeignSearchName
 import com.akazlou.dynoman.domain.search.SearchType
 import com.akazlou.dynoman.service.DynamoDBOperation
 import javafx.beans.binding.Bindings
@@ -30,6 +31,20 @@ class AddQueryFragment : Fragment("Add Query") {
     companion object {
         private const val QUERY_NAME_STANDARD_PREFIX = "Get"
     }
+
+    enum class Response {
+        CREATE,
+        CREATE_AND_RUN,
+        CANCEL
+    }
+
+    var response: Response = Response.CANCEL
+        private set
+
+    var foreignSearchName: ForeignSearchName? = null
+        private set
+
+    private val createButtonEnabled = Bindings.and(queryNameProperty.isNotEmpty, foreignTableProperty.isNotEmpty)
 
     override val root = form {
         prefWidth = 850.0
@@ -89,16 +104,23 @@ class AddQueryFragment : Fragment("Add Query") {
             isFillHeight = false
             buttonbar {
                 button("Create") {
-                    enableWhen { Bindings.and(queryNameProperty.isNotEmpty, foreignTableProperty.isNotEmpty) }
+                    enableWhen { createButtonEnabled }
                     action {
                         runAsyncWithProgress {
-                            val base = Config.getSavedQueriesPath(app.configBasePath)
-                            addQuerySaverController.save(
-                                    sourceTable,
-                                    base,
-                                    queryNameProperty.value,
-                                    searchCriteriaFragment!!.getSearch())
+                            createQuery()
                         } ui {
+                            response = Response.CREATE
+                            close()
+                        }
+                    }
+                }
+                button("Create and Run") {
+                    enableWhen { createButtonEnabled }
+                    action {
+                        runAsyncWithProgress {
+                            createQuery()
+                        } ui {
+                            response = Response.CREATE_AND_RUN
                             close()
                         }
                     }
@@ -110,5 +132,14 @@ class AddQueryFragment : Fragment("Add Query") {
                 }
             }
         }
+    }
+
+    private fun createQuery() {
+        val base = Config.getSavedQueriesPath(app.configBasePath)
+        foreignSearchName = addQuerySaverController.save(
+                sourceTable,
+                base,
+                queryNameProperty.value,
+                searchCriteriaFragment!!.getSearch())
     }
 }

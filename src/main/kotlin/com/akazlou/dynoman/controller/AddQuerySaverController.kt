@@ -9,8 +9,8 @@ import java.nio.file.Path
 class AddQuerySaverController : Controller() {
     private val service = AddQuerySaverService()
 
-    fun save(table: String, base: Path, name: String, search: Search) {
-        service.save(table, base, name, search)
+    fun save(table: String, base: Path, name: String, search: Search): ForeignSearchName {
+        return service.save(table, base, name, search)
     }
 
     fun listNames(table: String, path: Path): List<ForeignSearchName> {

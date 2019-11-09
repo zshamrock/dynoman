@@ -2,6 +2,7 @@ package com.akazlou.dynoman.view
 
 import com.akazlou.dynoman.controller.AddQuerySaverController
 import com.akazlou.dynoman.domain.Config
+import com.akazlou.dynoman.domain.ForeignSearchName
 import com.akazlou.dynoman.domain.search.Condition
 import com.akazlou.dynoman.domain.search.Operator
 import com.akazlou.dynoman.domain.search.QueryResult
@@ -33,6 +34,7 @@ import javafx.scene.input.KeyCombination
 import javafx.scene.layout.Priority
 import javafx.util.Callback
 import tornadofx.*
+import java.nio.file.Path
 
 class QueryTabFragment : Fragment("Query Tab") {
     private val addQuerySaverController: AddQuerySaverController by inject()
@@ -229,60 +231,68 @@ class QueryTabFragment : Fragment("Query Tab") {
     }
 
     private fun setupQueryMenu(queryMenu: Menu) {
+        val description = params["description"] as TableDescription
+        val table = description.tableName
+        val base = Config.getSavedQueriesPath(app.configBasePath)
         val addQueryItem = MenuItem("Add Query...")
         addQueryItem.action {
             println("Add Query...")
-            find<AddQueryFragment>(
+            val addQueryFragment = find<AddQueryFragment>(
                     params = mapOf(
                             AddQueryFragment::operation to params["operation"],
                             AddQueryFragment::attributes to USER_INPUT_MARK_LIST.plus(allColumns.toList()),
                             AddQueryFragment::sourceTable to (params["description"] as TableDescription).tableName)
-            ).openModal(block = true)
+            )
+            addQueryFragment.openModal(block = true)
             queryMenu.items.clear()
             setupQueryMenu(queryMenu)
+            if (addQueryFragment.response == AddQueryFragment.Response.CREATE_AND_RUN) {
+                runForeignQuery(addQueryFragment.foreignSearchName!!, table, base)
+            }
         }
         queryMenu.items.addAll(addQueryItem, SeparatorMenuItem())
-        val description = params["description"] as TableDescription
-        val table = description.tableName
-        val base = Config.getSavedQueriesPath(app.configBasePath)
         val names = addQuerySaverController.listNames(table, base)
         names.forEach { name ->
             val item = MenuItem(name.getNameWithFlags())
             item.action {
-                println("Run $name")
-                if (resultTable.selectedItem != null) {
-                    val resultData = resultTable.selectedItem as ResultData
-                    val mapping = resultData.asMap().toMutableMap()
-                    val raw = addQuerySaverController.restore(table, base, name)
-                    val inputs = findSearchInputs(raw)
-                    if (inputs.isNotEmpty()) {
-                        val confirmation = find<UserQueryInputFragment>(
-                                params = mapOf(UserQueryInputFragment::inputs to inputs))
-                        confirmation.openModal(block = true)
-                        if (confirmation.isCancel()) {
-                            return@action
-                        }
-                        mapping.putAll(confirmation.getMappings())
-                    }
-                    val operation = params["operation"] as DynamoDBOperation
-                    val search = raw.expand(mapping)
-                    val page = when (search) {
-                        is ScanSearch -> {
-                            operation.scan(search)
-                        }
-                        is QuerySearch -> {
-                            operation.query(search)
-                        }
-                    }
-                    println("Run $name using mapping $mapping")
-                    queryView.setQueryResult(
-                            operation,
-                            operation.describeTable(search.table),
-                            search,
-                            page)
-                }
+                runForeignQuery(name, table, base)
             }
             queryMenu.items.add(item)
+        }
+    }
+
+    private fun runForeignQuery(name: ForeignSearchName, table: String, base: Path) {
+        println("Run $name")
+        if (resultTable.selectedItem != null) {
+            val resultData = resultTable.selectedItem as ResultData
+            val mapping = resultData.asMap().toMutableMap()
+            val raw = addQuerySaverController.restore(table, base, name)
+            val inputs = findSearchInputs(raw)
+            if (inputs.isNotEmpty()) {
+                val confirmation = find<UserQueryInputFragment>(
+                        params = mapOf(UserQueryInputFragment::inputs to inputs))
+                confirmation.openModal(block = true)
+                if (confirmation.isCancel()) {
+                    return
+                }
+                mapping.putAll(confirmation.getMappings())
+            }
+            val operation = params["operation"] as DynamoDBOperation
+            val search = raw.expand(mapping)
+            val page = when (search) {
+                is ScanSearch -> {
+                    operation.scan(search)
+                }
+                is QuerySearch -> {
+                    operation.query(search)
+                }
+            }
+            println("Run $name using mapping $mapping")
+            queryView.setQueryResult(
+                    operation,
+                    operation.describeTable(search.table),
+                    search,
+                    page)
         }
     }
 

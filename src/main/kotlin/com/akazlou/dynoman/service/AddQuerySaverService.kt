@@ -19,7 +19,7 @@ class AddQuerySaverService {
 
     private val service = SearchesSaverService()
 
-    fun save(table: String, base: Path, name: String, search: Search) {
+    fun save(table: String, base: Path, name: String, search: Search): ForeignSearchName {
         val env = Environment(search.table)
         val questionIndex = AtomicInteger(QUESTION_INDEX_INITIAL_VALUE)
         val preprocessed = when (search) {
@@ -51,6 +51,7 @@ class AddQuerySaverService {
                 name,
                 flags)
         service.save(SAVER_TYPE, base, fsn.getFullName(), listOf(preprocessed))
+        return fsn
     }
 
     private fun preprocess(condition: Condition, index: AtomicInteger): Condition {
