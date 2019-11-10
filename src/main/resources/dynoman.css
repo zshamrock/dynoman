@@ -13,6 +13,10 @@ https://stackoverflow.com/questions/20541038/how-to-have-the-menu-mnemonic-under
     -fx-pref-width: 100px;
 }
 
+.button-large {
+    -fx-pref-width: 120px;
+}
+
 .button-select {
     -fx-pref-width: 30px;
 }

@@ -104,6 +104,7 @@ class AddQueryFragment : Fragment("Add Query") {
             isFillHeight = false
             buttonbar {
                 button("Create") {
+                    addClass("button-large")
                     enableWhen { createButtonEnabled }
                     action {
                         runAsyncWithProgress {
@@ -115,6 +116,7 @@ class AddQueryFragment : Fragment("Add Query") {
                     }
                 }
                 button("Create and Run") {
+                    addClass("button-large")
                     enableWhen { createButtonEnabled }
                     action {
                         runAsyncWithProgress {
@@ -126,6 +128,7 @@ class AddQueryFragment : Fragment("Add Query") {
                     }
                 }
                 button("Cancel") {
+                    addClass("button-large")
                     action {
                         close()
                     }
