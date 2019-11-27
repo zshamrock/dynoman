@@ -82,11 +82,6 @@ class QueryView : View("Query") {
                     updateNamedQueries()
                 }
             }
-            region {
-                hboxConstraints {
-                    hGrow = Priority.ALWAYS
-                }
-            }
             combobox<String>(openSessionNameProperty) {
                 //setPrefSize(200.0, 40.0)
                 prefWidth = 200.0
@@ -115,6 +110,18 @@ class QueryView : View("Query") {
                         }
                     }
                 }
+            }
+            region {
+                hboxConstraints {
+                    hGrow = Priority.ALWAYS
+                }
+            }
+            combobox<String> {
+                prefWidth = 200.0
+                items = listOf("No Environment").asObservable()
+            }
+            button("Manage Environments") {
+                addClass("button-xlarge")
             }
         }
         queries = tabpane {
