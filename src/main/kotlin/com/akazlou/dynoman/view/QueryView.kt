@@ -122,6 +122,9 @@ class QueryView : View("Query") {
             }
             button("Manage Environments") {
                 addClass("button-xlarge")
+                action {
+                    find<ManageEnvironmentFragment>().openModal(block = true)
+                }
             }
         }
         queries = tabpane {
