@@ -13,8 +13,9 @@ class ManageEnvironmentFragment : Fragment("Manage Environments") {
         prefHeight = 430.0
         alignment = Pos.CENTER
         tableview(controller.getGlobals().values.asObservable()) {
-            readonlyColumn("Variable", EnvironmentValue::name)
-            readonlyColumn("Value", EnvironmentValue::value)
+            isEditable = true
+            column("Variable", EnvironmentValue::nameProperty).makeEditable()
+            column("Value", EnvironmentValue::valueProperty).makeEditable()
         }
     }
 }
