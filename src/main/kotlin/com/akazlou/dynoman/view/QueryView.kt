@@ -39,10 +39,20 @@ class QueryView : View("Query") {
     private var operation: DynamoDBOperation? = null
 
     init {
-        val duplicate = MenuItem("Duplicate")
         val rename = MenuItem("Rename")
-        tabContextMenu = ContextMenu(duplicate, rename)
+        val duplicate = MenuItem("Duplicate")
+        tabContextMenu = ContextMenu(rename, duplicate)
 
+        rename.setOnAction {
+            val currentTab = queries.selectionModel.selectedItem
+            val updateTabNameFragment = find<UpdateTabNameFragment>(params = mapOf(
+                    UpdateTabNameFragment::name to currentTab.text))
+            updateTabNameFragment.openModal(block = true)
+            val tabName = updateTabNameFragment.getTabName()
+            if (tabName.isNotBlank()) {
+                currentTab.text = tabName
+            }
+        }
         duplicate.setOnAction {
             val tabs = queries.tabs
             val currentTab = queries.selectionModel.selectedItem
@@ -54,16 +64,6 @@ class QueryView : View("Query") {
             tab.properties[QUERY_TAB_FRAGMENT_KEY] = fragment
             tab.contextMenu = tabContextMenu
             queries.selectionModel.select(tab)
-        }
-        rename.setOnAction {
-            val currentTab = queries.selectionModel.selectedItem
-            val updateTabNameFragment = find<UpdateTabNameFragment>(params = mapOf(
-                    UpdateTabNameFragment::name to currentTab.text))
-            updateTabNameFragment.openModal(block = true)
-            val tabName = updateTabNameFragment.getTabName()
-            if (tabName.isNotBlank()) {
-                currentTab.text = tabName
-            }
         }
         updateNamedQueries()
     }
