@@ -427,7 +427,7 @@ class QueryTabFragment : Fragment("Query Tab") {
         paginationTextProperty.value = "Viewing $from to $to items"
     }
 
-    fun getSearch(): Search {
-        return qwf.getSearch()
+    fun getSearch(name: String = ""): Search {
+        return qwf.getSearch(name)
     }
 }

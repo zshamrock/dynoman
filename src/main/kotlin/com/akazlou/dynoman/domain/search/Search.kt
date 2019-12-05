@@ -10,7 +10,8 @@ sealed class Search(val type: SearchType,
                     val table: String,
                     val index: String?,
                     val filters: List<Condition>,
-                    val order: Order) : JsonModel {
+                    val order: Order,
+                    val name: String = "") : JsonModel {
     companion object {
         const val USER_INPUT_MARK = "?"
 
@@ -56,8 +57,9 @@ class QuerySearch(table: String,
                   val hashKey: Condition,
                   val rangeKey: Condition?,
                   filters: List<Condition>,
-                  order: Order)
-    : Search(SearchType.QUERY, table, index, filters, order) {
+                  order: Order,
+                  name: String = "")
+    : Search(SearchType.QUERY, table, index, filters, order, name) {
     fun getHashKeyName(): String {
         return hashKey.name
     }
@@ -119,8 +121,9 @@ class QuerySearch(table: String,
 
 class ScanSearch(table: String,
                  index: String?,
-                 filters: List<Condition>) :
-        Search(SearchType.SCAN, table, index, filters, Order.ASC) {
+                 filters: List<Condition>,
+                 name: String = "") :
+        Search(SearchType.SCAN, table, index, filters, Order.ASC, name) {
     fun toScanSpec(maxPageSize: Int = 0): ScanSpec {
         val spec = ScanSpec()
         spec.withScanFilters(*(filters.map { it.toScanFilter() }.toTypedArray()))

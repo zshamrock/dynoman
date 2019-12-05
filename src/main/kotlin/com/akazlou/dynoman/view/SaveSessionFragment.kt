@@ -9,9 +9,10 @@ import tornadofx.*
 class SaveSessionFragment : Fragment("Save Session") {
 
     val searches: List<Search> by param()
+    val name: String by param("")
     private val controller: SessionSaverController by inject()
 
-    private val sessionNameProperty = SimpleStringProperty()
+    private val sessionNameProperty = SimpleStringProperty(name)
 
     override val root = form {
         fieldset {

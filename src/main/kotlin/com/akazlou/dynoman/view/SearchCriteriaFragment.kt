@@ -408,7 +408,7 @@ class SearchCriteriaFragment : Fragment("Search") {
         }
     }
 
-    fun getSearch(): Search {
+    fun getSearch(name: String = ""): Search {
         val searchSource = searchSourceProperty.value
         val tableName = description.tableName
         val indexName = if (searchSource.isIndex) {
@@ -418,7 +418,7 @@ class SearchCriteriaFragment : Fragment("Search") {
         }
         return when (searchTypeProperty.value!!) {
             SearchType.SCAN -> {
-                ScanSearch(tableName, indexName, buildSearchConditions())
+                ScanSearch(tableName, indexName, buildSearchConditions(), name)
             }
             SearchType.QUERY -> {
                 val hashKeyName = searchSource.hashKey.attributeName
@@ -457,7 +457,8 @@ class SearchCriteriaFragment : Fragment("Search") {
                                 parseValue(hashKeyValueProperty.value)),
                         sortQueryCondition,
                         buildSearchConditions(),
-                        orderProperty.value)
+                        orderProperty.value,
+                        name)
             }
         }
     }

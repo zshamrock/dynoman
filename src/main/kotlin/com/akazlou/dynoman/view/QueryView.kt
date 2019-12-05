@@ -40,7 +40,8 @@ class QueryView : View("Query") {
 
     init {
         val duplicate = MenuItem("Duplicate")
-        tabContextMenu = ContextMenu(duplicate)
+        val rename = MenuItem("Rename")
+        tabContextMenu = ContextMenu(duplicate, rename)
 
         duplicate.setOnAction {
             val tabs = queries.tabs
@@ -49,10 +50,20 @@ class QueryView : View("Query") {
             val qr = currentFragment.getQueryResult()!!
             val fragment = currentFragment.duplicate()
             val index = tabs.indexOf(currentTab)
-            val tab = queries.tab(index + 1, "${qr.searchType} ${qr.getTable()}", fragment.root)
+            val tab = queries.tab(index + 1, currentTab.text, fragment.root)
             tab.properties[QUERY_TAB_FRAGMENT_KEY] = fragment
             tab.contextMenu = tabContextMenu
             queries.selectionModel.select(tab)
+        }
+        rename.setOnAction {
+            val currentTab = queries.selectionModel.selectedItem
+            val updateTabNameFragment = find<UpdateTabNameFragment>(params = mapOf(
+                    UpdateTabNameFragment::name to currentTab.text))
+            updateTabNameFragment.openModal(block = true)
+            val tabName = updateTabNameFragment.getTabName()
+            if (tabName.isNotBlank()) {
+                currentTab.text = tabName
+            }
         }
         updateNamedQueries()
     }
@@ -69,19 +80,6 @@ class QueryView : View("Query") {
             }
             padding = tornadofx.insets(5, 0)
             alignment = Pos.CENTER_LEFT
-            // XXX: Move Save and Open outside of the QueryView, either separate view or part of the TableListView
-            saveButton = button("Save") {
-                shortcut("Ctrl+S")
-                action {
-                    val criterias = queries.tabs
-                            .map { it.properties[QUERY_TAB_FRAGMENT_KEY] as QueryTabFragment }
-                            .map { it.getSearch() }
-                    find<SaveSessionFragment>(params = mapOf(
-                            SaveSessionFragment::searches to criterias
-                    )).openModal(stageStyle = StageStyle.UTILITY, block = true)
-                    updateNamedQueries()
-                }
-            }
             combobox<String>(openSessionNameProperty) {
                 //setPrefSize(200.0, 40.0)
                 prefWidth = 200.0
@@ -109,6 +107,20 @@ class QueryView : View("Query") {
                             }
                         }
                     }
+                }
+            }
+            // XXX: Move Save and Open outside of the QueryView, either separate view or part of the TableListView
+            saveButton = button("Save") {
+                shortcut("Ctrl+S")
+                action {
+                    val searches = queries.tabs
+                            .map { Pair(it, it.properties[QUERY_TAB_FRAGMENT_KEY] as QueryTabFragment) }
+                            .map { it.second.getSearch(it.first.text) }
+                    find<SaveSessionFragment>(params = mapOf(
+                            SaveSessionFragment::searches to searches,
+                            SaveSessionFragment::name to openSessionNameProperty.value.orEmpty()
+                    )).openModal(stageStyle = StageStyle.UTILITY, block = true)
+                    updateNamedQueries()
                 }
             }
             region {
@@ -168,7 +180,7 @@ class QueryView : View("Query") {
         if (page != null) {
             fragment.setQueryResult(QueryResult(search.type, description, page))
         }
-        val tab = queries.tab("${search.type} ${search.table}", fragment.root)
+        val tab = queries.tab(search.name.ifBlank { "${search.type} ${search.table}" }, fragment.root)
         tab.properties[QUERY_TAB_FRAGMENT_KEY] = fragment
         tab.contextMenu = tabContextMenu
         queries.selectionModel.selectLast()

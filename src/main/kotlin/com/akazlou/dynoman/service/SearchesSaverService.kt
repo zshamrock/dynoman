@@ -26,6 +26,7 @@ class SearchesSaverService {
     }
 
     companion object {
+        private const val SEARCH_NAME = "name"
         private const val SEARCH_TYPE = "type"
         private const val TABLE = "table"
         private const val INDEX = "index"
@@ -63,6 +64,9 @@ class SearchesSaverService {
         searches.forEach { search ->
             val builder = JsonBuilder()
             with(builder) {
+                if (type == Type.SESSION) {
+                    add(SEARCH_NAME, search.name)
+                }
                 add(SEARCH_TYPE, search.type.name)
                 add(TABLE, search.table)
                 if (search.index != null) {
@@ -149,6 +153,7 @@ class SearchesSaverService {
                         filter.getJsonArray(FILTER_VALUES)?.getValuesAs(JsonString::getString).orEmpty()
                 )
             }
+            val searchName = obj.getString(SEARCH_NAME, "")
             when (searchType) {
                 SearchType.QUERY -> {
                     val hash = obj.getJsonObject(HASH)
@@ -178,10 +183,11 @@ class SearchesSaverService {
                             hashKey,
                             sortKey,
                             filters,
-                            order)
+                            order,
+                            searchName)
                 }
                 SearchType.SCAN -> {
-                    ScanSearch(table, index, filters)
+                    ScanSearch(table, index, filters, searchName)
                 }
             }
         }.toList()

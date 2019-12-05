@@ -87,8 +87,8 @@ class QueryWindowFragment : Fragment("Query...") {
         searchCriteriaFragment.init(search)
     }
 
-    fun getSearch(): Search {
-        return searchCriteriaFragment.getSearch()
+    fun getSearch(name: String = ""): Search {
+        return searchCriteriaFragment.getSearch(name)
     }
 }
 
