@@ -7,9 +7,12 @@ import javafx.beans.property.SimpleStringProperty
 import tornadofx.*
 
 class SaveSessionFragment : Fragment("Save Session") {
+    companion object {
+        private const val UNDEFINED = ""
+    }
 
     val searches: List<Search> by param()
-    val name: String by param("")
+    val name: String by param(UNDEFINED)
     private val controller: SessionSaverController by inject()
 
     private val sessionNameProperty = SimpleStringProperty(name)

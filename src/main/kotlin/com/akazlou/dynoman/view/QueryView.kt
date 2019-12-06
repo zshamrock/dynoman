@@ -20,7 +20,6 @@ import javafx.scene.control.ContextMenu
 import javafx.scene.control.MenuItem
 import javafx.scene.control.TabPane
 import javafx.scene.layout.Priority
-import javafx.stage.StageStyle
 import tornadofx.*
 
 class QueryView : View("Query") {
@@ -119,7 +118,7 @@ class QueryView : View("Query") {
                     find<SaveSessionFragment>(params = mapOf(
                             SaveSessionFragment::searches to searches,
                             SaveSessionFragment::name to openSessionNameProperty.value.orEmpty()
-                    )).openModal(stageStyle = StageStyle.UTILITY, block = true)
+                    )).openModal(block = true)
                     updateNamedQueries()
                 }
             }
