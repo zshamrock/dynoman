@@ -5,6 +5,7 @@ import com.akazlou.dynoman.controller.MainController
 import com.akazlou.dynoman.domain.Config
 import com.akazlou.dynoman.domain.Environment
 import com.akazlou.dynoman.domain.ForeignSearchName
+import com.akazlou.dynoman.domain.search.ResultData
 import com.akazlou.dynoman.domain.search.SearchType
 import com.akazlou.dynoman.service.DynamoDBOperation
 import javafx.beans.binding.Bindings
@@ -25,6 +26,7 @@ class AddQueryFragment : Fragment("Add Query") {
     val operation: DynamoDBOperation by param()
     val attributes: List<String> by param()
     val sourceTable: String by param()
+    val data: List<ResultData> by param()
     private var pane: ScrollPane by singleAssign()
     private var searchCriteriaFragment: SearchCriteriaFragment? = null
 

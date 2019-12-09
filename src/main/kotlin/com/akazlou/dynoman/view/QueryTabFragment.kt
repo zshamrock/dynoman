@@ -241,7 +241,8 @@ class QueryTabFragment : Fragment("Query Tab") {
                     params = mapOf(
                             AddQueryFragment::operation to params["operation"],
                             AddQueryFragment::attributes to USER_INPUT_MARK_LIST.plus(allColumns.toList()),
-                            AddQueryFragment::sourceTable to (params["description"] as TableDescription).tableName)
+                            AddQueryFragment::sourceTable to (params["description"] as TableDescription).tableName,
+                            AddQueryFragment::data to data)
             )
             addQueryFragment.openModal(block = true)
             queryMenu.items.clear()
