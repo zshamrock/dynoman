@@ -38,6 +38,16 @@ data class ForeignSearchName(val table: String, val name: String, val flags: Enu
         }
     }
 
+    // SS, NS, [L], M, #{Sessions}*/ #{Sessions}* {Sessions.[Name]*}
+    // #{set}
+    // [vec/list]
+    // {map}
+    enum class DataType {
+        LIST,
+        MAP,
+        SET
+    }
+
     enum class Flag(val value: Int, val mnemonic: Char) {
         QUESTION(1 shl 0, '?'),
         ENVIRONMENT_STRIPPED(1 shl 1, Character.MIN_VALUE),
