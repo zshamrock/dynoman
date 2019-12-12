@@ -145,6 +145,7 @@ class AddQueryFragment : Fragment("Add Query") {
                 sourceTable,
                 base,
                 queryNameProperty.value,
-                searchCriteriaFragment!!.getSearch())
+                searchCriteriaFragment!!.getSearch(),
+                data)
     }
 }

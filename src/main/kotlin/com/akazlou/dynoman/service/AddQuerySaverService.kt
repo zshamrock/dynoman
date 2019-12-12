@@ -4,6 +4,7 @@ import com.akazlou.dynoman.domain.Environment
 import com.akazlou.dynoman.domain.ForeignSearchName
 import com.akazlou.dynoman.domain.search.Condition
 import com.akazlou.dynoman.domain.search.QuerySearch
+import com.akazlou.dynoman.domain.search.ResultData
 import com.akazlou.dynoman.domain.search.ScanSearch
 import com.akazlou.dynoman.domain.search.Search
 import java.nio.file.Path
@@ -17,9 +18,16 @@ class AddQuerySaverService {
         val SAVER_TYPE = SearchesSaverService.Type.QUERY
     }
 
+    private enum class DataType {
+        LIST,
+        MAP,
+        SET,
+        SCALAR
+    }
+
     private val service = SearchesSaverService()
 
-    fun save(table: String, base: Path, name: String, search: Search): ForeignSearchName {
+    fun save(table: String, base: Path, name: String, search: Search, data: List<ResultData>): ForeignSearchName {
         val env = Environment(search.table)
         val questionIndex = AtomicInteger(QUESTION_INDEX_INITIAL_VALUE)
         val preprocessed = when (search) {
@@ -27,15 +35,15 @@ class AddQuerySaverService {
                 ScanSearch(
                         env.value,
                         search.index?.let { Environment(it).value },
-                        search.filters.map { preprocess(it, questionIndex) })
+                        search.filters.map { preprocess(it, questionIndex, data) })
             }
             is QuerySearch -> {
                 QuerySearch(
                         env.value,
                         search.index?.let { Environment(it).value },
-                        preprocess(search.hashKey, questionIndex),
-                        search.rangeKey?.let { preprocess(it, questionIndex) },
-                        search.filters.map { preprocess(it, questionIndex) },
+                        preprocess(search.hashKey, questionIndex, data),
+                        search.rangeKey?.let { preprocess(it, questionIndex, data) },
+                        search.filters.map { preprocess(it, questionIndex, data) },
                         search.order)
             }
         }
@@ -54,7 +62,7 @@ class AddQuerySaverService {
         return fsn
     }
 
-    private fun preprocess(condition: Condition, index: AtomicInteger): Condition {
+    private fun preprocess(condition: Condition, index: AtomicInteger, data: List<ResultData>): Condition {
         return Condition(
                 condition.name,
                 condition.type,
@@ -63,9 +71,14 @@ class AddQuerySaverService {
                     if (value.startsWith(Search.USER_INPUT_MARK)) {
                         "$value${index.getAndIncrement()}"
                     } else {
+//                        findDataType(value, data)
                         value
                     }
                 })
+    }
+
+    private fun findDataType(value: String, data: List<ResultData>) {
+        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
 
     fun listNames(table: String, path: Path): List<ForeignSearchName> {
