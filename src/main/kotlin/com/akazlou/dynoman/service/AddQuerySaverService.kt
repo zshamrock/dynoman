@@ -18,13 +18,6 @@ class AddQuerySaverService {
         val SAVER_TYPE = SearchesSaverService.Type.QUERY
     }
 
-    private enum class DataType {
-        LIST,
-        MAP,
-        SET,
-        SCALAR
-    }
-
     private val service = SearchesSaverService()
 
     fun save(table: String, base: Path, name: String, search: Search, data: List<ResultData>): ForeignSearchName {
@@ -71,14 +64,16 @@ class AddQuerySaverService {
                     if (value.startsWith(Search.USER_INPUT_MARK)) {
                         "$value${index.getAndIncrement()}"
                     } else {
-//                        findDataType(value, data)
+                        val dataType = findDataType(value, data)
+                        println("Data type of value $value is $dataType")
                         value
                     }
                 })
     }
 
-    private fun findDataType(value: String, data: List<ResultData>) {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+    private fun findDataType(value: String, data: List<ResultData>): ResultData.DataType {
+        return data.asSequence().map { it.getDataType(value) }
+                .find { it != ResultData.DataType.NULL } ?: ResultData.DataType.NULL
     }
 
     fun listNames(table: String, path: Path): List<ForeignSearchName> {
