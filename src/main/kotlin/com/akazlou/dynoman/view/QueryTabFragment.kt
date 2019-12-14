@@ -279,6 +279,7 @@ class QueryTabFragment : Fragment("Query Tab") {
                 mapping.putAll(confirmation.getMappings())
             }
             val operation = params["operation"] as DynamoDBOperation
+            // TODO: expand to the list of searches if one of the mapping/field is the collection, i.e. list, set
             val search = raw.expand(mapping)
             val page = when (search) {
                 is ScanSearch -> {

@@ -114,6 +114,9 @@ class AddQueryFragment : Fragment("Add Query") {
                         } ui {
                             response = Response.CREATE
                             close()
+                        } fail { ex ->
+                            find<ErrorMessageFragment>(params = mapOf(ErrorMessageFragment::message to ex.message))
+                                    .openModal(block = true)
                         }
                     }
                 }
