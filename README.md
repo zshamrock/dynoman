@@ -1,20 +1,48 @@
 ## Dynoman - DynamoDB management UI
 
-![Initial Screen](images/public-preview1.png)
+### Connect
 
-![Connect](images/public-preview2.png)
+![Connect](wiki/images/connect.gif)
 
-![Tables](images/public-preview3.png)
+### Tables Filter
 
-![Table Details](images/public-preview4.png)
+![Tables Filter](wiki/images/tables-filter.gif)
 
-![Query Menu](images/public-preview5.png)
+### Copy
 
-![Query Modal](images/public-preview6.png)
+![Copy](wiki/images/copy.gif)
 
-![Query Data](images/public-preview7.png)
+### Query Clipboard
 
-![Data Menu](images/public-preview8.png)
+![Query Clipboard](wiki/images/query-copyclipboard.gif)
+
+### Sessions Save and Open
+
+![Query Clipboard](wiki/images/sessions-save-open.gif)
+
+### Apply Function
+
+![Query Clipboard](wiki/images/menu-applyfunc.gif)
+
+### Scan/Query using Function
+
+![Query Clipboard](wiki/images/scan-usingfunc.gif)
+
+### Foreign Queries
+
+See [Wiki](https://github.com/zshamrock/dynoman/wiki/Foreign-Query) for more details.
+
+#### Normal
+
+![Query Clipboard](wiki/images/fq-normal.gif)
+
+#### User input
+
+![Query Clipboard](wiki/images/fq-qm.gif)
+
+#### Collection
+
+![Query Clipboard](wiki/images/fq-sessions.gif)
 
 ****
 
