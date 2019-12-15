@@ -18,6 +18,7 @@ import javafx.geometry.Pos
 import javafx.scene.control.Button
 import javafx.scene.control.ContextMenu
 import javafx.scene.control.MenuItem
+import javafx.scene.control.Tab
 import javafx.scene.control.TabPane
 import javafx.scene.layout.Priority
 import tornadofx.*
@@ -170,7 +171,7 @@ class QueryView : View("Query") {
     fun setQueryResult(operation: DynamoDBOperation,
                        description: TableDescription,
                        search: Search,
-                       page: Page<Item, out Any>?) {
+                       page: Page<Item, out Any>?): Tab {
         val fragment = find<QueryTabFragment>(
                 params = mapOf(
                         "description" to description,
@@ -183,6 +184,11 @@ class QueryView : View("Query") {
         tab.properties[QUERY_TAB_FRAGMENT_KEY] = fragment
         tab.contextMenu = tabContextMenu
         queries.selectionModel.selectLast()
+        return tab
+    }
+
+    fun select(tab: Tab) {
+        queries.selectionModel.select(tab)
     }
 
     fun setRegion(region: Regions, local: Boolean) {

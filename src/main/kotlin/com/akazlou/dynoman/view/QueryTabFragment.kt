@@ -25,6 +25,7 @@ import javafx.scene.control.Menu
 import javafx.scene.control.MenuItem
 import javafx.scene.control.SelectionMode
 import javafx.scene.control.SeparatorMenuItem
+import javafx.scene.control.Tab
 import javafx.scene.control.TabPane
 import javafx.scene.control.TableColumn
 import javafx.scene.control.TablePosition
@@ -290,6 +291,7 @@ class QueryTabFragment : Fragment("Query Tab") {
             } else {
                 listOf(mapping)
             }
+            var firstTab: Tab? = null
             mappings.forEach { m ->
                 val search = raw.expand(m)
                 val page = when (search) {
@@ -301,11 +303,19 @@ class QueryTabFragment : Fragment("Query Tab") {
                     }
                 }
                 println("Run $name using mapping $m")
-                queryView.setQueryResult(
+                val tab = queryView.setQueryResult(
                         operation,
                         operation.describeTable(search.table),
                         search,
                         page)
+                if (firstTab == null) {
+                    firstTab = tab
+                }
+            }
+            if (firstTab != null) {
+                // Set the first tab of the expanded search, if there are a few, so it is clear from where the result
+                // starts
+                queryView.select(firstTab!!)
             }
         }
     }
