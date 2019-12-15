@@ -279,22 +279,34 @@ class QueryTabFragment : Fragment("Query Tab") {
                 mapping.putAll(confirmation.getMappings())
             }
             val operation = params["operation"] as DynamoDBOperation
-            // TODO: expand to the list of searches if one of the mapping/field is the collection, i.e. list, set
-            val search = raw.expand(mapping)
-            val page = when (search) {
-                is ScanSearch -> {
-                    operation.scan(search)
+            val mappings = if (name.flags.contains(ForeignSearchName.Flag.EXPAND_COLLECTION)) {
+                val foreignAttributeName = raw.getAllValues().first { resultData.getDataType(it).isCollection() }
+                val values = (resultData.getRawValue(foreignAttributeName) ?: emptyList<String>()) as Collection<*>
+                values.map { value ->
+                    val m = mapping.toMutableMap()
+                    m[foreignAttributeName] = value.toString()
+                    m
                 }
-                is QuerySearch -> {
-                    operation.query(search)
-                }
+            } else {
+                listOf(mapping)
             }
-            println("Run $name using mapping $mapping")
-            queryView.setQueryResult(
-                    operation,
-                    operation.describeTable(search.table),
-                    search,
-                    page)
+            mappings.forEach { m ->
+                val search = raw.expand(m)
+                val page = when (search) {
+                    is ScanSearch -> {
+                        operation.scan(search)
+                    }
+                    is QuerySearch -> {
+                        operation.query(search)
+                    }
+                }
+                println("Run $name using mapping $m")
+                queryView.setQueryResult(
+                        operation,
+                        operation.describeTable(search.table),
+                        search,
+                        page)
+            }
         }
     }
 

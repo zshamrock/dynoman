@@ -50,6 +50,16 @@ sealed class Search(val type: SearchType,
     protected fun expandFilters(mapping: Map<String, String>): List<Condition> {
         return filters.map { it.expand(mapping) }
     }
+
+    fun getAllValues(): List<String> {
+        return doGetAllValues() + getAllFilterValues()
+    }
+
+    protected abstract fun doGetAllValues(): List<String>
+
+    private fun getAllFilterValues(): List<String> {
+        return filters.flatMap { it.values }
+    }
 }
 
 class QuerySearch(table: String,
@@ -110,6 +120,14 @@ class QuerySearch(table: String,
                 table, index, hashKey.expand(mapping), rangeKey?.expand(mapping), expandFilters(mapping), order)
     }
 
+    override fun doGetAllValues(): List<String> {
+        return if (rangeKey == null) {
+            listOf(hashKey.values.first())
+        } else {
+            listOf(hashKey.values.first(), *rangeKey.values.toTypedArray())
+        }
+    }
+
     private fun cast(value: String, type: Type): Any {
         return when (type) {
             Type.BOOLEAN -> value.toBoolean()
@@ -135,5 +153,9 @@ class ScanSearch(table: String,
 
     override fun doExpand(mapping: Map<String, String>): Search {
         return ScanSearch(table, index, expandFilters(mapping))
+    }
+
+    override fun doGetAllValues(): List<String> {
+        return emptyList()
     }
 }

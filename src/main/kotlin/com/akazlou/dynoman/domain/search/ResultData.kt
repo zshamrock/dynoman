@@ -35,6 +35,10 @@ data class ResultData(val data: Map<String, Any?>, val hashKey: KeySchemaElement
         return keys.map { getValue(it) }
     }
 
+    fun getRawValue(attributeName: String): Any? {
+        return data[attributeName]
+    }
+
     fun asMap(): Map<String, String> = data.keys.associateWith { getValue(it) }
 
     fun getDataType(attributeName: String): DataType {
