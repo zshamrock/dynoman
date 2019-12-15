@@ -30,4 +30,16 @@ class ResultDataSpec : StringSpec({
             ResultData(data, KeySchemaElement("-", KeyType.HASH), null).getDataType(name) shouldBe dt
         }
     }
+
+    "verify is collection type" {
+        forall(
+                row(ResultData.DataType.LIST, true),
+                row(ResultData.DataType.SET, true),
+                row(ResultData.DataType.MAP, true),
+                row(ResultData.DataType.SCALAR, false),
+                row(ResultData.DataType.NULL, false)
+        ) { dt, expected ->
+            dt.isCollection() shouldBe expected
+        }
+    }
 })

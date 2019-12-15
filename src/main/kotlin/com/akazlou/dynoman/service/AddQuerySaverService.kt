@@ -2,6 +2,7 @@ package com.akazlou.dynoman.service
 
 import com.akazlou.dynoman.domain.Environment
 import com.akazlou.dynoman.domain.ForeignSearchName
+import com.akazlou.dynoman.domain.UnsupportedForeignSearchUsageException
 import com.akazlou.dynoman.domain.search.Condition
 import com.akazlou.dynoman.domain.search.QuerySearch
 import com.akazlou.dynoman.domain.search.ResultData
@@ -23,7 +24,7 @@ class AddQuerySaverService {
     fun save(table: String, base: Path, name: String, search: Search, data: List<ResultData>): ForeignSearchName {
         val env = Environment(search.table)
         val questionIndex = AtomicInteger(QUESTION_INDEX_INITIAL_VALUE)
-        val dataTypes = mutableListOf<ResultData.DataType>()
+        val dataTypes = mutableMapOf<String, ResultData.DataType>()
         val preprocessed = when (search) {
             is ScanSearch -> {
                 ScanSearch(
@@ -48,7 +49,13 @@ class AddQuerySaverService {
         if (env.isNotEmpty()) {
             flags.add(ForeignSearchName.Flag.ENVIRONMENT_STRIPPED)
         }
-        if (dataTypes.contains(ResultData.DataType.SET) || dataTypes.contains(ResultData.DataType.LIST)) {
+        val collectionTypesCount = dataTypes.values.count { it.isCollection() }
+        if (collectionTypesCount > 1) {
+            throw UnsupportedForeignSearchUsageException(
+                    "Only single collection like mapping is currently supported by the foreign search set up, but " +
+                            "found $collectionTypesCount: ${dataTypes.filterValues { it.isCollection() }}.")
+        }
+        if (collectionTypesCount != 0) {
             flags.add(ForeignSearchName.Flag.EXPAND_COLLECTION)
         }
         val fsn = ForeignSearchName(
@@ -59,10 +66,15 @@ class AddQuerySaverService {
         return fsn
     }
 
+    /**
+     * The result of this function also produces the side effect, i.e. modifies the passing _index_ and _dataTypes_
+     * parameters. It is not necessary the good practice, but for now does the job well, unless the better solution
+     * is designed.
+     */
     private fun preprocess(condition: Condition,
                            index: AtomicInteger,
                            data: List<ResultData>,
-                           dataTypes: MutableList<ResultData.DataType>): Condition {
+                           dataTypes: MutableMap<String, ResultData.DataType>): Condition {
         return Condition(
                 condition.name,
                 condition.type,
@@ -71,7 +83,7 @@ class AddQuerySaverService {
                     if (value.startsWith(Search.USER_INPUT_MARK)) {
                         "$value${index.getAndIncrement()}"
                     } else {
-                        dataTypes.add(findDataType(value, data))
+                        dataTypes[value] = findDataType(value, data)
                         value
                     }
                 })

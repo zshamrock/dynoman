@@ -8,7 +8,11 @@ data class ResultData(val data: Map<String, Any?>, val hashKey: KeySchemaElement
         MAP,
         SET,
         SCALAR,
-        NULL
+        NULL;
+
+        fun isCollection(): Boolean {
+            return this == LIST || this == MAP || this == SET;
+        }
     }
 
     fun getKeys(): List<String> {

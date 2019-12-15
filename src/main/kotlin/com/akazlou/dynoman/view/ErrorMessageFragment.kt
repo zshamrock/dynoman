@@ -1,6 +1,7 @@
 package com.akazlou.dynoman.view
 
 import javafx.geometry.Pos
+import javafx.scene.layout.Priority
 import tornadofx.*
 
 class ErrorMessageFragment : Fragment("Error") {
@@ -11,8 +12,11 @@ class ErrorMessageFragment : Fragment("Error") {
         prefHeight = 125.0
         alignment = Pos.CENTER
         spacing = 5.0
+        paddingBottom = 5.0
         textarea(message) {
+            isWrapText = true
             prefRowCount = 2
+            vgrow = Priority.ALWAYS
         }
         button("Close") {
             action {
