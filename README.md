@@ -30,7 +30,7 @@
 
 ### Foreign Queries
 
-See [Wiki](https://github.com/zshamrock/dynoman/wiki/Foreign-Query) for more details.
+See [Wiki/Foreign Query](https://github.com/zshamrock/dynoman/wiki/Foreign-Query) for more details.
 
 #### Normal
 
