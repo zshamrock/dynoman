@@ -11,7 +11,6 @@ data class ForeignSearchName(val table: String, val name: String, val flags: Enu
         @JvmField
         val HIDDEN_FLAGS: EnumSet<Flag> = EnumSet.of(Flag.ENVIRONMENT_STRIPPED)
 
-
         fun of(fullName: String): ForeignSearchName {
             val parts = fullName.split(SEPARATOR)
             val flags = parts[1].toInt()

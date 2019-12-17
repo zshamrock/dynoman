@@ -15,6 +15,7 @@ import java.util.concurrent.atomic.AtomicInteger
 class AddQuerySaverService {
     companion object {
         private const val QUESTION_INDEX_INITIAL_VALUE = 1
+        private const val MAP_KEY_NAME_SEPARATOR = "."
         @JvmField
         val SAVER_TYPE = SearchesSaverService.Type.QUERY
     }
@@ -25,20 +26,21 @@ class AddQuerySaverService {
         val env = Environment(search.table)
         val questionIndex = AtomicInteger(QUESTION_INDEX_INITIAL_VALUE)
         val dataTypes = mutableMapOf<String, ResultData.DataType>()
+        val dataSeq = data.asSequence()
         val preprocessed = when (search) {
             is ScanSearch -> {
                 ScanSearch(
                         env.value,
                         search.index?.let { Environment(it).value },
-                        search.filters.map { preprocess(it, questionIndex, data, dataTypes) })
+                        search.filters.map { preprocess(it, questionIndex, dataSeq, dataTypes) })
             }
             is QuerySearch -> {
                 QuerySearch(
                         env.value,
                         search.index?.let { Environment(it).value },
-                        preprocess(search.hashKey, questionIndex, data, dataTypes),
-                        search.rangeKey?.let { preprocess(it, questionIndex, data, dataTypes) },
-                        search.filters.map { preprocess(it, questionIndex, data, dataTypes) },
+                        preprocess(search.hashKey, questionIndex, dataSeq, dataTypes),
+                        search.rangeKey?.let { preprocess(it, questionIndex, dataSeq, dataTypes) },
+                        search.filters.map { preprocess(it, questionIndex, dataSeq, dataTypes) },
                         search.order)
             }
         }
@@ -73,7 +75,7 @@ class AddQuerySaverService {
      */
     private fun preprocess(condition: Condition,
                            index: AtomicInteger,
-                           data: List<ResultData>,
+                           data: Sequence<ResultData>,
                            dataTypes: MutableMap<String, ResultData.DataType>): Condition {
         return Condition(
                 condition.name,
@@ -83,16 +85,31 @@ class AddQuerySaverService {
                     if (value.startsWith(Search.USER_INPUT_MARK)) {
                         "$value${index.getAndIncrement()}"
                     } else {
-                        dataTypes[value] = findDataType(value, data)
+                        dataTypes[value] = findDataType(data, value)
                         value
                     }
                 })
     }
 
-    private fun findDataType(value: String, data: List<ResultData>): ResultData.DataType {
-        return data.asSequence().map { it.getDataType(value) }
-                .find { it != ResultData.DataType.NULL } ?: ResultData.DataType.NULL
+    private fun findDataType(dataSeq: Sequence<ResultData>, value: String): ResultData.DataType {
+        // In the case if value contains key name separator, i.e. whether the expansion should be on the map values,
+        // either direct map or the map as the value of list/set
+        val names = value.split(MAP_KEY_NAME_SEPARATOR)
+        for (i in 0..names.size) {
+            // Also if there are multiple maps involved or the attribute name has "." in its name, we iterate starting
+            // from the whole value, and then reduce one name on every iteration, i.e. X.Y.Z -> X.Y -> X
+            val name = names.slice(0 until names.size - i).joinToString(MAP_KEY_NAME_SEPARATOR)
+            val dataType = getDataType(dataSeq, value)
+            if (dataType != ResultData.DataType.NULL) {
+                return dataType
+            }
+        }
+        return ResultData.DataType.NULL
     }
+
+    private fun getDataType(dataSeq: Sequence<ResultData>, value: String) =
+            dataSeq.map { it.getDataType(value) }
+                    .find { it != ResultData.DataType.NULL } ?: ResultData.DataType.NULL
 
     fun listNames(table: String, path: Path): List<ForeignSearchName> {
         val names = service.listNames(path)
