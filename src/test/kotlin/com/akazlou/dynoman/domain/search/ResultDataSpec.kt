@@ -42,4 +42,16 @@ class ResultDataSpec : StringSpec({
             dt.isCollection() shouldBe expected
         }
     }
+
+    "verify is map type" {
+        forall(
+                row(ResultData.DataType.LIST, false),
+                row(ResultData.DataType.SET, false),
+                row(ResultData.DataType.MAP, true),
+                row(ResultData.DataType.SCALAR, false),
+                row(ResultData.DataType.NULL, false)
+        ) { dt, expected ->
+            dt.isMap() shouldBe expected
+        }
+    }
 })

@@ -13,6 +13,7 @@ import com.akazlou.dynoman.domain.search.Search
 import com.akazlou.dynoman.domain.search.SearchInput
 import com.akazlou.dynoman.domain.search.SearchType
 import com.akazlou.dynoman.function.Functions
+import com.akazlou.dynoman.service.AddQuerySaverService
 import com.akazlou.dynoman.service.DynamoDBOperation
 import com.amazonaws.services.dynamodbv2.model.TableDescription
 import javafx.beans.property.SimpleBooleanProperty
@@ -281,8 +282,22 @@ class QueryTabFragment : Fragment("Query Tab") {
             }
             val operation = params["operation"] as DynamoDBOperation
             val mappings = if (name.flags.contains(ForeignSearchName.Flag.EXPAND_COLLECTION)) {
-                val foreignAttributeName = raw.getAllValues().first { resultData.getDataType(it).isCollection() }
-                val values = (resultData.getRawValue(foreignAttributeName) ?: emptyList<String>()) as Collection<*>
+                val foreignAttributeName = raw.getAllValues().first {
+                    resultData.getDataType(it).isCollection() ||
+                            it.contains(AddQuerySaverService.MAP_KEY_NAME_SEPARATOR)
+                }
+                val values = if (foreignAttributeName.contains(AddQuerySaverService.MAP_KEY_NAME_SEPARATOR)) {
+                    val names = foreignAttributeName.split(AddQuerySaverService.MAP_KEY_NAME_SEPARATOR)
+                    @Suppress("UNCHECKED_CAST")
+                    var value = resultData.getRawValue(names.first()) as Map<String, *>
+                    for (n in names.slice(1 until names.size - 1)) {
+                        @Suppress("UNCHECKED_CAST")
+                        value = (value[n] as Map<String, *>)
+                    }
+                    listOf(value[names[names.size - 1]])
+                } else {
+                    (resultData.getRawValue(foreignAttributeName) ?: emptyList<String>()) as Collection<*>
+                }
                 values.map { value ->
                     val m = mapping.toMutableMap()
                     m[foreignAttributeName] = value.toString()

@@ -15,7 +15,7 @@ import java.util.concurrent.atomic.AtomicInteger
 class AddQuerySaverService {
     companion object {
         private const val QUESTION_INDEX_INITIAL_VALUE = 1
-        private const val MAP_KEY_NAME_SEPARATOR = "."
+        const val MAP_KEY_NAME_SEPARATOR = "."
         @JvmField
         val SAVER_TYPE = SearchesSaverService.Type.QUERY
     }
@@ -99,7 +99,7 @@ class AddQuerySaverService {
             // Also if there are multiple maps involved or the attribute name has "." in its name, we iterate starting
             // from the whole value, and then reduce one name on every iteration, i.e. X.Y.Z -> X.Y -> X
             val name = names.slice(0 until names.size - i).joinToString(MAP_KEY_NAME_SEPARATOR)
-            val dataType = getDataType(dataSeq, value)
+            val dataType = getDataType(dataSeq, name)
             if (dataType != ResultData.DataType.NULL) {
                 return dataType
             }

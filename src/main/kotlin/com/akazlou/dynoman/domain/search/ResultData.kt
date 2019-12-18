@@ -13,6 +13,10 @@ data class ResultData(val data: Map<String, Any?>, val hashKey: KeySchemaElement
         fun isCollection(): Boolean {
             return this == LIST || this == MAP || this == SET;
         }
+
+        fun isMap(): Boolean {
+            return this == MAP
+        }
     }
 
     fun getKeys(): List<String> {
