@@ -80,14 +80,14 @@ class ResultDataSpec : StringSpec({
                         "x.y",
                         listOf("10", "20", "30")),
                 row(mapOf("x" to listOf(
-                        mapOf("y" to listOf(10, 20, 30)),
-                        mapOf("y" to listOf(40, 50, 60)),
+                        mapOf("y" to listOf(10, 20, 30, 40)),
+                        mapOf("y" to listOf(40, 50, 60, 60)),
                         mapOf("y" to listOf(70, 80, 90)),
                         mapOf("z" to 30))),
                         "x.y",
                         listOf("10", "20", "30", "40", "50", "60", "70", "80", "90")),
                 row(mapOf("x" to listOf(
-                        mapOf("y" to listOf(mapOf("z" to 10), mapOf("z" to 20))),
+                        mapOf("y" to listOf(mapOf("z" to 10), mapOf("z" to 20), mapOf("z" to 30))),
                         mapOf("y" to listOf(mapOf("z" to 30), mapOf("z" to 40))),
                         mapOf("y" to listOf(mapOf("z" to 50), mapOf("z" to 60))),
                         mapOf("y" to listOf(mapOf("x" to 70))),
@@ -95,7 +95,7 @@ class ResultDataSpec : StringSpec({
                         "x.y.z",
                         listOf("10", "20", "30", "40", "50", "60")),
                 row(mapOf("x" to listOf(
-                        mapOf("y" to listOf(mapOf("z" to listOf(10)), mapOf("z" to listOf(20)))),
+                        mapOf("y" to listOf(mapOf("z" to listOf(10)), mapOf("z" to listOf(20, 30)))),
                         mapOf("y" to listOf(mapOf("z" to listOf(30)), mapOf("z" to listOf(40)))),
                         mapOf("y" to listOf(mapOf("z" to listOf(50)), mapOf("z" to listOf(60)))),
                         mapOf("y" to listOf(mapOf("x" to 70))),

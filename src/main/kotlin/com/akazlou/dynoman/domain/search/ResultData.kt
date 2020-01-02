@@ -70,7 +70,7 @@ data class ResultData(val data: Map<String, Any?>, val hashKey: KeySchemaElement
 
     fun getValues(path: String): List<String> {
         val paths = path.split(PATHS_SEPARATOR)
-        return getValues(null, paths)
+        return getValues(null, paths).distinct()
     }
 
     private fun getValues(parent: Any?, paths: List<String>): List<String> {
