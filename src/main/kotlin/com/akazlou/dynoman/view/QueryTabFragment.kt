@@ -60,7 +60,6 @@ class QueryTabFragment : Fragment("Query Tab") {
         private val USER_INPUT_MARK_LIST = listOf(Search.USER_INPUT_MARK)
     }
 
-
     override val root = vbox {
         println("initialize new query tab fragment")
         hbox(alignment = Pos.CENTER_RIGHT) {
@@ -281,9 +280,9 @@ class QueryTabFragment : Fragment("Query Tab") {
                 mapping.putAll(confirmation.getMappings())
             }
             val operation = params["operation"] as DynamoDBOperation
-            val mappings = if (name.flags.contains(ForeignSearchName.Flag.EXPAND_COLLECTION)) {
+            val mappings = if (name.flags.contains(ForeignSearchName.Flag.EXPAND)) {
                 val foreignAttributeName = raw.getAllValues().first {
-                    resultData.getDataType(it).isCollection() ||
+                    resultData.getDataType(it).isComposite() ||
                             it.contains(AddQuerySaverService.MAP_KEY_NAME_SEPARATOR)
                 }
                 val values = if (foreignAttributeName.contains(AddQuerySaverService.MAP_KEY_NAME_SEPARATOR)) {

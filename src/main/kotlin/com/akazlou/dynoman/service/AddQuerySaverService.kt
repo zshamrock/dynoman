@@ -51,14 +51,14 @@ class AddQuerySaverService {
         if (env.isNotEmpty()) {
             flags.add(ForeignSearchName.Flag.ENVIRONMENT_STRIPPED)
         }
-        val collectionTypesCount = dataTypes.values.count { it.isCollection() }
+        val collectionTypesCount = dataTypes.values.count { it.isComposite() }
         if (collectionTypesCount > 1) {
             throw UnsupportedForeignSearchUsageException(
                     "Only single collection like mapping is currently supported by the foreign search set up, but " +
-                            "found $collectionTypesCount: ${dataTypes.filterValues { it.isCollection() }}.")
+                            "found $collectionTypesCount: ${dataTypes.filterValues { it.isComposite() }}.")
         }
         if (collectionTypesCount != 0) {
-            flags.add(ForeignSearchName.Flag.EXPAND_COLLECTION)
+            flags.add(ForeignSearchName.Flag.EXPAND)
         }
         val fsn = ForeignSearchName(
                 Environment(table).value,

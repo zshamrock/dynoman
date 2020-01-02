@@ -40,7 +40,7 @@ data class ForeignSearchName(val table: String, val name: String, val flags: Enu
     enum class Flag(val value: Int, val mnemonic: Char) {
         QUESTION(1 shl 0, '?'),
         ENVIRONMENT_STRIPPED(1 shl 1, Character.MIN_VALUE),
-        EXPAND_COLLECTION(1 shl 2, '*');
+        EXPAND(1 shl 2, '*');
 
         companion object {
             fun fromMnemonic(mnemonic: Char): Flag {

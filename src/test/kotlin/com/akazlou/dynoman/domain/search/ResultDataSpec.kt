@@ -35,11 +35,23 @@ class ResultDataSpec : StringSpec({
         forall(
                 row(ResultData.DataType.LIST, true),
                 row(ResultData.DataType.SET, true),
-                row(ResultData.DataType.MAP, true),
+                row(ResultData.DataType.MAP, false),
                 row(ResultData.DataType.SCALAR, false),
                 row(ResultData.DataType.NULL, false)
         ) { dt, expected ->
             dt.isCollection() shouldBe expected
+        }
+    }
+
+    "verify is composite type" {
+        forall(
+                row(ResultData.DataType.LIST, true),
+                row(ResultData.DataType.SET, true),
+                row(ResultData.DataType.MAP, true),
+                row(ResultData.DataType.SCALAR, false),
+                row(ResultData.DataType.NULL, false)
+        ) { dt, expected ->
+            dt.isComposite() shouldBe expected
         }
     }
 
@@ -52,6 +64,46 @@ class ResultDataSpec : StringSpec({
                 row(ResultData.DataType.NULL, false)
         ) { dt, expected ->
             dt.isMap() shouldBe expected
+        }
+    }
+
+    "get values by path" {
+        forall(
+                row(mapOf("x" to 10), "x", listOf("10")),
+                row(mapOf("x" to 10), "y", emptyList()),
+                row(mapOf("x" to listOf(10, 20, 30)), "x", listOf("10", "20", "30")),
+                row(mapOf("x" to mapOf("y" to 10)), "x.y", listOf("10")),
+                row(mapOf("x" to mapOf("y" to mapOf("z" to 10))), "x.y.z", listOf("10")),
+                row(mapOf("x" to mapOf("y" to listOf(10, 20, 30))), "x.y", listOf("10", "20", "30")),
+                row(mapOf("x" to mapOf("y" to mapOf("z" to listOf(10, 20, 30)))), "x.y.z", listOf("10", "20", "30")),
+                row(mapOf("x" to listOf(mapOf("y" to 10), mapOf("y" to 20), mapOf("y" to 30), mapOf("z" to 30))),
+                        "x.y",
+                        listOf("10", "20", "30")),
+                row(mapOf("x" to listOf(
+                        mapOf("y" to listOf(10, 20, 30)),
+                        mapOf("y" to listOf(40, 50, 60)),
+                        mapOf("y" to listOf(70, 80, 90)),
+                        mapOf("z" to 30))),
+                        "x.y",
+                        listOf("10", "20", "30", "40", "50", "60", "70", "80", "90")),
+                row(mapOf("x" to listOf(
+                        mapOf("y" to listOf(mapOf("z" to 10), mapOf("z" to 20))),
+                        mapOf("y" to listOf(mapOf("z" to 30), mapOf("z" to 40))),
+                        mapOf("y" to listOf(mapOf("z" to 50), mapOf("z" to 60))),
+                        mapOf("y" to listOf(mapOf("x" to 70))),
+                        mapOf("z" to 80))),
+                        "x.y.z",
+                        listOf("10", "20", "30", "40", "50", "60")),
+                row(mapOf("x" to listOf(
+                        mapOf("y" to listOf(mapOf("z" to listOf(10)), mapOf("z" to listOf(20)))),
+                        mapOf("y" to listOf(mapOf("z" to listOf(30)), mapOf("z" to listOf(40)))),
+                        mapOf("y" to listOf(mapOf("z" to listOf(50)), mapOf("z" to listOf(60)))),
+                        mapOf("y" to listOf(mapOf("x" to 70))),
+                        mapOf("z" to 80))),
+                        "x.y.z",
+                        listOf("10", "20", "30", "40", "50", "60"))
+        ) { data, path, values ->
+            ResultData(data, KeySchemaElement(), null).getValues(path) shouldBe values
         }
     }
 })
