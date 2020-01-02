@@ -74,42 +74,24 @@ data class ResultData(val data: Map<String, Any?>, val hashKey: KeySchemaElement
     }
 
     private fun getValues(parent: Any?, paths: List<String>): List<String> {
-        val head = paths[0]
-        val tail = paths.drop(1)
-        val parentDataType = getDataType(parent)
-        if (paths.size == 1) {
-            @Suppress("UNCHECKED_CAST")
-            val value = when (parentDataType) {
-                DataType.NULL -> getRawValue(head)
-                DataType.MAP -> (parent as Map<String, *>)[head]
-                DataType.LIST, DataType.SET -> (parent as Collection<*>).map {
-                    val v = (it as Map<String, *>)[head]
-                    if (getDataType(v).isComposite()) {
-                        v as Collection<*>
-                    } else {
-                        listOf(v)
-                    }
-                }.flatten()
-                else -> throw IllegalStateException("Failed to process the path $paths, ended with illegal parent "
-                        + "data type $parentDataType")
-            }
-            val dataType = getDataType(value)
+        val dataType = getDataType(parent)
+        if (paths.isEmpty()) {
             return when (dataType) {
-                DataType.NULL, DataType.SCALAR -> listOf(value)
-                DataType.SET, DataType.LIST -> value as Collection<*>
+                DataType.NULL, DataType.SCALAR -> listOf(parent)
+                DataType.SET, DataType.LIST -> parent as Collection<*>
                 else -> throw UnsupportedOperationException("Leaf value of type $dataType is not supported")
             }.filterNotNull().map { it.toString() }
         }
-
+        val head = paths[0]
+        val tail = paths.drop(1)
         @Suppress("UNCHECKED_CAST")
-        return when (parentDataType) {
+        return when (dataType) {
             DataType.NULL -> getValues(getRawValue(head), tail)
+            DataType.MAP -> getValues((parent as Map<String, *>)[head], tail)
             DataType.LIST, DataType.SET -> (parent as Collection<*>)
                     .map { getValues((it as Map<String, *>)[head], tail) }
                     .flatten()
-            DataType.MAP -> getValues((parent as Map<String, *>)[head], tail)
-            else -> throw UnsupportedOperationException(
-                    "Intermediate parent data type $parentDataType is not supported")
+            else -> throw UnsupportedOperationException("Intermediate node value of type $dataType is not supported")
         }
     }
 }
