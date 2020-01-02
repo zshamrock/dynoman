@@ -78,7 +78,7 @@ data class ResultData(val data: Map<String, Any?>, val hashKey: KeySchemaElement
         if (paths.isEmpty()) {
             return when (dataType) {
                 DataType.NULL, DataType.SCALAR -> listOf(parent)
-                DataType.SET, DataType.LIST -> parent as Collection<*>
+                DataType.LIST, DataType.SET -> parent as Collection<*>
                 else -> throw UnsupportedOperationException("Leaf value of type $dataType is not supported")
             }.filterNotNull().map { it.toString() }
         }
@@ -88,7 +88,7 @@ data class ResultData(val data: Map<String, Any?>, val hashKey: KeySchemaElement
         return when (dataType) {
             DataType.NULL -> getValues(getRawValue(head), tail)
             DataType.MAP -> getValues((parent as Map<String, *>)[head], tail)
-            DataType.LIST, DataType.SET -> (parent as Collection<*>)
+            DataType.LIST -> (parent as Collection<*>)
                     .map { getValues((it as Map<String, *>)[head], tail) }
                     .flatten()
             else -> throw UnsupportedOperationException("Intermediate node value of type $dataType is not supported")
