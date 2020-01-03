@@ -28,7 +28,7 @@ class SaveSessionFragment : Fragment("Save Session") {
                 enableWhen { sessionNameProperty.isNotBlank() }
                 action {
                     runAsyncWithProgress {
-                        val base = Config.getSavedSessionsPath(app.configBasePath)
+                        val base = Config.getSavedSessionsPath(Config.getProfile(app.config), app.configBasePath)
                         controller.save(base, sessionNameProperty.value, searches)
                     } ui {
                         close()

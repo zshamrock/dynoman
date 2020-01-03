@@ -90,7 +90,7 @@ class QueryView : View("Query") {
                 action {
                     runAsyncWithProgress {
                         sessionSaverController.restore(
-                                Config.getSavedSessionsPath(app.configBasePath),
+                                Config.getSavedSessionsPath(Config.getProfile(app.config), app.configBasePath),
                                 openSessionNameProperty.value)
                     } ui { searches ->
                         searches.forEach { search ->
@@ -165,7 +165,8 @@ class QueryView : View("Query") {
     }
 
     private fun updateNamedQueries() {
-        namedQueries.setAll(sessionSaverController.listNames(Config.getSavedSessionsPath(app.configBasePath)))
+        namedQueries.setAll(sessionSaverController.listNames(Config.getSavedSessionsPath(
+                Config.getProfile(app.config), app.configBasePath)))
     }
 
     fun setQueryResult(operation: DynamoDBOperation,

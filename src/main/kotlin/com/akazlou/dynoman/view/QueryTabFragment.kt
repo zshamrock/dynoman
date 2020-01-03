@@ -233,7 +233,7 @@ class QueryTabFragment : Fragment("Query Tab") {
     private fun setupQueryMenu(queryMenu: Menu) {
         val description = params["description"] as TableDescription
         val table = description.tableName
-        val base = Config.getSavedQueriesPath(app.configBasePath)
+        val base = Config.getSavedQueriesPath(Config.getProfile(app.config), app.configBasePath)
         val addQueryItem = MenuItem("Add Query...")
         addQueryItem.action {
             println("Add Query...")

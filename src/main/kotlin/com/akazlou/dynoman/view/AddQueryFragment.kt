@@ -143,7 +143,7 @@ class AddQueryFragment : Fragment("Add Query") {
     }
 
     private fun createQuery() {
-        val base = Config.getSavedQueriesPath(app.configBasePath)
+        val base = Config.getSavedQueriesPath(Config.getProfile(app.config), app.configBasePath)
         foreignSearchName = addQuerySaverController.save(
                 sourceTable,
                 base,

@@ -66,11 +66,15 @@ object Config {
                 isLocal(config))
     }
 
-    fun getSavedSessionsPath(base: Path): Path {
-        return base.resolve(SESSIONS_STORE_PATH)
+    fun getSavedSessionsPath(profile: String, base: Path): Path {
+        return getPath(base, profile, SESSIONS_STORE_PATH)
     }
 
-    fun getSavedQueriesPath(base: Path): Path {
-        return base.resolve(QUERIES_STORE_PATH)
+    fun getSavedQueriesPath(profile: String, base: Path): Path {
+        return getPath(base, profile, QUERIES_STORE_PATH)
+    }
+
+    private fun getPath(base: Path, profile: String, store: String): Path {
+        return base.resolve(profile).resolve(store)
     }
 }
