@@ -13,7 +13,6 @@ import com.akazlou.dynoman.domain.search.Search
 import com.akazlou.dynoman.domain.search.SearchInput
 import com.akazlou.dynoman.domain.search.SearchType
 import com.akazlou.dynoman.function.Functions
-import com.akazlou.dynoman.service.AddQuerySaverService
 import com.akazlou.dynoman.service.DynamoDBOperation
 import com.amazonaws.services.dynamodbv2.model.TableDescription
 import javafx.beans.property.SimpleBooleanProperty
@@ -282,11 +281,10 @@ class QueryTabFragment : Fragment("Query Tab") {
             val operation = params["operation"] as DynamoDBOperation
             val mappings = if (name.flags.contains(ForeignSearchName.Flag.EXPAND)) {
                 val foreignAttributeName = raw.getAllValues().first {
-                    resultData.getDataType(it).isComposite() ||
-                            it.contains(AddQuerySaverService.MAP_KEY_NAME_SEPARATOR)
+                    resultData.getDataType(it).isComposite() || it.contains(ResultData.PATHS_SEPARATOR)
                 }
-                val values = if (foreignAttributeName.contains(AddQuerySaverService.MAP_KEY_NAME_SEPARATOR)) {
-                    val names = foreignAttributeName.split(AddQuerySaverService.MAP_KEY_NAME_SEPARATOR)
+                val values = if (foreignAttributeName.contains(ResultData.PATHS_SEPARATOR)) {
+                    val names = foreignAttributeName.split(ResultData.PATHS_SEPARATOR)
                     @Suppress("UNCHECKED_CAST")
                     var value = resultData.getRawValue(names.first()) as Map<String, *>
                     for (n in names.slice(1 until names.size - 1)) {

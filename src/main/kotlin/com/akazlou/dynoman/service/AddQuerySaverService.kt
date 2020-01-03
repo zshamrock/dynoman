@@ -15,7 +15,6 @@ import java.util.concurrent.atomic.AtomicInteger
 class AddQuerySaverService {
     companion object {
         private const val QUESTION_INDEX_INITIAL_VALUE = 1
-        const val MAP_KEY_NAME_SEPARATOR = "."
         @JvmField
         val SAVER_TYPE = SearchesSaverService.Type.QUERY
     }
@@ -51,13 +50,13 @@ class AddQuerySaverService {
         if (env.isNotEmpty()) {
             flags.add(ForeignSearchName.Flag.ENVIRONMENT_STRIPPED)
         }
-        val collectionTypesCount = dataTypes.values.count { it.isComposite() }
-        if (collectionTypesCount > 1) {
+        val compositeTypesCount = dataTypes.values.count { it.isComposite() }
+        if (compositeTypesCount > 1) {
             throw UnsupportedForeignSearchUsageException(
                     "Only single collection like mapping is currently supported by the foreign search set up, but " +
-                            "found $collectionTypesCount: ${dataTypes.filterValues { it.isComposite() }}.")
+                            "found $compositeTypesCount: ${dataTypes.filterValues { it.isComposite() }}.")
         }
-        if (collectionTypesCount != 0) {
+        if (compositeTypesCount != 0) {
             flags.add(ForeignSearchName.Flag.EXPAND)
         }
         val fsn = ForeignSearchName(
@@ -94,11 +93,11 @@ class AddQuerySaverService {
     private fun findDataType(dataSeq: Sequence<ResultData>, value: String): ResultData.DataType {
         // In the case if value contains key name separator, i.e. whether the expansion should be on the map values,
         // either direct map or the map as the value of list/set
-        val names = value.split(MAP_KEY_NAME_SEPARATOR)
+        val names = value.split(ResultData.PATHS_SEPARATOR)
         for (i in 0..names.size) {
             // Also if there are multiple maps involved or the attribute name has "." in its name, we iterate starting
             // from the whole value, and then reduce one name on every iteration, i.e. X.Y.Z -> X.Y -> X
-            val name = names.slice(0 until names.size - i).joinToString(MAP_KEY_NAME_SEPARATOR)
+            val name = names.slice(0 until names.size - i).joinToString(ResultData.PATHS_SEPARATOR)
             val dataType = getDataType(dataSeq, name)
             if (dataType != ResultData.DataType.NULL) {
                 return dataType

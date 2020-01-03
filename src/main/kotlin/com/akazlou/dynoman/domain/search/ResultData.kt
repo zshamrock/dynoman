@@ -4,7 +4,7 @@ import com.amazonaws.services.dynamodbv2.model.KeySchemaElement
 
 data class ResultData(val data: Map<String, Any?>, val hashKey: KeySchemaElement, val sortKey: KeySchemaElement?) {
     companion object {
-        private const val PATHS_SEPARATOR = "."
+        const val PATHS_SEPARATOR = "."
     }
 
     enum class DataType {
