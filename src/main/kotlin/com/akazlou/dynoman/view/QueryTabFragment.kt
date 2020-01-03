@@ -283,21 +283,10 @@ class QueryTabFragment : Fragment("Query Tab") {
                 val foreignAttributeName = raw.getAllValues().first {
                     resultData.getDataType(it).isComposite() || it.contains(ResultData.PATHS_SEPARATOR)
                 }
-                val values = if (foreignAttributeName.contains(ResultData.PATHS_SEPARATOR)) {
-                    val names = foreignAttributeName.split(ResultData.PATHS_SEPARATOR)
-                    @Suppress("UNCHECKED_CAST")
-                    var value = resultData.getRawValue(names.first()) as Map<String, *>
-                    for (n in names.slice(1 until names.size - 1)) {
-                        @Suppress("UNCHECKED_CAST")
-                        value = (value[n] as Map<String, *>)
-                    }
-                    listOf(value[names[names.size - 1]])
-                } else {
-                    (resultData.getRawValue(foreignAttributeName) ?: emptyList<String>()) as Collection<*>
-                }
+                val values = resultData.getValues(foreignAttributeName)
                 values.map { value ->
                     val m = mapping.toMutableMap()
-                    m[foreignAttributeName] = value.toString()
+                    m[foreignAttributeName] = value
                     m
                 }
             } else {
