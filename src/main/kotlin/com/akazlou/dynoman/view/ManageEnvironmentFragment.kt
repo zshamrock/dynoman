@@ -31,6 +31,9 @@ class ManageEnvironmentFragment : Fragment("Manage Environments") {
             button("-") {
                 addClass("button-x")
                 enableWhen { removeButtonEnabled }
+                action {
+                    items.remove(valuesView.selectedItem)
+                }
             }
         }
         valuesView = tableview(items) {
