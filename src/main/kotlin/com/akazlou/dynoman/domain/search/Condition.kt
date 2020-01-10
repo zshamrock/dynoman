@@ -44,11 +44,11 @@ data class Condition(val name: String, val type: Type, val operator: Operator, v
 }
 
 enum class Type(val sortOperators: List<Operator>, val filterOperators: List<Operator>) {
-    STRING(listOf(EQ, NE, LE, LT, GE, GT, BETWEEN, CONTAINS, NOT_CONTAINS, BEGINS_WITH),
+    STRING(listOf(EQ, LE, LT, GE, GT, BETWEEN, BEGINS_WITH),
             listOf(EQ, NE, LE, LT, GE, GT, BETWEEN, EXISTS, NOT_EXISTS, CONTAINS, NOT_CONTAINS, BEGINS_WITH)),
-    BINARY(listOf(EQ, NE, LE, LT, GE, GT, BETWEEN, CONTAINS, NOT_CONTAINS, BEGINS_WITH),
+    BINARY(listOf(EQ, LE, LT, GE, GT, BETWEEN, BEGINS_WITH),
             listOf(EQ, NE, LE, LT, GE, GT, BETWEEN, EXISTS, NOT_EXISTS, CONTAINS, NOT_CONTAINS, BEGINS_WITH)),
-    NUMBER(listOf(EQ, NE, LE, LT, GE, GT, BETWEEN),
+    NUMBER(listOf(EQ, LE, LT, GE, GT, BETWEEN),
             listOf(EQ, NE, LE, LT, GE, GT, BETWEEN, EXISTS, NOT_EXISTS)),
     BOOLEAN(listOf(EQ, NE),
             listOf(EQ, NE, EXISTS, NOT_EXISTS)),
@@ -59,7 +59,7 @@ enum class Type(val sortOperators: List<Operator>, val filterOperators: List<Ope
             return when (s) {
                 "S" -> STRING
                 "N" -> NUMBER
-                "B" -> BOOLEAN
+                "B" -> BINARY
                 // TODO: Actually properly handle other types and abbr
                 else -> throw UnsupportedOperationException("Unsupported $s type")
             }
