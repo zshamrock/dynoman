@@ -8,6 +8,25 @@ import io.kotlintest.specs.StringSpec
 import io.kotlintest.tables.row
 
 class ResultDataSpec : StringSpec({
+    "get keys sorted accordingly" {
+        forall(
+                row(setOf("D", "B", "C", "A"), "C", null, emptyList<Pair<String, String?>>(), setOf("C", "A", "B", "D")),
+                row(setOf("D", "B", "C", "A"), "C", "B", emptyList(), setOf("C", "B", "A", "D")),
+                row(setOf("D", "B", "C", "A"), "C", null, listOf("D" to null), setOf("C", "D", "A", "B")),
+                row(setOf("D", "B", "E", "C", "A"), "C", null, listOf("D" to "B"), setOf("C", "D", "B", "A", "E")),
+                row(setOf("D", "B", "C", "A"), "C", null, listOf("E" to null, "D" to null), setOf("C", "E", "D", "A", "B")),
+                row(setOf("D", "B", "E", "C", "A"), "C", null, listOf("D" to "B", "C" to "D"), setOf("C", "D", "B", "A", "E")),
+                row(setOf("D", "B", "E", "C", "A"), "C", "B", listOf("D" to "B", "C" to "D"), setOf("C", "B", "D", "A", "E"))
+        ) { dataKeys, hashKey, sortKey, indexes, keys ->
+            ResultData(
+                    // Here in the test we don't care about the values, only the keys
+                    dataKeys.associateWith { null },
+                    asHashKey(hashKey),
+                    asSortKey(sortKey),
+                    indexes.map { asHashKey(it.first) to asSortKey(it.second) }).getKeys() shouldBe keys
+        }
+    }
+
     "get data type" {
         forall(
                 row(emptyMap<String, Any?>(), "name", ResultData.DataType.NULL),
@@ -27,7 +46,7 @@ class ResultDataSpec : StringSpec({
                 row(mapOf("name" to setOf("value")), "name", ResultData.DataType.SET),
                 row(mapOf("name" to setOf(0)), "name", ResultData.DataType.SET)
         ) { data, name, dt ->
-            ResultData(data, KeySchemaElement("-", KeyType.HASH), null).getDataType(name) shouldBe dt
+            ResultData(data, KeySchemaElement("-", KeyType.HASH), null, emptyList()).getDataType(name) shouldBe dt
         }
     }
 
@@ -112,7 +131,19 @@ class ResultDataSpec : StringSpec({
                         "x.y.z",
                         listOf("10", "20", "30", "40", "50", "60"))
         ) { data, path, values ->
-            ResultData(data, KeySchemaElement(), null).getValues(path) shouldBe values
+            ResultData(data, KeySchemaElement(), null, emptyList()).getValues(path) shouldBe values
         }
     }
 })
+
+private fun asHashKey(name: String): KeySchemaElement {
+    return KeySchemaElement(name, KeyType.HASH)
+}
+
+private fun asSortKey(name: String?): KeySchemaElement? {
+    return if (name == null) {
+        null
+    } else {
+        KeySchemaElement(name, KeyType.RANGE)
+    }
+}

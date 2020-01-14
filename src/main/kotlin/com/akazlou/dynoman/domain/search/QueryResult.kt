@@ -56,7 +56,7 @@ data class QueryResult(val searchType: SearchType,
     }
 
     private fun fetchData(page: Page<Item, out Any>): List<ResultData> {
-        return page.map { ResultData(it.asMap(), getTableHashKey(), getTableSortKey()) }
+        return page.map { ResultData(it.asMap(), getTableHashKey(), getTableSortKey(), getIndexes()) }
     }
 
     private fun getTableHashKey(): KeySchemaElement {
@@ -65,6 +65,12 @@ data class QueryResult(val searchType: SearchType,
 
     private fun getTableSortKey(): KeySchemaElement? {
         return description.keySchema.getOrNull(1)
+    }
+
+    private fun getIndexes(): List<Pair<KeySchemaElement, KeySchemaElement?>> {
+        return description.globalSecondaryIndexes
+                .sortedBy { it.indexName }
+                .map { it.keySchema[0] to it.keySchema.getOrNull(1) }
     }
 
     fun hasMoreData(pageNum: Int): Boolean {

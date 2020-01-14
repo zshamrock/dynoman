@@ -2,7 +2,10 @@ package com.akazlou.dynoman.domain.search
 
 import com.amazonaws.services.dynamodbv2.model.KeySchemaElement
 
-data class ResultData(val data: Map<String, Any?>, val hashKey: KeySchemaElement, val sortKey: KeySchemaElement?) {
+data class ResultData(val data: Map<String, Any?>,
+                      val hashKey: KeySchemaElement,
+                      val sortKey: KeySchemaElement?,
+                      val indexes: List<Pair<KeySchemaElement, KeySchemaElement?>>) {
     companion object {
         const val PATHS_SEPARATOR = "."
     }
@@ -27,12 +30,14 @@ data class ResultData(val data: Map<String, Any?>, val hashKey: KeySchemaElement
         }
     }
 
-    fun getKeys(): List<String> {
+    fun getKeys(): Set<String> {
         if (data.isEmpty()) {
-            return emptyList()
+            return emptySet()
         }
-        val primaryKeys = listOfNotNull(hashKey.attributeName, sortKey?.attributeName)
-        return primaryKeys + (data.keys.toList() - primaryKeys).sorted()
+        val primaryKeys = (setOf(hashKey.attributeName, sortKey?.attributeName) +
+                indexes.flatMapTo(mutableSetOf(), { listOf(it.first.attributeName, it.second?.attributeName) }).toSet())
+                .filterNotNullTo(mutableSetOf())
+        return primaryKeys + (data.keys - primaryKeys).sorted()
     }
 
     fun getValue(attributeName: String): String {
@@ -40,7 +45,7 @@ data class ResultData(val data: Map<String, Any?>, val hashKey: KeySchemaElement
     }
 
     fun getValues(): List<String> {
-        return getValues(getKeys().toSet())
+        return getValues(getKeys())
     }
 
     fun getValues(keys: Set<String>): List<String> {
