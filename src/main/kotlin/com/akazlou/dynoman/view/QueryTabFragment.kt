@@ -53,10 +53,40 @@ class QueryTabFragment : Fragment("Query Tab") {
     private val allColumns: MutableSet<String> = mutableSetOf()
     private var qwf: QueryWindowFragment by singleAssign()
     private var queryMenu: Menu by singleAssign()
+    private var addQueryMenuItem: MenuItem by singleAssign()
+    private var refreshQueriesMenuItem: MenuItem by singleAssign()
     private val queryView: QueryView by inject()
 
     companion object {
         private val USER_INPUT_MARK_LIST = listOf(Search.USER_INPUT_MARK)
+    }
+
+    init {
+        addQueryMenuItem = MenuItem("Add Query...")
+        addQueryMenuItem.action {
+            println("Add Query...")
+            val description = params["description"] as TableDescription
+            val table = description.tableName
+            val base = Config.getSavedQueriesPath(Config.getProfile(app.config), app.configBasePath)
+            val addQueryFragment = find<AddQueryFragment>(
+                    params = mapOf(
+                            AddQueryFragment::operation to params["operation"],
+                            AddQueryFragment::attributes to USER_INPUT_MARK_LIST.plus(allColumns.toList()),
+                            AddQueryFragment::sourceTable to (params["description"] as TableDescription).tableName,
+                            AddQueryFragment::data to data)
+            )
+            addQueryFragment.openModal(block = true)
+            queryMenu.items.clear()
+            setupQueryMenu(queryMenu)
+            if (addQueryFragment.response == AddQueryFragment.Response.CREATE_AND_RUN) {
+                runForeignQuery(addQueryFragment.foreignSearchName!!, table, base)
+            }
+        }
+        refreshQueriesMenuItem = MenuItem("Refresh")
+        refreshQueriesMenuItem.action {
+            queryMenu.items.clear()
+            setupQueryMenu(queryMenu)
+        }
     }
 
     override val root = vbox {
@@ -234,24 +264,7 @@ class QueryTabFragment : Fragment("Query Tab") {
         val description = params["description"] as TableDescription
         val table = description.tableName
         val base = Config.getSavedQueriesPath(Config.getProfile(app.config), app.configBasePath)
-        val addQueryItem = MenuItem("Add Query...")
-        addQueryItem.action {
-            println("Add Query...")
-            val addQueryFragment = find<AddQueryFragment>(
-                    params = mapOf(
-                            AddQueryFragment::operation to params["operation"],
-                            AddQueryFragment::attributes to USER_INPUT_MARK_LIST.plus(allColumns.toList()),
-                            AddQueryFragment::sourceTable to (params["description"] as TableDescription).tableName,
-                            AddQueryFragment::data to data)
-            )
-            addQueryFragment.openModal(block = true)
-            queryMenu.items.clear()
-            setupQueryMenu(queryMenu)
-            if (addQueryFragment.response == AddQueryFragment.Response.CREATE_AND_RUN) {
-                runForeignQuery(addQueryFragment.foreignSearchName!!, table, base)
-            }
-        }
-        queryMenu.items.addAll(addQueryItem, SeparatorMenuItem())
+        queryMenu.items.addAll(addQueryMenuItem, refreshQueriesMenuItem, SeparatorMenuItem())
         val names = addQuerySaverController.listNames(table, base)
         names.forEach { name ->
             val item = MenuItem(name.getNameWithFlags())
