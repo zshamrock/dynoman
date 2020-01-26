@@ -11,7 +11,6 @@ import com.amazonaws.services.dynamodbv2.model.KeyType
 import com.amazonaws.services.dynamodbv2.model.Projection
 import com.amazonaws.services.dynamodbv2.model.ProjectionType
 import com.amazonaws.services.dynamodbv2.model.ProvisionedThroughput
-import io.kotlintest.Description
 import io.kotlintest.Spec
 import io.kotlintest.extensions.TestListener
 import org.testcontainers.containers.GenericContainer
@@ -20,7 +19,7 @@ import java.time.Duration
 object DynamoDBTestContainerListener : TestListener {
     private const val DYNAMODB_HOST_PORT = 8000
     private const val DYNAMODB_CONTAINER_PORT = 8000
-    private const val DYNAMODB_IMAGE = "amazon/dynamodb-local:1.11.119"
+    private const val DYNAMODB_IMAGE = "amazon/dynamodb-local:1.11.477"
 
     private val container: KGenericContainer
 
@@ -29,7 +28,7 @@ object DynamoDBTestContainerListener : TestListener {
         container.portBindings = listOf("$DYNAMODB_HOST_PORT:$DYNAMODB_CONTAINER_PORT")
     }
 
-    override fun beforeSpec(description: Description, spec: Spec) {
+    override fun beforeSpec(spec: Spec) {
         container.start()
         val dynamoDB = ConnectionProperties(Regions.US_WEST_2, "", "", "default", "", true).buildDynamoDBClient()
         setupData(dynamoDB)
@@ -75,7 +74,7 @@ object DynamoDBTestContainerListener : TestListener {
         }
     }
 
-    override fun afterSpec(description: Description, spec: Spec) {
+    override fun afterSpec(spec: Spec) {
         container.stop()
     }
 }
