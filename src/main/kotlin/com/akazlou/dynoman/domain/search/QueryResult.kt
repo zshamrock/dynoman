@@ -68,7 +68,7 @@ data class QueryResult(val searchType: SearchType,
     }
 
     private fun getIndexes(): List<Pair<KeySchemaElement, KeySchemaElement?>> {
-        return description.globalSecondaryIndexes
+        return description.globalSecondaryIndexes.orEmpty()
                 .sortedBy { it.indexName }
                 .map { it.keySchema[0] to it.keySchema.getOrNull(1) }
     }
