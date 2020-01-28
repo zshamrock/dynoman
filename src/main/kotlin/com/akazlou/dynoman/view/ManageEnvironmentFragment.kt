@@ -13,11 +13,13 @@ class ManageEnvironmentFragment : Fragment("Manage Environments") {
     private var valuesView: TableView<EnvironmentValue> by singleAssign()
     private val removeButtonEnabled: SimpleBooleanProperty = SimpleBooleanProperty(false)
 
-    override val root = vbox {
+    override val root = vbox(5.0) {
         prefWidth = 810.0
         prefHeight = 430.0
         alignment = Pos.CENTER
+        padding = tornadofx.insets(5.0, 0, 5.0, 0)
         buttonbar {
+            paddingRight = 5.0
             button("+") {
                 addClass("button-x")
                 action {
@@ -42,5 +44,15 @@ class ManageEnvironmentFragment : Fragment("Manage Environments") {
             column("Value", EnvironmentValue::valueProperty).makeEditable()
         }
         removeButtonEnabled.bind(valuesView.selectionModel.selectedItemProperty().isNotNull)
+        buttonbar {
+            paddingRight = 5.0
+            button("Save") {
+            }
+            button("Cancel") {
+                action {
+                    close()
+                }
+            }
+        }
     }
 }
