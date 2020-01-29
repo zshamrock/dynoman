@@ -5,6 +5,7 @@ import com.akazlou.dynoman.domain.EnvironmentValue
 import javafx.beans.property.SimpleBooleanProperty
 import javafx.geometry.Pos
 import javafx.scene.control.TableView
+import javafx.scene.layout.Priority
 import tornadofx.*
 
 class ManageEnvironmentFragment : Fragment("Manage Environments") {
@@ -18,27 +19,45 @@ class ManageEnvironmentFragment : Fragment("Manage Environments") {
         prefHeight = 430.0
         alignment = Pos.CENTER
         padding = tornadofx.insets(5.0, 0, 5.0, 0)
-        buttonbar {
-            paddingRight = 5.0
-            button("+") {
-                addClass("button-x")
-                action {
-                    items.add(EnvironmentValue("", ""))
-                    // TODO: Find the way to enable text edit by default and also would be nice tabs to move
-                    // Or maybe better configure the cells to be text inputs, so it is also visible, and also tab works
-                    // then accordingly
-                    valuesView.selectionModel.selectLast()
+        hbox(5.0) {
+            hbox(5.0) {
+                paddingLeft = 5.0
+                combobox(values = listOf("No Environment")) {
+                    prefWidth = 200.0
+                }
+                button("New") {
+                }
+                button("Delete") {
                 }
             }
-            button("-") {
-                addClass("button-x")
-                enableWhen { removeButtonEnabled }
-                action {
-                    items.remove(valuesView.selectedItem)
+            region {
+                hboxConstraints {
+                    hGrow = Priority.ALWAYS
+                }
+            }
+            buttonbar {
+                paddingRight = 5.0
+                button("+") {
+                    addClass("button-x")
+                    action {
+                        items.add(EnvironmentValue("", ""))
+                        // TODO: Find the way to enable text edit by default and also would be nice tabs to move
+                        // Or maybe better configure the cells to be text inputs, so it is also visible, and also tab works
+                        // then accordingly
+                        valuesView.selectionModel.selectLast()
+                    }
+                }
+                button("-") {
+                    addClass("button-x")
+                    enableWhen { removeButtonEnabled }
+                    action {
+                        items.remove(valuesView.selectedItem)
+                    }
                 }
             }
         }
         valuesView = tableview(items) {
+            vgrow = Priority.ALWAYS
             isEditable = true
             column("Variable", EnvironmentValue::nameProperty).makeEditable()
             column("Value", EnvironmentValue::valueProperty).makeEditable()
