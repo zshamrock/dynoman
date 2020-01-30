@@ -1,7 +1,9 @@
 package com.akazlou.dynoman.view
 
 import com.akazlou.dynoman.controller.ManagedEnvironmentsController
+import com.akazlou.dynoman.domain.Config
 import com.akazlou.dynoman.domain.EnvironmentValue
+import com.akazlou.dynoman.domain.ManagedEnvironment
 import javafx.beans.property.SimpleBooleanProperty
 import javafx.geometry.Pos
 import javafx.scene.control.TableView
@@ -66,8 +68,15 @@ class ManageEnvironmentFragment : Fragment("Manage Environments") {
         buttonbar {
             paddingRight = 5.0
             button("Save") {
+                // TODO: Configure the button be enabled on every change and flush when saved
+                //enableWhen
+                action {
+                    // TODO: Redefine the Globals name and build the corresponding single constant
+                    val base = Config.getSavedEnvironmentsPath(Config.getProfile(app.config), app.configBasePath, "Globals")
+                    controller.save(base, ManagedEnvironment("Globals", items))
+                }
             }
-            button("Cancel") {
+            button("Close") {
                 action {
                     close()
                 }
