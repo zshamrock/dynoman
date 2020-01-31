@@ -19,7 +19,7 @@ import javax.json.JsonString
 import javax.json.stream.JsonGenerator
 import com.akazlou.dynoman.domain.search.Type as AttributeType
 
-class SearchesSaverService {
+class SearchesSaverService : SaverService() {
     enum class Type(val root: String, val suffix: String) {
         SESSION("sessions", ".session"),
         QUERY("query", ".query")
@@ -125,7 +125,7 @@ class SearchesSaverService {
         val writer = StringWriter()
         wf.createWriter(writer).write(json.build())
         Files.createDirectories(base)
-        Files.write(resolve(type, base, name),
+        Files.write(resolve(base, name, type.suffix),
                 listOf(writer.toString()),
                 StandardCharsets.UTF_8,
                 StandardOpenOption.CREATE,
@@ -133,10 +133,8 @@ class SearchesSaverService {
                 StandardOpenOption.TRUNCATE_EXISTING)
     }
 
-    private fun resolve(type: Type, base: Path, name: String) = base.resolve("$name${type.suffix}")
-
     fun restore(type: Type, base: Path, name: String): List<Search> {
-        val path = resolve(type, base, name)
+        val path = resolve(base, name, type.suffix)
         val parser = pf.createParser(path.toFile().reader())
         parser.next()
         val sessions = parser.`object`.getJsonArray(type.root).map { value ->

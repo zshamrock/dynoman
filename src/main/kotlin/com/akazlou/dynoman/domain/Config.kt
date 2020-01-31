@@ -25,7 +25,7 @@ object Config {
 
     private const val SESSIONS_STORE_PATH = "sessions"
     private const val QUERIES_STORE_PATH = "queries"
-    private const val ENV_STORE_PATH = "env"
+    private const val ENVS_STORE_PATH = "envs"
 
     fun getRegion(config: ConfigProperties): String {
         return config.string(REGION, DEFAULT_REGION.getName())
@@ -75,8 +75,8 @@ object Config {
         return getPath(base, profile, QUERIES_STORE_PATH)
     }
 
-    fun getSavedEnvironmentsPath(profile: String, base: Path, environment: String): Path {
-        return getPath(base, profile, "${ENV_STORE_PATH}.${environment}")
+    fun getSavedEnvironmentsPath(profile: String, base: Path): Path {
+        return getPath(base, profile, ENVS_STORE_PATH)
     }
 
     private fun getPath(base: Path, profile: String, store: String): Path {

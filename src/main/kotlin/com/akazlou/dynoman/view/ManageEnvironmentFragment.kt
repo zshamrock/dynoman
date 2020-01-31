@@ -72,7 +72,7 @@ class ManageEnvironmentFragment : Fragment("Manage Environments") {
                 //enableWhen
                 action {
                     // TODO: Redefine the Globals name and build the corresponding single constant
-                    val base = Config.getSavedEnvironmentsPath(Config.getProfile(app.config), app.configBasePath, "Globals")
+                    val base = Config.getSavedEnvironmentsPath(Config.getProfile(app.config), app.configBasePath)
                     controller.save(base, ManagedEnvironment("Globals", items))
                 }
             }
