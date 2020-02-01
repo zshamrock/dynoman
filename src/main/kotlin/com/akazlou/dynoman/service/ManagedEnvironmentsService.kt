@@ -27,4 +27,8 @@ class ManagedEnvironmentsService : SaverService() {
                 StandardOpenOption.WRITE,
                 StandardOpenOption.TRUNCATE_EXISTING)
     }
+
+    fun restore(base: Path, name: String): ManagedEnvironment {
+        return ManagedEnvironment(name, emptyList())
+    }
 }

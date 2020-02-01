@@ -15,4 +15,8 @@ class ManagedEnvironmentsController : Controller() {
     fun save(base: Path, environment: ManagedEnvironment) {
         service.save(base, environment)
     }
+
+    fun restore(base: Path, name: String): ManagedEnvironment {
+        return service.restore(base, name)
+    }
 }
