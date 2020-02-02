@@ -8,10 +8,6 @@ import java.nio.file.Path
 class ManagedEnvironmentsController : Controller() {
     private val service = ManagedEnvironmentsService()
 
-    fun getGlobals(): ManagedEnvironment {
-        return service.getGlobals()
-    }
-
     fun save(base: Path, environment: ManagedEnvironment) {
         service.save(base, environment)
     }
