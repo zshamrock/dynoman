@@ -10,10 +10,7 @@ import com.akazlou.dynoman.domain.search.SearchType
 import tornadofx.*
 import java.io.StringWriter
 import java.net.URI
-import java.nio.charset.StandardCharsets
-import java.nio.file.Files
 import java.nio.file.Path
-import java.nio.file.StandardOpenOption
 import javax.json.Json
 import javax.json.JsonString
 import javax.json.stream.JsonGenerator
@@ -124,13 +121,7 @@ class SearchesSaverService : SaverService() {
         json.add(type.root, array)
         val writer = StringWriter()
         wf.createWriter(writer).write(json.build())
-        Files.createDirectories(base)
-        Files.write(resolve(base, name, type.suffix),
-                listOf(writer.toString()),
-                StandardCharsets.UTF_8,
-                StandardOpenOption.CREATE,
-                StandardOpenOption.WRITE,
-                StandardOpenOption.TRUNCATE_EXISTING)
+        write(base, name, type.suffix, writer)
     }
 
     fun restore(type: Type, base: Path, name: String): List<Search> {
