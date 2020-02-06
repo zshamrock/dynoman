@@ -11,7 +11,7 @@ class ManagedEnvironmentsService : SaverService() {
     fun save(base: Path, environment: ManagedEnvironment) {
         val writer = StringWriter()
         environment.values.forEach {
-            writer.appendln(it.name + "=" + it.value)
+            writer.appendln(it.toString())
         }
         write(base, environment.name, ".env", writer)
     }
@@ -19,6 +19,6 @@ class ManagedEnvironmentsService : SaverService() {
     fun restore(base: Path, name: String): ManagedEnvironment {
         val path = resolve(base, name, ".env")
         val lines = Files.readAllLines(path, StandardCharsets.UTF_8)
-        return ManagedEnvironment("Globals", lines.filter { it.isNotBlank() }.map { it.split("=") }.map { EnvironmentValue(it[0], it[1]) })
+        return ManagedEnvironment("Globals", lines.filter { it.isNotBlank() }.map { EnvironmentValue.of(it) })
     }
 }
