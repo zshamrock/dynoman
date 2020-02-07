@@ -2,7 +2,11 @@ package com.akazlou.dynoman.domain
 
 import javafx.beans.property.SimpleStringProperty
 
-data class ManagedEnvironment(val name: String, val values: List<EnvironmentValue>)
+data class ManagedEnvironment(val name: String, val values: List<EnvironmentValue>) {
+    companion object {
+        const val GLOBALS = "Globals"
+    }
+}
 
 data class EnvironmentValue(val name: String, val value: String) {
     companion object {

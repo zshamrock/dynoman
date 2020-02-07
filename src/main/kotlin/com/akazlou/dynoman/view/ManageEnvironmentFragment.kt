@@ -14,7 +14,7 @@ class ManageEnvironmentFragment : Fragment("Manage Environments") {
     private val controller: ManagedEnvironmentsController by inject()
     private val items = controller.restore(
             Config.getSavedEnvironmentsPath(Config.getProfile(app.config), app.configBasePath),
-            "Globals").values.toMutableList().asObservable()
+            ManagedEnvironment.GLOBALS).values.toMutableList().asObservable()
     private var valuesView: TableView<EnvironmentValue> by singleAssign()
     private val removeButtonEnabled: SimpleBooleanProperty = SimpleBooleanProperty(false)
 
@@ -73,9 +73,8 @@ class ManageEnvironmentFragment : Fragment("Manage Environments") {
                 // TODO: Configure the button be enabled on every change and flush when saved
                 //enableWhen
                 action {
-                    // TODO: Redefine the Globals name and build the corresponding single constant
                     val base = Config.getSavedEnvironmentsPath(Config.getProfile(app.config), app.configBasePath)
-                    controller.save(base, ManagedEnvironment("Globals", items))
+                    controller.save(base, ManagedEnvironment(ManagedEnvironment.GLOBALS, items))
                 }
             }
             button("Close") {

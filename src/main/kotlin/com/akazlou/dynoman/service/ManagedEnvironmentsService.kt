@@ -19,6 +19,6 @@ class ManagedEnvironmentsService : SaverService() {
     fun restore(base: Path, name: String): ManagedEnvironment {
         val path = resolve(base, name, ".env")
         val lines = Files.readAllLines(path, StandardCharsets.UTF_8)
-        return ManagedEnvironment("Globals", lines.filter { it.isNotBlank() }.map { EnvironmentValue.of(it) })
+        return ManagedEnvironment(name, lines.filter { it.isNotBlank() }.map { EnvironmentValue.of(it) })
     }
 }
