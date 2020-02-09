@@ -5,6 +5,17 @@ import javafx.beans.property.SimpleStringProperty
 data class ManagedEnvironment(val name: String, val values: List<EnvironmentValue>) {
     companion object {
         const val GLOBALS = "Globals"
+        const val ENV_PREFIX = "{{"
+        const val ENV_SUFFIX = "}}"
+    }
+
+    fun get(name: String): String? {
+        val key = if (name.startsWith(ENV_PREFIX) && name.endsWith(ENV_SUFFIX)) {
+            name.removeSurrounding(ENV_PREFIX, ENV_SUFFIX)
+        } else {
+            name
+        }
+        return values.firstOrNull { it.name == key }?.value
     }
 }
 

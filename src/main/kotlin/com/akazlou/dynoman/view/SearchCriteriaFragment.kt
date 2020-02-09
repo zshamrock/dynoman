@@ -1,5 +1,7 @@
 package com.akazlou.dynoman.view
 
+import com.akazlou.dynoman.controller.ManagedEnvironmentsController
+import com.akazlou.dynoman.domain.ManagedEnvironment
 import com.akazlou.dynoman.domain.SearchSource
 import com.akazlou.dynoman.domain.search.Condition
 import com.akazlou.dynoman.domain.search.Operator
@@ -53,6 +55,7 @@ class SearchCriteriaFragment : Fragment("Search") {
     }
 
     val description: TableDescription by param()
+    private val managedEnvironmentsController: ManagedEnvironmentsController by inject()
     private val searchTypes: List<SearchType> = listOf(SearchType.SCAN, SearchType.QUERY)
     private val searchTypeProperty = SimpleObjectProperty(params["searchType"] as SearchType)
     private val attributeDefinitionTypes: Map<String, Type>
@@ -229,6 +232,9 @@ class SearchCriteriaFragment : Fragment("Search") {
             if (value.startsWith(function.name())) {
                 return function.parse(value).toString()
             }
+        }
+        if (value.startsWith(ManagedEnvironment.ENV_PREFIX) && value.endsWith(ManagedEnvironment.ENV_SUFFIX)) {
+            return managedEnvironmentsController.get(ManagedEnvironment.GLOBALS).get(value).orEmpty()
         }
         return value
     }
