@@ -1,7 +1,9 @@
 package com.akazlou.dynoman.domain
 
 import javafx.beans.property.SimpleStringProperty
+import tornadofx.*
 
+// TODO: Unit testing
 data class ManagedEnvironment(val name: String, val values: List<EnvironmentValue>) {
     companion object {
         const val GLOBALS = "Globals"
@@ -19,7 +21,7 @@ data class ManagedEnvironment(val name: String, val values: List<EnvironmentValu
     }
 }
 
-data class EnvironmentValue(val name: String, val value: String) {
+class EnvironmentValue(name: String, value: String) {
     companion object {
         private const val SEPARATOR = "="
         fun of(line: String): EnvironmentValue {
@@ -29,7 +31,10 @@ data class EnvironmentValue(val name: String, val value: String) {
     }
 
     val nameProperty = SimpleStringProperty(name)
+    var name: String by nameProperty
+
     val valueProperty = SimpleStringProperty(value)
+    var value: String by valueProperty
     override fun toString(): String {
         return "$name$SEPARATOR$value"
     }
