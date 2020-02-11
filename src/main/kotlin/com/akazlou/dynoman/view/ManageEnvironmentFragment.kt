@@ -5,6 +5,8 @@ import com.akazlou.dynoman.domain.Config
 import com.akazlou.dynoman.domain.EnvironmentValue
 import com.akazlou.dynoman.domain.ManagedEnvironment
 import javafx.beans.property.SimpleBooleanProperty
+import javafx.collections.FXCollections
+import javafx.collections.ListChangeListener
 import javafx.geometry.Pos
 import javafx.scene.control.TableView
 import javafx.scene.layout.Priority
@@ -12,11 +14,20 @@ import tornadofx.*
 
 class ManageEnvironmentFragment : Fragment("Manage Environments") {
     private val controller: ManagedEnvironmentsController by inject()
-    private val items = controller.restore(
+    private val items = FXCollections.observableList(controller.restore(
             Config.getSavedEnvironmentsPath(Config.getProfile(app.config), app.configBasePath),
-            ManagedEnvironment.GLOBALS).values.toMutableList().asObservable()
+            ManagedEnvironment.GLOBALS).values.toMutableList()) { value -> arrayOf(value.nameProperty, value.valueProperty) }
     private var valuesView: TableView<EnvironmentValue> by singleAssign()
     private val removeButtonEnabled: SimpleBooleanProperty = SimpleBooleanProperty(false)
+    private val valuesChanged = SimpleBooleanProperty(false)
+
+    init {
+        items.addListener(ListChangeListener {
+            run {
+                valuesChanged.set(true)
+            }
+        })
+    }
 
     override val root = vbox(5.0) {
         prefWidth = 810.0
@@ -45,9 +56,6 @@ class ManageEnvironmentFragment : Fragment("Manage Environments") {
                     addClass("button-x")
                     action {
                         items.add(EnvironmentValue("", ""))
-                        // TODO: Find the way to enable text edit by default and also would be nice tabs to move
-                        // Or maybe better configure the cells to be text inputs, so it is also visible, and also tab works
-                        // then accordingly
                         valuesView.selectionModel.selectLast()
                     }
                 }
@@ -70,11 +78,11 @@ class ManageEnvironmentFragment : Fragment("Manage Environments") {
         buttonbar {
             paddingRight = 5.0
             button("Save") {
-                // TODO: Configure the button be enabled on every change and flush when saved
-                //enableWhen
+                enableWhen { valuesChanged }
                 action {
                     val base = Config.getSavedEnvironmentsPath(Config.getProfile(app.config), app.configBasePath)
                     controller.save(base, ManagedEnvironment(ManagedEnvironment.GLOBALS, items))
+                    valuesChanged.set(false)
                 }
             }
             button("Close") {
