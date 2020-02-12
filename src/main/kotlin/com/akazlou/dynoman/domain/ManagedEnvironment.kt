@@ -3,21 +3,24 @@ package com.akazlou.dynoman.domain
 import javafx.beans.property.SimpleStringProperty
 import tornadofx.*
 
-// TODO: Unit testing
 data class ManagedEnvironment(val name: String, val values: List<EnvironmentValue>) {
     companion object {
+        fun isEnvVar(value: String): Boolean {
+            return value.startsWith(ENV_PREFIX) && value.endsWith(ENV_SUFFIX)
+        }
+
         const val GLOBALS = "Globals"
-        const val ENV_PREFIX = "{{"
-        const val ENV_SUFFIX = "}}"
+        private const val ENV_PREFIX = "{{"
+        private const val ENV_SUFFIX = "}}"
     }
 
-    fun get(name: String): String? {
+    fun get(name: String): String {
         val key = if (name.startsWith(ENV_PREFIX) && name.endsWith(ENV_SUFFIX)) {
-            name.removeSurrounding(ENV_PREFIX, ENV_SUFFIX)
+            name.removeSurrounding(ENV_PREFIX, ENV_SUFFIX).trim()
         } else {
-            name
+            name.trim()
         }
-        return values.firstOrNull { it.name == key }?.value
+        return values.firstOrNull { it.name == key }?.value.orEmpty()
     }
 }
 

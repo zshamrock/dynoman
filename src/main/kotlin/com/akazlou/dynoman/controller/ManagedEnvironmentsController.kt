@@ -9,16 +9,19 @@ import java.nio.file.Path
 class ManagedEnvironmentsController : Controller() {
     private val service = ManagedEnvironmentsService()
 
-    fun save(base: Path, environment: ManagedEnvironment) {
-        service.save(base, environment)
+    fun save(environment: ManagedEnvironment) {
+        service.save(getBase(), environment)
     }
 
-    fun restore(base: Path, name: String): ManagedEnvironment {
-        return service.restore(base, name)
+    fun restore(name: String): ManagedEnvironment {
+        return service.restore(getBase(), name)
     }
 
-    // TODO: Refactor method above using app directly from the Controller
     fun get(name: String): ManagedEnvironment {
-        return service.get(Config.getSavedEnvironmentsPath(Config.getProfile(app.config), app.configBasePath), name)
+        return service.get(getBase(), name)
+    }
+
+    private fun getBase(): Path {
+        return Config.getSavedEnvironmentsPath(Config.getProfile(app.config), app.configBasePath)
     }
 }

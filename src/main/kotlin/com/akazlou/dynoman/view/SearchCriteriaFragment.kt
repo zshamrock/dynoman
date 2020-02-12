@@ -233,8 +233,8 @@ class SearchCriteriaFragment : Fragment("Search") {
                 return function.parse(value).toString()
             }
         }
-        if (value.startsWith(ManagedEnvironment.ENV_PREFIX) && value.endsWith(ManagedEnvironment.ENV_SUFFIX)) {
-            return managedEnvironmentsController.get(ManagedEnvironment.GLOBALS).get(value).orEmpty()
+        if (ManagedEnvironment.isEnvVar(value)) {
+            return managedEnvironmentsController.get(ManagedEnvironment.GLOBALS).get(value)
         }
         return value
     }

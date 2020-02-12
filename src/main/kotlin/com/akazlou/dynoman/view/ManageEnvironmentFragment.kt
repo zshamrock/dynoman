@@ -1,7 +1,6 @@
 package com.akazlou.dynoman.view
 
 import com.akazlou.dynoman.controller.ManagedEnvironmentsController
-import com.akazlou.dynoman.domain.Config
 import com.akazlou.dynoman.domain.EnvironmentValue
 import com.akazlou.dynoman.domain.ManagedEnvironment
 import javafx.beans.property.SimpleBooleanProperty
@@ -15,7 +14,6 @@ import tornadofx.*
 class ManageEnvironmentFragment : Fragment("Manage Environments") {
     private val controller: ManagedEnvironmentsController by inject()
     private val items = FXCollections.observableList(controller.restore(
-            Config.getSavedEnvironmentsPath(Config.getProfile(app.config), app.configBasePath),
             ManagedEnvironment.GLOBALS).values.toMutableList()) { value -> arrayOf(value.nameProperty, value.valueProperty) }
     private var valuesView: TableView<EnvironmentValue> by singleAssign()
     private val removeButtonEnabled: SimpleBooleanProperty = SimpleBooleanProperty(false)
@@ -80,8 +78,7 @@ class ManageEnvironmentFragment : Fragment("Manage Environments") {
             button("Save") {
                 enableWhen { valuesChanged }
                 action {
-                    val base = Config.getSavedEnvironmentsPath(Config.getProfile(app.config), app.configBasePath)
-                    controller.save(base, ManagedEnvironment(ManagedEnvironment.GLOBALS, items))
+                    controller.save(ManagedEnvironment(ManagedEnvironment.GLOBALS, items))
                     valuesChanged.set(false)
                 }
             }
