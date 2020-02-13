@@ -321,6 +321,7 @@ class SearchCriteriaFragment : Fragment("Search") {
             val filterKeyValue = SimpleStringProperty("")
             val filterKeyValueTextField = TextField()
             filterKeyValueTextField.bind(filterKeyValue)
+            bindAutoCompletion(filterKeyValueTextField)
             val filterKeyValueComboBox = createAttributesComboBox(filterKeyValue)
             filterKeyValueProperties.add(filterKeyValue)
             val filterKeyFrom = SimpleStringProperty("")
@@ -332,8 +333,10 @@ class SearchCriteriaFragment : Fragment("Search") {
                 Mode.NORMAL -> {
                     val filterKeyFromTextField = TextField()
                     filterKeyFromTextField.textProperty().bindBidirectional(filterKeyFrom)
+                    bindAutoCompletion(filterKeyFromTextField)
                     val filterKeyToTextField = TextField()
                     filterKeyToTextField.textProperty().bindBidirectional(filterKeyTo)
+                    bindAutoCompletion(filterKeyToTextField)
                     HBox(filterKeyFromTextField, andLabel, filterKeyToTextField)
                 }
                 Mode.FOREIGN -> {
