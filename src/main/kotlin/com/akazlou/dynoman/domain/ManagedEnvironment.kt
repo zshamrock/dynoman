@@ -30,7 +30,7 @@ data class ManagedEnvironment(val name: String, val values: List<EnvironmentValu
 
     fun getCompletions(value: String): List<String> {
         val part = value.removePrefix(ENV_PREFIX).trim()
-        return values.filter { it.name.startsWith(part, true) }.map { it.name }
+        return values.filter { it.name.contains(part, true) }.map { it.name }
     }
 }
 

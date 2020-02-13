@@ -53,16 +53,20 @@ class ManagedEnvironmentSpec : StringSpec({
                 EnvironmentValue("val1", ""),
                 EnvironmentValue("val2", ""),
                 EnvironmentValue("vol1", ""),
-                EnvironmentValue("vol2", "")
+                EnvironmentValue("vol2", ""),
+                EnvironmentValue("xval1", ""),
+                EnvironmentValue("yval1", "")
         ))
         forall(
-                row("", listOf("val1", "val2", "vol1", "vol2")),
-                row("v", listOf("val1", "val2", "vol1", "vol2")),
-                row("va", listOf("val1", "val2")),
-                row("val", listOf("val1", "val2")),
-                row("val1", listOf("val1")),
+                row("", listOf("val1", "val2", "vol1", "vol2", "xval1", "yval1")),
+                row("v", listOf("val1", "val2", "vol1", "vol2", "xval1", "yval1")),
+                row("va", listOf("val1", "val2", "xval1", "yval1")),
+                row("val", listOf("val1", "val2", "xval1", "yval1")),
+                row("val1", listOf("val1", "xval1", "yval1")),
                 row("val12", emptyList()),
-                row("b", emptyList())
+                row("b", emptyList()),
+                row("a", listOf("val1", "val2", "xval1", "yval1")),
+                row("o", listOf("vol1", "vol2"))
         ) { value, completions ->
             environment.getCompletions(value) shouldBe completions
         }
