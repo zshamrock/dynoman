@@ -69,8 +69,12 @@ class ManageEnvironmentFragment : Fragment("Manage Environments") {
         valuesView = tableview(items) {
             vgrow = Priority.ALWAYS
             isEditable = true
-            column("Variable", EnvironmentValue::nameProperty).makeEditable()
-            column("Value", EnvironmentValue::valueProperty).makeEditable()
+            column("Variable", EnvironmentValue::nameProperty) {
+                prefWidth = 255.0
+            }.makeEditable()
+            column("Value", EnvironmentValue::valueProperty) {
+                prefWidth = 300.0
+            }.makeEditable()
         }
         removeButtonEnabled.bind(valuesView.selectionModel.selectedItemProperty().isNotNull)
         buttonbar {

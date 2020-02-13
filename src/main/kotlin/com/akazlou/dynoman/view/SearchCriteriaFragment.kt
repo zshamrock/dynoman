@@ -1,6 +1,7 @@
 package com.akazlou.dynoman.view
 
 import com.akazlou.dynoman.controller.ManagedEnvironmentsController
+import com.akazlou.dynoman.domain.AutoCompletionStringConverter
 import com.akazlou.dynoman.domain.ManagedEnvironment
 import com.akazlou.dynoman.domain.SearchSource
 import com.akazlou.dynoman.domain.search.Condition
@@ -28,6 +29,9 @@ import javafx.scene.control.TextField
 import javafx.scene.control.ToggleGroup
 import javafx.scene.layout.GridPane
 import javafx.scene.layout.HBox
+import javafx.util.Callback
+import org.controlsfx.control.textfield.AutoCompletionBinding
+import org.controlsfx.control.textfield.TextFields
 import tornadofx.*
 
 class SearchCriteriaFragment : Fragment("Search") {
@@ -260,7 +264,14 @@ class SearchCriteriaFragment : Fragment("Search") {
                 }
                 if (isHash) {
                     if (mode == Mode.NORMAL) {
-                        textfield(hashKeyValueProperty) { }
+                        val hashTextField = textfield(hashKeyValueProperty) { }
+                        TextFields.bindAutoCompletion(
+                                hashTextField,
+                                EnvironmentNameAutoCompletionCallback(),
+                                // Currently this converter triggers the {{ }} for the suggestions, I think this could
+                                // be addressed by extending AutoCompletionTextFieldBinding and overriding
+                                // completeUserInput
+                                AutoCompletionStringConverter())
                     } else {
                         createAttributesComboBox(hashKeyValueProperty).attachTo(this)
                     }
@@ -540,6 +551,19 @@ class SearchCriteriaFragment : Fragment("Search") {
             val columnIndex = GridPane.getColumnIndex(operators) + 1
             val rowIndex = GridPane.getRowIndex(operators)
             return Pair(columnIndex, rowIndex)
+        }
+    }
+
+    inner class EnvironmentNameAutoCompletionCallback
+        : Callback<AutoCompletionBinding.ISuggestionRequest, Collection<String>> {
+        override fun call(request: AutoCompletionBinding.ISuggestionRequest?): Collection<String> {
+            val userText = request?.userText.orEmpty()
+            return if (ManagedEnvironment.startsWithPrefix(userText)) {
+                val environment = managedEnvironmentsController.get(ManagedEnvironment.GLOBALS)
+                environment.getCompletions(userText)
+            } else {
+                emptyList()
+            }
         }
     }
 }

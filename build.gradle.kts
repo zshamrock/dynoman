@@ -49,6 +49,7 @@ dependencies {
     compile("no.tornado", "tornadofx", "1.7.19")
     compile("org.reflections", "reflections", "0.9.11")
     compile("com.squareup.okhttp3", "okhttp", "4.2.0")
+    compile("org.controlsfx", "controlsfx", "8.40.16")
 
     testImplementation("io.kotlintest:kotlintest-runner-junit5:3.4.0")
     testCompile("org.testcontainers:testcontainers:1.12.0")

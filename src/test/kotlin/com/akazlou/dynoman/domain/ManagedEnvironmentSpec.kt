@@ -36,4 +36,35 @@ class ManagedEnvironmentSpec : StringSpec({
             ManagedEnvironment.isEnvVar(value) shouldBe expected
         }
     }
+
+    "starts with prefix" {
+        forall(
+                row("value", false),
+                row("{value", false),
+                row("{{value", true),
+                row("{{ value", true)
+        ) { value, expected ->
+            ManagedEnvironment.startsWithPrefix(value) shouldBe expected
+        }
+    }
+
+    "get completions" {
+        val environment = ManagedEnvironment(ManagedEnvironment.GLOBALS, listOf(
+                EnvironmentValue("val1", ""),
+                EnvironmentValue("val2", ""),
+                EnvironmentValue("vol1", ""),
+                EnvironmentValue("vol2", "")
+        ))
+        forall(
+                row("", listOf("val1", "val2", "vol1", "vol2")),
+                row("v", listOf("val1", "val2", "vol1", "vol2")),
+                row("va", listOf("val1", "val2")),
+                row("val", listOf("val1", "val2")),
+                row("val1", listOf("val1")),
+                row("val12", emptyList()),
+                row("b", emptyList())
+        ) { value, completions ->
+            environment.getCompletions(value) shouldBe completions
+        }
+    }
 })

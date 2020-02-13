@@ -22,10 +22,14 @@ class ManagedEnvironmentsService : SaverService() {
             writer.appendln(it.toString())
         }
         write(base, environment.name, ".env", writer)
+        envs.refresh(Pair(base, environment.name))
     }
 
     fun restore(base: Path, name: String): ManagedEnvironment {
         val path = resolve(base, name, ".env")
+        if (Files.notExists(path)) {
+            return ManagedEnvironment(name, emptyList())
+        }
         val lines = Files.readAllLines(path, StandardCharsets.UTF_8)
         return ManagedEnvironment(name, lines.filter { it.isNotBlank() }.map { EnvironmentValue.of(it) })
     }

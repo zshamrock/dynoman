@@ -1,6 +1,7 @@
 package com.akazlou.dynoman.domain
 
 import javafx.beans.property.SimpleStringProperty
+import javafx.util.converter.DefaultStringConverter
 import tornadofx.*
 
 data class ManagedEnvironment(val name: String, val values: List<EnvironmentValue>) {
@@ -9,9 +10,13 @@ data class ManagedEnvironment(val name: String, val values: List<EnvironmentValu
             return value.startsWith(ENV_PREFIX) && value.endsWith(ENV_SUFFIX)
         }
 
+        fun startsWithPrefix(value: String): Boolean {
+            return value.startsWith(ENV_PREFIX)
+        }
+
         const val GLOBALS = "Globals"
-        private const val ENV_PREFIX = "{{"
-        private const val ENV_SUFFIX = "}}"
+        internal const val ENV_PREFIX = "{{"
+        internal const val ENV_SUFFIX = "}}"
     }
 
     fun get(name: String): String {
@@ -21,6 +26,11 @@ data class ManagedEnvironment(val name: String, val values: List<EnvironmentValu
             name.trim()
         }
         return values.firstOrNull { it.name == key }?.value.orEmpty()
+    }
+
+    fun getCompletions(value: String): List<String> {
+        val part = value.removePrefix(ENV_PREFIX).trim()
+        return values.filter { it.name.startsWith(part, true) }.map { it.name }
     }
 }
 
@@ -40,5 +50,11 @@ class EnvironmentValue(name: String, value: String) {
     var value: String by valueProperty
     override fun toString(): String {
         return "$name$SEPARATOR$value"
+    }
+}
+
+class AutoCompletionStringConverter : DefaultStringConverter() {
+    override fun toString(value: String?): String {
+        return ManagedEnvironment.ENV_PREFIX + value + ManagedEnvironment.ENV_SUFFIX
     }
 }
