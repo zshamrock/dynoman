@@ -108,8 +108,10 @@ class SearchCriteriaFragment : Fragment("Search") {
             Mode.NORMAL -> {
                 val sortKeyFromTextField = TextField()
                 sortKeyFromTextField.textProperty().bindBidirectional(sortKeyFromProperty)
+                bindAutoCompletion(sortKeyFromTextField)
                 val sortKeyToTextField = TextField()
                 sortKeyToTextField.textProperty().bindBidirectional(sortKeyToProperty)
+                bindAutoCompletion(sortKeyToTextField)
                 HBox(sortKeyFromTextField, andLabel, sortKeyToTextField)
             }
             Mode.FOREIGN -> {
@@ -121,6 +123,7 @@ class SearchCriteriaFragment : Fragment("Search") {
         sortKeyBetweenHBox.alignment = Pos.CENTER
         sortKeyTextField = TextField()
         sortKeyTextField.bind(sortKeyProperty)
+        bindAutoCompletion(sortKeyTextField)
         sortKeyComboBox = createAttributesComboBox(sortKeyProperty)
 
         sortKeyOperatorComboBox = ComboBox<Operator>(sortKeyOperators)
@@ -265,13 +268,7 @@ class SearchCriteriaFragment : Fragment("Search") {
                 if (isHash) {
                     if (mode == Mode.NORMAL) {
                         val hashTextField = textfield(hashKeyValueProperty) { }
-                        TextFields.bindAutoCompletion(
-                                hashTextField,
-                                EnvironmentNameAutoCompletionCallback(),
-                                // Currently this converter triggers the {{ }} for the suggestions, I think this could
-                                // be addressed by extending AutoCompletionTextFieldBinding and overriding
-                                // completeUserInput
-                                AutoCompletionStringConverter())
+                        bindAutoCompletion(hashTextField)
                     } else {
                         createAttributesComboBox(hashKeyValueProperty).attachTo(this)
                     }
@@ -284,6 +281,16 @@ class SearchCriteriaFragment : Fragment("Search") {
                 }
             }
         }
+    }
+
+    private fun bindAutoCompletion(textField: TextField) {
+        TextFields.bindAutoCompletion(
+                textField,
+                EnvironmentNameAutoCompletionCallback(),
+                // Currently this converter triggers the {{ }} for the suggestions, I think this could
+                // be addressed by extending AutoCompletionTextFieldBinding and overriding
+                // completeUserInput
+                AutoCompletionStringConverter())
     }
 
     private fun addFilterRow(queryGridPane: GridPane, condition: Condition? = null) {
