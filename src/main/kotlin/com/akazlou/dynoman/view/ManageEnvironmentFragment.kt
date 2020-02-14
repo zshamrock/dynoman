@@ -66,6 +66,15 @@ class ManageEnvironmentFragment : Fragment("Manage Environments") {
                 }
             }
         }
+        hbox(5.0) {
+            padding = tornadofx.insets(5.0, 5.0, 5.0, 5.0)
+            textflow {
+                text("You can use defined env vars in the query fields (partition, sort and filters) with the " +
+                        "following syntax (auto completion is also available): {{ <variable name> }}.") {
+                    addClass("hint")
+                }
+            }
+        }
         valuesView = tableview(items) {
             vgrow = Priority.ALWAYS
             isEditable = true
