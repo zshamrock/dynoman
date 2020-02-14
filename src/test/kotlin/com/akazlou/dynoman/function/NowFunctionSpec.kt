@@ -16,4 +16,8 @@ class NowFunctionSpec : StringSpec({
         val timestamp = function.parse("now()")
         timestamp shouldBe 1531178121000L
     }
+
+    "args auto completion hint" {
+        NowFunction(Clock.systemUTC()).argsAutoCompletionHint() shouldBe "now()"
+    }
 })

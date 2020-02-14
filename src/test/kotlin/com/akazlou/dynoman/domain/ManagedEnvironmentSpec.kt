@@ -71,4 +71,8 @@ class ManagedEnvironmentSpec : StringSpec({
             environment.getCompletions(value) shouldBe completions
         }
     }
+
+    "surround" {
+        ManagedEnvironment.surround("value") shouldBe "{{value}}"
+    }
 })

@@ -6,6 +6,5 @@ data class Arg(
 enum class ArgType {
     NUMERIC,
     STRING,
-    BOOLEAN,
-    DATE_TIME
+    BOOLEAN
 }

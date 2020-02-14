@@ -4,6 +4,11 @@ import java.util.Deque
 import java.util.LinkedList
 
 abstract class Function<T> {
+    companion object {
+        const val OPEN_PARENS = "("
+        const val CLOSE_PARENS = ")"
+    }
+
     fun parse(text: String): T {
         return run(*parseArgs(text))
     }
@@ -60,20 +65,23 @@ abstract class Function<T> {
         } else if (arg == "true" || arg == "false") {
             // Boolean type
             arg.toBoolean()
-        } else {
+        } else if (arg.contains(".")) {
             // Double type
             arg.toDouble()
+        } else {
+            // Long type
+            arg.toLong()
         }
     }
 
     fun argsAutoCompletionHint(): String {
-        return args().joinToString(",") { arg ->
+        return name() + OPEN_PARENS + args().joinToString(",") { arg ->
             if (arg.optional) {
                 "[${argHint(arg)}]"
             } else {
                 argHint(arg)
-            }
-        }
+            } + arg.type.name
+        } + CLOSE_PARENS
     }
 
     private fun argHint(arg: Arg): String {

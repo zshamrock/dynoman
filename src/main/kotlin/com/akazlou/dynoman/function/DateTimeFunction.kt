@@ -23,7 +23,7 @@ class DateTimeFunction : Function<String>() {
     }
 
     override fun run(vararg args: Any): String {
-        if ((args.isEmpty()) || ((args[0] as? String).isNullOrBlank())) {
+        if ((args.isEmpty())) {
             return ""
         }
         return ZonedDateTime

@@ -15,4 +15,8 @@ class ParseUUIDFunctionSpec : StringSpec({
         val uuid = function.parse("parse_uuid(\"45406448-c4ab-4f6c-b827-048cb6d9b52f\")")
         uuid shouldBe "45406448-c4ab-4f6c-b827-048cb6d9b52f"
     }
+
+    "args auto completion hint" {
+        ParseUUIDFunction().argsAutoCompletionHint() shouldBe "parse_uuid(<UUID>STRING)"
+    }
 })

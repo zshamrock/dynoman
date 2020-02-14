@@ -5,7 +5,6 @@ import io.kotlintest.shouldBe
 import io.kotlintest.specs.StringSpec
 import io.kotlintest.tables.row
 
-// TODO: Add test only for the date part without the time part
 class TimestampFunctionSpec : StringSpec({
     "should parse text without am/pm into the proper timestamp" {
         val function = TimestampFunction()
@@ -53,5 +52,9 @@ class TimestampFunctionSpec : StringSpec({
         val function = TimestampFunction()
         val timestamp = function.parse("timestamp(\"2018-07-03\")")
         timestamp shouldBe 1530576000000L
+    }
+
+    "args auto completion hint" {
+        TimestampFunction().argsAutoCompletionHint() shouldBe "timestamp(<datetime>STRING)"
     }
 })

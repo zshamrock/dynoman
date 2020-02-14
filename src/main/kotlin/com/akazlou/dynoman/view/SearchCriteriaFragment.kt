@@ -11,6 +11,7 @@ import com.akazlou.dynoman.domain.search.ScanSearch
 import com.akazlou.dynoman.domain.search.Search
 import com.akazlou.dynoman.domain.search.SearchType
 import com.akazlou.dynoman.domain.search.Type
+import com.akazlou.dynoman.function.Function
 import com.akazlou.dynoman.function.Functions
 import com.amazonaws.services.dynamodbv2.model.KeySchemaElement
 import com.amazonaws.services.dynamodbv2.model.KeyType
@@ -582,17 +583,25 @@ class SearchCriteriaFragment : Fragment("Search") {
         }
     }
 
-    inner class FunctionNameAutoCompletionCallback
+    class FunctionNameAutoCompletionCallback
         : Callback<AutoCompletionBinding.ISuggestionRequest, Collection<String>> {
-        private val listAllFunctionsControlSymbol = "="
+        companion object {
+            private const val LIST_ALL_FUNCTIONS_CONTROL_SYMBOL = "="
+        }
 
         override fun call(request: AutoCompletionBinding.ISuggestionRequest?): Collection<String> {
             val userText = request?.userText.orEmpty()
             if (userText.isBlank()) {
                 return emptyList()
             }
-            val functions = if (userText == listAllFunctionsControlSymbol) {
-                Functions.getAvailableFunctions()
+            val allFunctions = Functions.getAvailableFunctions()
+            // Build args auto completion hint
+            val function = allFunctions.firstOrNull { userText.startsWith(it.name() + Function.OPEN_PARENS) }
+            if (function != null && !userText.endsWith(Function.CLOSE_PARENS)) {
+                return listOf(function.argsAutoCompletionHint())
+            }
+            val functions = if (userText == LIST_ALL_FUNCTIONS_CONTROL_SYMBOL) {
+                allFunctions
             } else {
                 Functions.getCompletions(userText)
             }

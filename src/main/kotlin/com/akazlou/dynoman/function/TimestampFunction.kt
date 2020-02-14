@@ -57,5 +57,5 @@ class TimestampFunction : Function<Long>() {
     }
 
     override fun args(): List<Arg> = listOf(
-            Arg("datetime", ArgType.DATE_TIME, "Date time in the yyyy-MM-dd [HH:mm:ss][am|pm] format"))
+            Arg("datetime", ArgType.STRING, "Date time in the yyyy-MM-dd [HH:mm:ss][am|pm] format"))
 }
