@@ -55,4 +55,7 @@ class TimestampFunction : Function<Long>() {
         val dateTime = LocalDateTime.parse(text, dtf)
         return dateTime.atZone(zone).toInstant().toEpochMilli()
     }
+
+    override fun args(): List<Arg> = listOf(
+            Arg("datetime", ArgType.DATE_TIME, "Date time in the yyyy-MM-dd [HH:mm:ss][am|pm] format"))
 }

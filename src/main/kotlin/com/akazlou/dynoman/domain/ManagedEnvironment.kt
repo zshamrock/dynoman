@@ -1,7 +1,6 @@
 package com.akazlou.dynoman.domain
 
 import javafx.beans.property.SimpleStringProperty
-import javafx.util.converter.DefaultStringConverter
 import tornadofx.*
 
 data class ManagedEnvironment(val name: String, val values: List<EnvironmentValue>) {
@@ -14,9 +13,13 @@ data class ManagedEnvironment(val name: String, val values: List<EnvironmentValu
             return value.startsWith(ENV_PREFIX)
         }
 
+        fun surround(value: String): String {
+            return ENV_PREFIX + value + ENV_SUFFIX
+        }
+
         const val GLOBALS = "Globals"
-        internal const val ENV_PREFIX = "{{"
-        internal const val ENV_SUFFIX = "}}"
+        private const val ENV_PREFIX = "{{"
+        private const val ENV_SUFFIX = "}}"
     }
 
     fun get(name: String): String {
@@ -50,11 +53,5 @@ class EnvironmentValue(name: String, value: String) {
     var value: String by valueProperty
     override fun toString(): String {
         return "$name$SEPARATOR$value"
-    }
-}
-
-class AutoCompletionStringConverter : DefaultStringConverter() {
-    override fun toString(value: String?): String {
-        return ManagedEnvironment.ENV_PREFIX + value + ManagedEnvironment.ENV_SUFFIX
     }
 }

@@ -1,7 +1,6 @@
 package com.akazlou.dynoman.view
 
 import com.akazlou.dynoman.controller.ManagedEnvironmentsController
-import com.akazlou.dynoman.domain.AutoCompletionStringConverter
 import com.akazlou.dynoman.domain.ManagedEnvironment
 import com.akazlou.dynoman.domain.SearchSource
 import com.akazlou.dynoman.domain.search.Condition
@@ -286,11 +285,8 @@ class SearchCriteriaFragment : Fragment("Search") {
     private fun bindAutoCompletion(textField: TextField) {
         TextFields.bindAutoCompletion(
                 textField,
-                EnvironmentNameAutoCompletionCallback(),
-                // Currently this converter triggers the {{ }} for the suggestions, I think this could
-                // be addressed by extending AutoCompletionTextFieldBinding and overriding
-                // completeUserInput
-                AutoCompletionStringConverter())
+                CompositeAutoCompletionCallback(
+                        EnvironmentNameAutoCompletionCallback(), FunctionNameAutoCompletionCallback()))
     }
 
     private fun addFilterRow(queryGridPane: GridPane, condition: Condition? = null) {
@@ -564,16 +560,43 @@ class SearchCriteriaFragment : Fragment("Search") {
         }
     }
 
+    inner class CompositeAutoCompletionCallback(
+            private vararg val callbacks: Callback<AutoCompletionBinding.ISuggestionRequest, Collection<String>>)
+        : Callback<AutoCompletionBinding.ISuggestionRequest, Collection<String>> {
+
+        override fun call(request: AutoCompletionBinding.ISuggestionRequest?): Collection<String> {
+            return callbacks.asSequence().map { it.call(request) }.firstOrNull { it.isNotEmpty() }.orEmpty()
+        }
+    }
+
     inner class EnvironmentNameAutoCompletionCallback
         : Callback<AutoCompletionBinding.ISuggestionRequest, Collection<String>> {
         override fun call(request: AutoCompletionBinding.ISuggestionRequest?): Collection<String> {
             val userText = request?.userText.orEmpty()
             return if (ManagedEnvironment.startsWithPrefix(userText)) {
                 val environment = managedEnvironmentsController.get(ManagedEnvironment.GLOBALS)
-                environment.getCompletions(userText)
+                environment.getCompletions(userText).map { ManagedEnvironment.surround(it) }
             } else {
                 emptyList()
             }
+        }
+    }
+
+    inner class FunctionNameAutoCompletionCallback
+        : Callback<AutoCompletionBinding.ISuggestionRequest, Collection<String>> {
+        private val listAllFunctionsControlSymbol = "="
+
+        override fun call(request: AutoCompletionBinding.ISuggestionRequest?): Collection<String> {
+            val userText = request?.userText.orEmpty()
+            if (userText.isBlank()) {
+                return emptyList()
+            }
+            val functions = if (userText == listAllFunctionsControlSymbol) {
+                Functions.getAvailableFunctions()
+            } else {
+                Functions.getCompletions(userText)
+            }
+            return functions.map { it.name() }
         }
     }
 }

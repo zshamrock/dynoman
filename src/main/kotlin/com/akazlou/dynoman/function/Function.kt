@@ -66,7 +66,22 @@ abstract class Function<T> {
         }
     }
 
+    fun argsAutoCompletionHint(): String {
+        return args().joinToString(",") { arg ->
+            if (arg.optional) {
+                "[${argHint(arg)}]"
+            } else {
+                argHint(arg)
+            }
+        }
+    }
+
+    private fun argHint(arg: Arg): String {
+        return "<${arg.name}>"
+    }
+
     abstract fun name(): String
     protected open fun desc(): String = ""
     abstract fun run(vararg args: Any): T
+    abstract fun args(): List<Arg>
 }

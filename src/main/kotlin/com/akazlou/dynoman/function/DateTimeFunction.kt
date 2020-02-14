@@ -30,4 +30,6 @@ class DateTimeFunction : Function<String>() {
                 .ofInstant(Instant.ofEpochMilli(args[0] as? Long ?: (args[0] as String).toLong()), UTC_ZONE)
                 .format(DEFAULT_FORMATTER)
     }
+
+    override fun args(): List<Arg> = listOf(Arg("timestamp", ArgType.NUMERIC, "timestamp"))
 }

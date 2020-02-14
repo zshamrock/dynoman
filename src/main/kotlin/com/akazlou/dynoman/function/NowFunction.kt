@@ -10,4 +10,6 @@ class NowFunction(private val clock: Clock) : Function<Long>() {
     override fun run(vararg args: Any): Long {
         return clock.millis()
     }
+
+    override fun args(): List<Arg> = emptyList()
 }

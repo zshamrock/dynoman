@@ -18,4 +18,7 @@ class ParseUUIDFunction : Function<String>() {
                 + uuid.substring(16, 20) + "-"
                 + uuid.substring(20)).toString()
     }
+
+    override fun args(): List<Arg> =
+            listOf(Arg("UUID", ArgType.STRING, "UUID as the raw string, i.e. 3A2DD5E0D2C04F13A3E2F600C9530793"))
 }
