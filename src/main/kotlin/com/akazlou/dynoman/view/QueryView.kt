@@ -3,6 +3,7 @@ package com.akazlou.dynoman.view
 import com.akazlou.dynoman.controller.RunQueryController
 import com.akazlou.dynoman.controller.SessionSaverController
 import com.akazlou.dynoman.domain.Config
+import com.akazlou.dynoman.domain.ManagedEnvironment
 import com.akazlou.dynoman.domain.Version
 import com.akazlou.dynoman.domain.search.QueryResult
 import com.akazlou.dynoman.domain.search.Search
@@ -36,6 +37,7 @@ class QueryView : View("Query") {
     private val tabContextMenu: ContextMenu
     private val namedQueries = mutableListOf<String>().asObservable()
     private val openSessionNameProperty = SimpleStringProperty()
+    private val environmentNameProperty = SimpleStringProperty(ManagedEnvironment.NO_ENVIRONMENT)
     private var operation: DynamoDBOperation? = null
 
     init {
@@ -128,9 +130,9 @@ class QueryView : View("Query") {
                     hGrow = Priority.ALWAYS
                 }
             }
-            combobox<String> {
+            combobox<String>(environmentNameProperty) {
                 prefWidth = 200.0
-                items = listOf("No Environment").asObservable()
+                items = listOf(ManagedEnvironment.NO_ENVIRONMENT).asObservable()
             }
             button("Manage Environments") {
                 addClass("button-xlarge")

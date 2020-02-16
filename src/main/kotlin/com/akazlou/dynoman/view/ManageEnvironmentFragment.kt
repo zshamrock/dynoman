@@ -4,6 +4,7 @@ import com.akazlou.dynoman.controller.ManagedEnvironmentsController
 import com.akazlou.dynoman.domain.EnvironmentValue
 import com.akazlou.dynoman.domain.ManagedEnvironment
 import javafx.beans.property.SimpleBooleanProperty
+import javafx.beans.property.SimpleStringProperty
 import javafx.collections.FXCollections
 import javafx.collections.ListChangeListener
 import javafx.geometry.Pos
@@ -18,6 +19,8 @@ class ManageEnvironmentFragment : Fragment("Manage Environments") {
     private var valuesView: TableView<EnvironmentValue> by singleAssign()
     private val removeButtonEnabled: SimpleBooleanProperty = SimpleBooleanProperty(false)
     private val valuesChanged = SimpleBooleanProperty(false)
+    private val environmentNameProperty = SimpleStringProperty(ManagedEnvironment.NO_ENVIRONMENT)
+    private val environments = mutableListOf(environmentNameProperty.value).asObservable()
 
     init {
         items.addListener(ListChangeListener {
@@ -35,12 +38,14 @@ class ManageEnvironmentFragment : Fragment("Manage Environments") {
         hbox(5.0) {
             hbox(5.0) {
                 paddingLeft = 5.0
-                combobox(values = listOf("No Environment")) {
+                combobox(environmentNameProperty) {
                     prefWidth = 200.0
+                    items = environments
                 }
                 button("New") {
                 }
                 button("Delete") {
+                    enableWhen { environmentNameProperty.isNotEqualTo(ManagedEnvironment.NO_ENVIRONMENT) }
                 }
             }
             region {

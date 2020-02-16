@@ -18,6 +18,7 @@ data class ManagedEnvironment(val name: String, val values: List<EnvironmentValu
         }
 
         const val GLOBALS = "Globals"
+        const val NO_ENVIRONMENT = "No Environment"
         private const val ENV_PREFIX = "{{"
         private const val ENV_SUFFIX = "}}"
     }
