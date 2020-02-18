@@ -1,5 +1,6 @@
 package com.akazlou.dynoman.view
 
+import com.akazlou.dynoman.controller.ManagedEnvironmentsController
 import com.akazlou.dynoman.controller.RunQueryController
 import com.akazlou.dynoman.controller.SessionSaverController
 import com.akazlou.dynoman.domain.Config
@@ -31,14 +32,16 @@ class QueryView : View("Query") {
 
     private val runQueryController: RunQueryController by inject()
     private val sessionSaverController: SessionSaverController by inject()
+    private val managedEnvironmentsController: ManagedEnvironmentsController by inject()
     private var queries: TabPane by singleAssign()
     private val region = SimpleStringProperty(Config.getRegion(app.config))
     private val local = SimpleStringProperty(buildLocalText(Config.isLocal(app.config)))
     private val tabContextMenu: ContextMenu
     private val namedQueries = mutableListOf<String>().asObservable()
     private val openSessionNameProperty = SimpleStringProperty()
-    private val environmentNameProperty = SimpleStringProperty(ManagedEnvironment.NO_ENVIRONMENT)
+    private val environmentNameProperty = SimpleStringProperty(ManagedEnvironment.GLOBALS)
     private var operation: DynamoDBOperation? = null
+    private val environments = managedEnvironmentsController.list().asObservable()
 
     init {
         val rename = MenuItem("Rename")
@@ -132,12 +135,15 @@ class QueryView : View("Query") {
             }
             combobox<String>(environmentNameProperty) {
                 prefWidth = 200.0
-                items = listOf(ManagedEnvironment.NO_ENVIRONMENT).asObservable()
+                items = environments
             }
             button("Manage Environments") {
                 addClass("button-xlarge")
                 action {
-                    find<ManageEnvironmentFragment>().openModal(block = true)
+                    val fragment = find<ManageEnvironmentFragment>(
+                            params = mapOf(ManageEnvironmentFragment::environmentName to environmentNameProperty.value))
+                    fragment.openModal(block = true)
+                    environments.setAll(fragment.getEnvironments())
                 }
             }
         }

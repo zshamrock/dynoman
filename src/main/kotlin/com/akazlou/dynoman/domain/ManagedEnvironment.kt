@@ -18,7 +18,13 @@ data class ManagedEnvironment(val name: String, val values: List<EnvironmentValu
         }
 
         const val GLOBALS = "Globals"
-        const val NO_ENVIRONMENT = "No Environment"
+        val COMPARATOR: Comparator<String> = Comparator { o1, o2 ->
+            if (o1 == GLOBALS) {
+                -1
+            } else {
+                o1.compareTo(o2)
+            }
+        }
         private const val ENV_PREFIX = "{{"
         private const val ENV_SUFFIX = "}}"
     }

@@ -59,6 +59,8 @@ class SearchCriteriaFragment : Fragment("Search") {
     }
 
     val description: TableDescription by param()
+    // TODO: Pass actual selected environment (is it possible to set it into the config or global app state)
+    val environmentName: String = ManagedEnvironment.GLOBALS
     private val managedEnvironmentsController: ManagedEnvironmentsController by inject()
     private val searchTypes: List<SearchType> = listOf(SearchType.SCAN, SearchType.QUERY)
     private val searchTypeProperty = SimpleObjectProperty(params["searchType"] as SearchType)
@@ -241,7 +243,7 @@ class SearchCriteriaFragment : Fragment("Search") {
             }
         }
         if (ManagedEnvironment.isEnvVar(value)) {
-            return managedEnvironmentsController.get(ManagedEnvironment.GLOBALS).get(value)
+            return managedEnvironmentsController.get(environmentName).get(value)
         }
         return value
     }
@@ -575,7 +577,7 @@ class SearchCriteriaFragment : Fragment("Search") {
         override fun call(request: AutoCompletionBinding.ISuggestionRequest?): Collection<String> {
             val userText = request?.userText.orEmpty()
             return if (ManagedEnvironment.startsWithPrefix(userText)) {
-                val environment = managedEnvironmentsController.get(ManagedEnvironment.GLOBALS)
+                val environment = managedEnvironmentsController.get(environmentName)
                 environment.getCompletions(userText).map { ManagedEnvironment.surround(it) }
             } else {
                 emptyList()

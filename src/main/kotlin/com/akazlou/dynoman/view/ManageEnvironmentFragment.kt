@@ -14,13 +14,14 @@ import tornadofx.*
 
 class ManageEnvironmentFragment : Fragment("Manage Environments") {
     private val controller: ManagedEnvironmentsController by inject()
-    private val items = FXCollections.observableList(controller.restore(
-            ManagedEnvironment.GLOBALS).values.toMutableList()) { value -> arrayOf(value.nameProperty, value.valueProperty) }
+    val environmentName: String by param()
+    private val items = FXCollections.observableList(controller.get(environmentName)
+            .values.toMutableList()) { value -> arrayOf(value.nameProperty, value.valueProperty) }
     private var valuesView: TableView<EnvironmentValue> by singleAssign()
     private val removeButtonEnabled: SimpleBooleanProperty = SimpleBooleanProperty(false)
     private val valuesChanged = SimpleBooleanProperty(false)
-    private val environmentNameProperty = SimpleStringProperty(ManagedEnvironment.NO_ENVIRONMENT)
-    private val environments = mutableListOf(environmentNameProperty.value).asObservable()
+    private val environmentNameProperty = SimpleStringProperty(environmentName)
+    private val environments = controller.list().asObservable()
 
     init {
         items.addListener(ListChangeListener {
@@ -28,6 +29,10 @@ class ManageEnvironmentFragment : Fragment("Manage Environments") {
                 valuesChanged.set(true)
             }
         })
+        environmentNameProperty.onChange {
+            items.setAll(controller.get(it!!).values)
+            valuesChanged.set(false)
+        }
     }
 
     override val root = vbox(5.0) {
@@ -43,9 +48,24 @@ class ManageEnvironmentFragment : Fragment("Manage Environments") {
                     items = environments
                 }
                 button("New") {
+                    action {
+                        val fragment = find<CreateEnvironmentFragment>()
+                        fragment.openModal(block = true)
+                        val environment = fragment.getNewManagedEnvironment()
+                        if (environment != null) {
+                            environments.add(environment.name)
+                            environments.sortWith(ManagedEnvironment.COMPARATOR)
+                            environmentNameProperty.set(environment.name)
+                            items.clear()
+                            valuesChanged.set(false)
+                        }
+                    }
                 }
                 button("Delete") {
-                    enableWhen { environmentNameProperty.isNotEqualTo(ManagedEnvironment.NO_ENVIRONMENT) }
+                    enableWhen { environmentNameProperty.isNotEqualTo(ManagedEnvironment.GLOBALS) }
+                    action {
+
+                    }
                 }
             }
             region {
@@ -96,7 +116,7 @@ class ManageEnvironmentFragment : Fragment("Manage Environments") {
             button("Save") {
                 enableWhen { valuesChanged }
                 action {
-                    controller.save(ManagedEnvironment(ManagedEnvironment.GLOBALS, items))
+                    controller.save(ManagedEnvironment(environmentNameProperty.value, items))
                     valuesChanged.set(false)
                 }
             }
@@ -106,5 +126,9 @@ class ManageEnvironmentFragment : Fragment("Manage Environments") {
                 }
             }
         }
+    }
+
+    fun getEnvironments(): List<String> {
+        return environments
     }
 }

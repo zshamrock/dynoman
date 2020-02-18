@@ -11,6 +11,10 @@ import java.nio.file.Path
 import java.util.concurrent.TimeUnit
 
 class ManagedEnvironmentsService : SaverService() {
+    companion object {
+        private const val ENV_EXTENSION = ".env"
+    }
+
     private val envs: LoadingCache<Pair<Path, String>, ManagedEnvironment> = Caffeine.newBuilder()
             .maximumSize(10)
             .expireAfterWrite(30, TimeUnit.MINUTES)
@@ -21,12 +25,12 @@ class ManagedEnvironmentsService : SaverService() {
         environment.values.forEach {
             writer.appendln(it.toString())
         }
-        write(base, environment.name, ".env", writer)
+        write(base, environment.name, ENV_EXTENSION, writer)
         envs.refresh(Pair(base, environment.name))
     }
 
     fun restore(base: Path, name: String): ManagedEnvironment {
-        val path = resolve(base, name, ".env")
+        val path = resolve(base, name, ENV_EXTENSION)
         if (Files.notExists(path)) {
             return ManagedEnvironment(name, emptyList())
         }
@@ -36,5 +40,13 @@ class ManagedEnvironmentsService : SaverService() {
 
     fun get(base: Path, name: String): ManagedEnvironment {
         return envs.get(Pair(base, name))!!
+    }
+
+    fun list(base: Path): List<String> {
+        return listOf(ManagedEnvironment.GLOBALS) +
+                base.toFile().listFiles { _, name -> name.endsWith(ENV_EXTENSION) }.orEmpty()
+                        .map { it.nameWithoutExtension }
+                        .filterNot { it == ManagedEnvironment.GLOBALS }
+                        .sortedWith(ManagedEnvironment.COMPARATOR)
     }
 }

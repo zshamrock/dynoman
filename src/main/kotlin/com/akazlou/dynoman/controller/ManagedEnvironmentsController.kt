@@ -13,12 +13,12 @@ class ManagedEnvironmentsController : Controller() {
         service.save(getBase(), environment)
     }
 
-    fun restore(name: String): ManagedEnvironment {
-        return service.restore(getBase(), name)
-    }
-
     fun get(name: String): ManagedEnvironment {
         return service.get(getBase(), name)
+    }
+
+    fun list(): List<String> {
+        return service.list(getBase())
     }
 
     private fun getBase(): Path {
