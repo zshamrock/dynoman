@@ -49,4 +49,8 @@ class ManagedEnvironmentsService : SaverService() {
                         .filterNot { it == ManagedEnvironment.GLOBALS }
                         .sortedWith(ManagedEnvironment.COMPARATOR)
     }
+
+    fun remove(base: Path, name: String) {
+        Files.deleteIfExists(resolve(base, name, ENV_EXTENSION))
+    }
 }

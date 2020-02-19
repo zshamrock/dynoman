@@ -64,7 +64,15 @@ class ManageEnvironmentFragment : Fragment("Manage Environments") {
                 button("Delete") {
                     enableWhen { environmentNameProperty.isNotEqualTo(ManagedEnvironment.GLOBALS) }
                     action {
-
+                        runAsyncWithProgress {
+                            val name = environmentNameProperty.value
+                            controller.remove(name)
+                            name
+                        } ui { name ->
+                            environmentNameProperty.set(ManagedEnvironment.GLOBALS)
+                            environments.remove(name)
+                            valuesChanged.set(false)
+                        }
                     }
                 }
             }
@@ -130,5 +138,9 @@ class ManageEnvironmentFragment : Fragment("Manage Environments") {
 
     fun getEnvironments(): List<String> {
         return environments
+    }
+
+    fun getSelectedEnvironmentName(): String {
+        return environmentNameProperty.value
     }
 }

@@ -144,6 +144,7 @@ class QueryView : View("Query") {
                             params = mapOf(ManageEnvironmentFragment::environmentName to environmentNameProperty.value))
                     fragment.openModal(block = true)
                     environments.setAll(fragment.getEnvironments())
+                    environmentNameProperty.set(fragment.getSelectedEnvironmentName())
                 }
             }
         }

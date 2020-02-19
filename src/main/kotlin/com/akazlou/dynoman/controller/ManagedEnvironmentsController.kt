@@ -21,6 +21,10 @@ class ManagedEnvironmentsController : Controller() {
         return service.list(getBase())
     }
 
+    fun remove(name: String) {
+        service.remove(getBase(), name)
+    }
+
     private fun getBase(): Path {
         return Config.getSavedEnvironmentsPath(Config.getProfile(app.config), app.configBasePath)
     }
