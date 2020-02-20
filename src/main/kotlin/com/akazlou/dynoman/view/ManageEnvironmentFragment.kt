@@ -30,7 +30,9 @@ class ManageEnvironmentFragment : Fragment("Manage Environments") {
             }
         })
         environmentNameProperty.onChange {
-            items.setAll(controller.get(it!!).values)
+            if (!it.isNullOrBlank()) {
+                items.setAll(controller.get(it).values)
+            }
             valuesChanged.set(false)
         }
     }
