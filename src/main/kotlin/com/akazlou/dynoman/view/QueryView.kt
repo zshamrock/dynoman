@@ -210,5 +210,9 @@ class QueryView : View("Query") {
         this.operation = operation
     }
 
+    fun getEnvironmentName(): String {
+        return environmentNameProperty.value
+    }
+
     private fun buildLocalText(local: Boolean) = if (local) "(local)" else ""
 }

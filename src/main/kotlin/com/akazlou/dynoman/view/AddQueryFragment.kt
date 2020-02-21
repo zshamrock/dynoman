@@ -81,7 +81,7 @@ class AddQueryFragment : Fragment("Add Query") {
                                         Environment(table.name).value.capitalize()
                             }
                             // TODO: If it was the index, select it accordingly instead of table
-                            searchCriteriaFragment = find<SearchCriteriaFragment>(params = mapOf(
+                            searchCriteriaFragment = find(params = mapOf(
                                     "searchType" to SearchType.QUERY,
                                     "description" to operation.describeTable(table.tableName),
                                     "attributes" to attributes
