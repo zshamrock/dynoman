@@ -321,7 +321,8 @@ class QueryTabFragment : Fragment("Query Tab") {
                         operation,
                         operation.describeTable(search.table),
                         search,
-                        page)
+                        page,
+                        QueryView.TabPosition.AFTER_CURRENT)
                 if (firstTab == null) {
                     firstTab = tab
                 }

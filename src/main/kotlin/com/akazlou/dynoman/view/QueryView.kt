@@ -43,6 +43,11 @@ class QueryView : View("Query") {
     private var operation: DynamoDBOperation? = null
     private val environments = managedEnvironmentsController.list().asObservable()
 
+    enum class TabPosition {
+        LAST,
+        AFTER_CURRENT
+    }
+
     init {
         val rename = MenuItem("Rename")
         val duplicate = MenuItem("Duplicate")
@@ -181,7 +186,8 @@ class QueryView : View("Query") {
     fun setQueryResult(operation: DynamoDBOperation,
                        description: TableDescription,
                        search: Search,
-                       page: Page<Item, out Any>?): Tab {
+                       page: Page<Item, out Any>?,
+                       position: TabPosition = TabPosition.LAST): Tab {
         val fragment = find<QueryTabFragment>(
                 params = mapOf(
                         "description" to description,
@@ -190,10 +196,15 @@ class QueryView : View("Query") {
         if (page != null) {
             fragment.setQueryResult(QueryResult(search.type, description, page))
         }
-        val tab = queries.tab(search.name.ifBlank { "${search.type} ${search.table}" }, fragment.root)
+        val index = if (position == TabPosition.AFTER_CURRENT) {
+            queries.selectionModel.selectedIndex + 1
+        } else {
+            queries.tabs.size
+        }
+        val tab = queries.tab(index, search.name.ifBlank { "${search.type} ${search.table}" }, fragment.root)
         tab.properties[QUERY_TAB_FRAGMENT_KEY] = fragment
         tab.contextMenu = tabContextMenu
-        queries.selectionModel.selectLast()
+        queries.selectionModel.select(index)
         return tab
     }
 
