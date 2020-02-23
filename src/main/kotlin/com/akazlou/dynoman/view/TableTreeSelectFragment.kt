@@ -198,21 +198,31 @@ class TableTreeSelectFragment : Fragment("Table Tree") {
                 println("Query (clipboard) ${treeItem.value.getText()}")
                 val tableName = treeItem.value.getText()
                 val description = (treeItem as DynamoDBTableTreeItem).description
-                val primaryKey = description.keySchema[0]
+                val hashKeySchemaElement = description.keySchema[0]
                 val hashKeyValue = Clipboard.getSystemClipboard().string
                 // TODO: Optimize/refactor
                 val attributeDefinitionTypes = description.attributeDefinitions.associateBy(
                         { it.attributeName }, { Type.fromString(it.attributeType) })
-                val hashKey = Condition(
-                        primaryKey.attributeName,
-                        attributeDefinitionTypes.getValue(primaryKey.attributeName),
-                        Operator.EQ,
-                        listOf(hashKeyValue))
+                val hashKey = Condition.hashKey(
+                        hashKeySchemaElement.attributeName,
+                        attributeDefinitionTypes.getValue(hashKeySchemaElement.attributeName),
+                        hashKeyValue)
+                val rangeKeySchemaElement = description.keySchema.getOrNull(1)
+                val rangeKey = if (rangeKeySchemaElement == null) {
+                    null
+                } else {
+                    Condition(
+                            rangeKeySchemaElement.attributeName,
+                            attributeDefinitionTypes.getValue(rangeKeySchemaElement.attributeName),
+                            Operator.EQ,
+                            emptyList()
+                    )
+                }
                 val search = QuerySearch(
                         tableName,
                         null,
                         hashKey,
-                        null,
+                        rangeKey,
                         emptyList(),
                         Order.ASC)
                 runAsyncWithProgress {
