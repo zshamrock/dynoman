@@ -12,6 +12,7 @@ data class QueryResult(val searchType: SearchType,
     companion object {
         const val QUERY_MAX_PAGE_RESULT_SIZE = 100
         const val SCAN_MAX_PAGE_RESULT_SIZE = 100
+        private const val NOT_EMPTY_PAGE = 0
     }
 
     private val data = mutableListOf<List<ResultData>>()
@@ -77,7 +78,11 @@ data class QueryResult(val searchType: SearchType,
         if (pageNum < data.size) {
             return true
         }
-        return page.hasNextPage()
+        return if (page.hasNextPage()) {
+            page.nextPage().size() != NOT_EMPTY_PAGE
+        } else {
+            false
+        }
     }
 
     fun getCurrentDataRange(pageNum: Int): Pair<Int, Int> {

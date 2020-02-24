@@ -28,8 +28,8 @@ class QueryResultSpec : StringSpec({
                 SearchType.QUERY,
                 description,
                 PageList(listOf(
-                        listOf(Item()),
-                        listOf(Item()),
+                        generateSequence { Item() }.take(100).toList(),
+                        generateSequence { Item() }.take(100).toList(),
                         generateSequence { Item() }.take(52).toList()
                 )))
         forall(

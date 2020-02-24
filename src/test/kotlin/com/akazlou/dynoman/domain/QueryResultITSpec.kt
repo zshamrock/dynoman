@@ -29,6 +29,7 @@ class QueryResultITSpec : StringSpec() {
         "verify navigate over pages for the scan" {
             var result = operation.scan(ScanSearch("Table1", null, emptyList()))
             val table = operation.getTable("Table1")
+            table.describe()
             val qr = QueryResult(SearchType.SCAN, table.description, result)
             qr.hasMoreData(1) shouldBe true
             qr.getData(1).size shouldBe 100
@@ -60,6 +61,7 @@ class QueryResultITSpec : StringSpec() {
                             emptyList(),
                             Order.ASC))
             val table = operation.getTable("Table1")
+            table.describe()
             val qr = QueryResult(SearchType.QUERY, table.description, result)
 
             qr.hasMoreData(1) shouldBe false
@@ -80,20 +82,21 @@ class QueryResultITSpec : StringSpec() {
                             Order.ASC))
 
             val table = operation.getTable("Table1")
+            table.describe()
             val qr = QueryResult(SearchType.QUERY, table.description, result)
 
             result.hasNextPage() shouldBe true
             result.size() shouldBe 100
 
-            qr.hasMoreData(1) shouldBe true
             qr.getData(1).size shouldBe 100
+            qr.hasMoreData(1) shouldBe true
 
             result = result.nextPage()
             result.hasNextPage() shouldBe false
             result.size() shouldBe 49
 
-            qr.hasMoreData(2) shouldBe false
             qr.getData(2).size shouldBe 49
+            qr.hasMoreData(2) shouldBe false
         }
 
         "verify navigate over pages for the query on index with filters" {
@@ -107,10 +110,11 @@ class QueryResultITSpec : StringSpec() {
                             Order.ASC))
 
             val table = operation.getTable("Table1")
+            table.describe()
             val qr = QueryResult(SearchType.QUERY, table.description, result)
 
-            qr.hasMoreData(1) shouldBe true
             qr.getData(1).size shouldBe 0
+            qr.hasMoreData(1) shouldBe false
 
             // TODO: Verify whether this is the expected behaviour on the real DynamoDB (doesn't sound like it is)
             result.hasNextPage() shouldBe true
