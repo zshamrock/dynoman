@@ -51,7 +51,8 @@ class QueryView : View("Query") {
     init {
         val rename = MenuItem("Rename")
         val duplicate = MenuItem("Duplicate")
-        tabContextMenu = ContextMenu(rename, duplicate)
+        val closeAll = MenuItem("Close All")
+        tabContextMenu = ContextMenu(rename, duplicate, closeAll)
 
         rename.setOnAction {
             val currentTab = queries.selectionModel.selectedItem
@@ -74,6 +75,9 @@ class QueryView : View("Query") {
             tab.properties[QUERY_TAB_FRAGMENT_KEY] = fragment
             tab.contextMenu = tabContextMenu
             queries.selectionModel.select(tab)
+        }
+        closeAll.setOnAction {
+            queries.tabs.clear()
         }
         updateNamedQueries()
     }
