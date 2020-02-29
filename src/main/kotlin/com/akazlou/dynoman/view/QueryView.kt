@@ -77,9 +77,12 @@ class QueryView : View("Query") {
             queries.selectionModel.select(tab)
         }
         closeAll.setOnAction {
-            find<CloseTabsConfirmationFragment>(
-                    params = mapOf(CloseTabsConfirmationFragment::tabs to queries.tabs.size)).openModal(block = true)
-            queries.tabs.clear()
+            val confirmation = find<CloseTabsConfirmationFragment>(
+                    params = mapOf(CloseTabsConfirmationFragment::tabs to queries.tabs.size))
+            confirmation.openModal(block = true)
+            if (confirmation.isConfirmed()) {
+                queries.tabs.clear()
+            }
         }
         updateNamedQueries()
     }
