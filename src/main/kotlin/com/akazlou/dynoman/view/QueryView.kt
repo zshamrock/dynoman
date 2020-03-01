@@ -24,6 +24,7 @@ import javafx.scene.control.Tab
 import javafx.scene.control.TabPane
 import javafx.scene.layout.Priority
 import tornadofx.*
+import java.util.concurrent.Callable
 
 class QueryView : View("Query") {
     companion object {
@@ -42,6 +43,7 @@ class QueryView : View("Query") {
     private val environmentNameProperty = SimpleStringProperty(ManagedEnvironment.GLOBALS)
     private var operation: DynamoDBOperation? = null
     private val environments = managedEnvironmentsController.list().asObservable()
+    private val closeOtherTabs: MenuItem
 
     enum class TabPosition {
         LAST,
@@ -51,8 +53,9 @@ class QueryView : View("Query") {
     init {
         val rename = MenuItem("Rename")
         val duplicate = MenuItem("Duplicate")
-        val closeAll = MenuItem("Close All")
-        tabContextMenu = ContextMenu(rename, duplicate, closeAll)
+        val closeAllTabs = MenuItem("Close All")
+        closeOtherTabs = MenuItem("Close Other Tabs")
+        tabContextMenu = ContextMenu(rename, duplicate, closeAllTabs, closeOtherTabs)
 
         rename.setOnAction {
             val currentTab = queries.selectionModel.selectedItem
@@ -76,12 +79,21 @@ class QueryView : View("Query") {
             tab.contextMenu = tabContextMenu
             queries.selectionModel.select(tab)
         }
-        closeAll.setOnAction {
+        closeAllTabs.setOnAction {
             val confirmation = find<CloseTabsConfirmationFragment>(
                     params = mapOf(CloseTabsConfirmationFragment::tabs to queries.tabs.size))
             confirmation.openModal(block = true)
             if (confirmation.isConfirmed()) {
                 queries.tabs.clear()
+            }
+        }
+        closeOtherTabs.setOnAction {
+            val confirmation = find<CloseTabsConfirmationFragment>(
+                    params = mapOf(CloseTabsConfirmationFragment::tabs to queries.tabs.size - 1))
+            confirmation.openModal(block = true)
+            if (confirmation.isConfirmed()) {
+                val currentTab = queries.selectionModel.selectedItem
+                queries.tabs.removeIf { it != currentTab }
             }
         }
         updateNamedQueries()
@@ -170,6 +182,9 @@ class QueryView : View("Query") {
             tabClosingPolicy = TabPane.TabClosingPolicy.ALL_TABS
             // TODO: Correctly handle Unnamed tab
             //tab("Unnamed", find(QueryTabFragment::class).root)
+        }
+        closeOtherTabs.enableWhen {
+            Bindings.createBooleanBinding(Callable<Boolean> { queries.tabs.size > 1 }, queries.tabs)
         }
         saveButton.enableWhen { Bindings.isNotEmpty(queries.tabs) }
         hbox(5.0) {
