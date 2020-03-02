@@ -44,6 +44,7 @@ class QueryView : View("Query") {
     private var operation: DynamoDBOperation? = null
     private val environments = managedEnvironmentsController.list().asObservable()
     private val closeOtherTabs: MenuItem
+    private val closeTabsRight: MenuItem
 
     enum class TabPosition {
         LAST,
@@ -55,7 +56,8 @@ class QueryView : View("Query") {
         val duplicate = MenuItem("Duplicate")
         val closeAllTabs = MenuItem("Close All")
         closeOtherTabs = MenuItem("Close Other Tabs")
-        tabContextMenu = ContextMenu(rename, duplicate, closeAllTabs, closeOtherTabs)
+        closeTabsRight = MenuItem("Close Tabs to the Right")
+        tabContextMenu = ContextMenu(rename, duplicate, closeAllTabs, closeOtherTabs, closeTabsRight)
 
         rename.setOnAction {
             val currentTab = queries.selectionModel.selectedItem
@@ -94,6 +96,15 @@ class QueryView : View("Query") {
             if (confirmation.isConfirmed()) {
                 val currentTab = queries.selectionModel.selectedItem
                 queries.tabs.removeIf { it != currentTab }
+            }
+        }
+        closeTabsRight.setOnAction {
+            val currentTabIndex = queries.selectionModel.selectedIndex
+            val confirmation = find<CloseTabsConfirmationFragment>(
+                    params = mapOf(CloseTabsConfirmationFragment::tabs to queries.tabs.size - currentTabIndex - 1))
+            confirmation.openModal(block = true)
+            if (confirmation.isConfirmed()) {
+                queries.tabs.remove(currentTabIndex + 1, queries.tabs.size)
             }
         }
         updateNamedQueries()
@@ -185,6 +196,11 @@ class QueryView : View("Query") {
         }
         closeOtherTabs.enableWhen {
             Bindings.createBooleanBinding(Callable<Boolean> { queries.tabs.size > 1 }, queries.tabs)
+        }
+        closeTabsRight.enableWhen {
+            Bindings.createBooleanBinding(
+                    Callable<Boolean> { queries.selectionModel.selectedIndex != queries.tabs.size - 1 },
+                    queries.selectionModel.selectedIndexProperty(), queries.tabs)
         }
         saveButton.enableWhen { Bindings.isNotEmpty(queries.tabs) }
         hbox(5.0) {
