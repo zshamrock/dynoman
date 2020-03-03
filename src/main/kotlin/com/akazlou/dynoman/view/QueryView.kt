@@ -20,6 +20,7 @@ import javafx.geometry.Pos
 import javafx.scene.control.Button
 import javafx.scene.control.ContextMenu
 import javafx.scene.control.MenuItem
+import javafx.scene.control.SeparatorMenuItem
 import javafx.scene.control.Tab
 import javafx.scene.control.TabPane
 import javafx.scene.layout.Priority
@@ -57,7 +58,8 @@ class QueryView : View("Query") {
         val closeAllTabs = MenuItem("Close All")
         closeOtherTabs = MenuItem("Close Other Tabs")
         closeTabsRight = MenuItem("Close Tabs to the Right")
-        tabContextMenu = ContextMenu(rename, duplicate, closeAllTabs, closeOtherTabs, closeTabsRight)
+        tabContextMenu = ContextMenu(
+                rename, duplicate, SeparatorMenuItem(), closeAllTabs, closeOtherTabs, closeTabsRight)
 
         rename.setOnAction {
             val currentTab = queries.selectionModel.selectedItem
