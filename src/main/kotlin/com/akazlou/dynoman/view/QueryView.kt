@@ -38,14 +38,11 @@ class QueryView : View("Query") {
     private var queries: TabPane by singleAssign()
     private val region = SimpleStringProperty(Config.getRegion(app.config))
     private val local = SimpleStringProperty(buildLocalText(Config.isLocal(app.config)))
-    private val tabContextMenu: ContextMenu
     private val namedQueries = mutableListOf<String>().asObservable()
     private val openSessionNameProperty = SimpleStringProperty()
     private val environmentNameProperty = SimpleStringProperty(ManagedEnvironment.GLOBALS)
     private var operation: DynamoDBOperation? = null
     private val environments = managedEnvironmentsController.list().asObservable()
-    private val closeOtherTabs: MenuItem
-    private val closeTabsRight: MenuItem
 
     enum class TabPosition {
         LAST,
@@ -53,62 +50,6 @@ class QueryView : View("Query") {
     }
 
     init {
-        val rename = MenuItem("Rename")
-        val duplicate = MenuItem("Duplicate")
-        val closeAllTabs = MenuItem("Close All")
-        closeOtherTabs = MenuItem("Close Other Tabs")
-        closeTabsRight = MenuItem("Close Tabs to the Right")
-        tabContextMenu = ContextMenu(
-                rename, duplicate, SeparatorMenuItem(), closeAllTabs, closeOtherTabs, closeTabsRight)
-
-        rename.setOnAction {
-            val currentTab = queries.selectionModel.selectedItem
-            val updateTabNameFragment = find<UpdateTabNameFragment>(params = mapOf(
-                    UpdateTabNameFragment::name to currentTab.text))
-            updateTabNameFragment.openModal(block = true)
-            val tabName = updateTabNameFragment.getTabName()
-            if (tabName.isNotBlank()) {
-                currentTab.text = tabName
-            }
-        }
-        duplicate.setOnAction {
-            val tabs = queries.tabs
-            val currentTab = queries.selectionModel.selectedItem
-            val currentFragment = currentTab.properties[QUERY_TAB_FRAGMENT_KEY] as QueryTabFragment
-            val qr = currentFragment.getQueryResult()!!
-            val fragment = currentFragment.duplicate()
-            val index = tabs.indexOf(currentTab)
-            val tab = queries.tab(index + 1, currentTab.text, fragment.root)
-            tab.properties[QUERY_TAB_FRAGMENT_KEY] = fragment
-            tab.contextMenu = tabContextMenu
-            queries.selectionModel.select(tab)
-        }
-        closeAllTabs.setOnAction {
-            val confirmation = find<CloseTabsConfirmationFragment>(
-                    params = mapOf(CloseTabsConfirmationFragment::tabs to queries.tabs.size))
-            confirmation.openModal(block = true)
-            if (confirmation.isConfirmed()) {
-                queries.tabs.clear()
-            }
-        }
-        closeOtherTabs.setOnAction {
-            val confirmation = find<CloseTabsConfirmationFragment>(
-                    params = mapOf(CloseTabsConfirmationFragment::tabs to queries.tabs.size - 1))
-            confirmation.openModal(block = true)
-            if (confirmation.isConfirmed()) {
-                val currentTab = queries.selectionModel.selectedItem
-                queries.tabs.removeIf { it != currentTab }
-            }
-        }
-        closeTabsRight.setOnAction {
-            val currentTabIndex = queries.selectionModel.selectedIndex
-            val confirmation = find<CloseTabsConfirmationFragment>(
-                    params = mapOf(CloseTabsConfirmationFragment::tabs to queries.tabs.size - currentTabIndex - 1))
-            confirmation.openModal(block = true)
-            if (confirmation.isConfirmed()) {
-                queries.tabs.remove(currentTabIndex + 1, queries.tabs.size)
-            }
-        }
         updateNamedQueries()
     }
 
@@ -196,14 +137,6 @@ class QueryView : View("Query") {
             // TODO: Correctly handle Unnamed tab
             //tab("Unnamed", find(QueryTabFragment::class).root)
         }
-        closeOtherTabs.enableWhen {
-            Bindings.createBooleanBinding(Callable<Boolean> { queries.tabs.size > 1 }, queries.tabs)
-        }
-        closeTabsRight.enableWhen {
-            Bindings.createBooleanBinding(
-                    Callable<Boolean> { queries.selectionModel.selectedIndex != queries.tabs.size - 1 },
-                    queries.selectionModel.selectedIndexProperty(), queries.tabs)
-        }
         saveButton.enableWhen { Bindings.isNotEmpty(queries.tabs) }
         hbox(5.0) {
             vboxConstraints {
@@ -245,9 +178,78 @@ class QueryView : View("Query") {
         }
         val tab = queries.tab(index, search.name.ifBlank { "${search.type} ${search.table}" }, fragment.root)
         tab.properties[QUERY_TAB_FRAGMENT_KEY] = fragment
-        tab.contextMenu = tabContextMenu
+        tab.contextMenu = createTabContextMenu(tab)
         queries.selectionModel.select(index)
         return tab
+    }
+
+    private fun createTabContextMenu(tab: Tab): ContextMenu {
+        val renameTabMenuItem = MenuItem("Rename")
+        val duplicateTabMenuItem = MenuItem("Duplicate")
+        val closeAllTabsMenuItem = MenuItem("Close All")
+        val closeOtherTabsMenuItem = MenuItem("Close Other Tabs")
+        val closeTabsRightMenuItem = MenuItem("Close Tabs to the Right")
+
+        renameTabMenuItem.setOnAction {
+            val updateTabNameFragment = find<UpdateTabNameFragment>(params = mapOf(
+                    UpdateTabNameFragment::name to tab.text))
+            updateTabNameFragment.openModal(block = true)
+            val tabName = updateTabNameFragment.getTabName()
+            if (tabName.isNotBlank()) {
+                tab.text = tabName
+            }
+        }
+        duplicateTabMenuItem.setOnAction {
+            val tabs = queries.tabs
+            val currentFragment = tab.properties[QUERY_TAB_FRAGMENT_KEY] as QueryTabFragment
+            val qr = currentFragment.getQueryResult()!!
+            val fragment = currentFragment.duplicate()
+            val index = tabs.indexOf(tab)
+            val duplicatedTab = queries.tab(index + 1, tab.text, fragment.root)
+            duplicatedTab.properties[QUERY_TAB_FRAGMENT_KEY] = fragment
+            duplicatedTab.contextMenu = createTabContextMenu(duplicatedTab)
+            queries.selectionModel.select(duplicatedTab)
+        }
+        closeAllTabsMenuItem.setOnAction {
+            val confirmation = find<CloseTabsConfirmationFragment>(
+                    params = mapOf(CloseTabsConfirmationFragment::tabs to queries.tabs.size))
+            confirmation.openModal(block = true)
+            if (confirmation.isConfirmed()) {
+                queries.tabs.clear()
+            }
+        }
+        closeOtherTabsMenuItem.setOnAction {
+            val confirmation = find<CloseTabsConfirmationFragment>(
+                    params = mapOf(CloseTabsConfirmationFragment::tabs to queries.tabs.size - 1))
+            confirmation.openModal(block = true)
+            if (confirmation.isConfirmed()) {
+                queries.tabs.removeIf { it != tab }
+            }
+        }
+        closeOtherTabsMenuItem.enableWhen {
+            Bindings.createBooleanBinding(Callable<Boolean> { queries.tabs.size > 1 }, queries.tabs)
+        }
+        closeTabsRightMenuItem.setOnAction {
+            val tabIndex = queries.tabs.indexOf(tab)
+            val confirmation = find<CloseTabsConfirmationFragment>(
+                    params = mapOf(CloseTabsConfirmationFragment::tabs to queries.tabs.size - tabIndex - 1))
+            confirmation.openModal(block = true)
+            if (confirmation.isConfirmed()) {
+                queries.tabs.remove(tabIndex + 1, queries.tabs.size)
+            }
+        }
+        closeTabsRightMenuItem.enableWhen {
+            Bindings.createBooleanBinding(
+                    Callable<Boolean> { queries.tabs.indexOf(tab) != queries.tabs.size - 1 },
+                    queries.tabs)
+        }
+        return ContextMenu(
+                renameTabMenuItem,
+                duplicateTabMenuItem,
+                SeparatorMenuItem(),
+                closeAllTabsMenuItem,
+                closeOtherTabsMenuItem,
+                closeTabsRightMenuItem)
     }
 
     fun select(tab: Tab) {
