@@ -603,6 +603,8 @@ class SearchCriteriaFragment : Fragment("Search") {
             }
             val functions = if (userText == LIST_ALL_FUNCTIONS_CONTROL_SYMBOL) {
                 allFunctions
+            } else if (userText.startsWith(LIST_ALL_FUNCTIONS_CONTROL_SYMBOL)) {
+                Functions.getCompletions(userText.substring(1))
             } else {
                 Functions.getCompletions(userText)
             }
