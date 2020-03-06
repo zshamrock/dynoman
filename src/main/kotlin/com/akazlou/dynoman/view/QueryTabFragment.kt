@@ -169,6 +169,11 @@ class QueryTabFragment : Fragment("Query Tab") {
                                 println(selectedCell)
                             }
                         }
+                        item("Hide this Column") {
+                            setOnAction {
+                                selectedColumn?.setVisible(false)
+                            }
+                        }
                         separator()
                         queryMenu = menu("Query")
                         setupQueryMenu(queryMenu)
