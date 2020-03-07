@@ -94,6 +94,12 @@ class QueryView : View("Query") {
                     }
                 }
             }
+            button("Delete") {
+                enableWhen { Bindings.isNotEmpty(openSessionNameProperty) }
+                action {
+                    updateNamedQueries()
+                }
+            }
             // XXX: Move Save and Open outside of the QueryView, either separate view or part of the TableListView
             saveButton = button("Save") {
                 shortcut("Ctrl+S")
