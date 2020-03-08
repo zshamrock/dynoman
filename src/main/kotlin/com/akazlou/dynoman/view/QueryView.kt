@@ -74,9 +74,7 @@ class QueryView : View("Query") {
                 enableWhen { Bindings.isNotEmpty(openSessionNameProperty) }
                 action {
                     runAsyncWithProgress {
-                        sessionSaverController.restore(
-                                Config.getSavedSessionsPath(Config.getProfile(app.config), app.configBasePath),
-                                openSessionNameProperty.value)
+                        sessionSaverController.restore(openSessionNameProperty.value)
                     } ui { searches ->
                         searches.forEach { search ->
                             if (operation != null) {
@@ -97,7 +95,12 @@ class QueryView : View("Query") {
             button("Delete") {
                 enableWhen { Bindings.isNotEmpty(openSessionNameProperty) }
                 action {
-                    updateNamedQueries()
+                    runAsyncWithProgress {
+                        sessionSaverController.remove(openSessionNameProperty.value)
+                    } ui {
+                        openSessionNameProperty.value = null
+                        updateNamedQueries()
+                    }
                 }
             }
             // XXX: Move Save and Open outside of the QueryView, either separate view or part of the TableListView
@@ -160,8 +163,7 @@ class QueryView : View("Query") {
     }
 
     private fun updateNamedQueries() {
-        namedQueries.setAll(sessionSaverController.listNames(Config.getSavedSessionsPath(
-                Config.getProfile(app.config), app.configBasePath)))
+        namedQueries.setAll(sessionSaverController.listNames())
     }
 
     fun setQueryResult(operation: DynamoDBOperation,

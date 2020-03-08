@@ -18,4 +18,8 @@ open class SaverService {
                 StandardOpenOption.WRITE,
                 StandardOpenOption.TRUNCATE_EXISTING)
     }
+
+    protected fun remove(base: Path, name: String, suffix: String) {
+        Files.deleteIfExists(resolve(base, name, suffix))
+    }
 }

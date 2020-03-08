@@ -1,5 +1,6 @@
 package com.akazlou.dynoman.controller
 
+import com.akazlou.dynoman.domain.Config
 import com.akazlou.dynoman.domain.search.Search
 import com.akazlou.dynoman.service.SearchesSaverService
 import tornadofx.*
@@ -13,15 +14,23 @@ class SessionSaverController : Controller() {
 
     private val service = SearchesSaverService()
 
-    fun save(base: Path, name: String, searches: List<Search>) {
-        service.save(SAVER_TYPE, base, name, searches)
+    fun save(name: String, searches: List<Search>) {
+        service.save(SAVER_TYPE, getBase(), name, searches)
     }
 
-    fun listNames(path: Path): List<String> {
-        return service.listNames(path)
+    fun listNames(): List<String> {
+        return service.listNames(getBase())
     }
 
-    fun restore(base: Path, name: String): List<Search> {
-        return service.restore(SAVER_TYPE, base, name)
+    fun restore(name: String): List<Search> {
+        return service.restore(SAVER_TYPE, getBase(), name)
+    }
+
+    fun remove(name: String) {
+        service.remove(SAVER_TYPE, getBase(), name)
+    }
+
+    private fun getBase(): Path {
+        return Config.getSavedSessionsPath(Config.getProfile(app.config), app.configBasePath)
     }
 }

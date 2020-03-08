@@ -200,4 +200,9 @@ class SearchesSaverService : SaverService() {
         cacheInitialized.add(uri)
         return names
     }
+
+    fun remove(type: Type, base: Path, name: String) {
+        cacheInitialized.remove(base.toUri())
+        remove(base, name, type.suffix)
+    }
 }

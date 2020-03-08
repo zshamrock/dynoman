@@ -1,7 +1,6 @@
 package com.akazlou.dynoman.view
 
 import com.akazlou.dynoman.controller.SessionSaverController
-import com.akazlou.dynoman.domain.Config
 import com.akazlou.dynoman.domain.search.Search
 import javafx.beans.property.SimpleStringProperty
 import tornadofx.*
@@ -28,8 +27,7 @@ class SaveSessionFragment : Fragment("Save Session") {
                 enableWhen { sessionNameProperty.isNotBlank() }
                 action {
                     runAsyncWithProgress {
-                        val base = Config.getSavedSessionsPath(Config.getProfile(app.config), app.configBasePath)
-                        controller.save(base, sessionNameProperty.value, searches)
+                        controller.save(sessionNameProperty.value, searches)
                     } ui {
                         close()
                     }
