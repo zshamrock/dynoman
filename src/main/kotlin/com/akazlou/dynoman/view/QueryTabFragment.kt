@@ -54,6 +54,7 @@ class QueryTabFragment : Fragment("Query Tab") {
     private var qwf: QueryWindowFragment by singleAssign()
     private var queryMenu: Menu by singleAssign()
     private var addQueryMenuItem: MenuItem by singleAssign()
+    private var manageQueriesMenuItem: MenuItem by singleAssign()
     private var refreshQueriesMenuItem: MenuItem by singleAssign()
     private val queryView: QueryView by inject()
 
@@ -82,6 +83,7 @@ class QueryTabFragment : Fragment("Query Tab") {
                 runForeignQuery(addQueryFragment.foreignSearchName!!, table, base)
             }
         }
+        manageQueriesMenuItem = MenuItem("Manage...")
         refreshQueriesMenuItem = MenuItem("Refresh")
         refreshQueriesMenuItem.action {
             queryMenu.items.clear()
@@ -269,7 +271,7 @@ class QueryTabFragment : Fragment("Query Tab") {
         val description = params["description"] as TableDescription
         val table = description.tableName
         val base = Config.getSavedQueriesPath(Config.getProfile(app.config), app.configBasePath)
-        queryMenu.items.addAll(addQueryMenuItem, refreshQueriesMenuItem, SeparatorMenuItem())
+        queryMenu.items.addAll(addQueryMenuItem, manageQueriesMenuItem, refreshQueriesMenuItem, SeparatorMenuItem())
         val names = addQuerySaverController.listNames(table, base)
         names.forEach { name ->
             val item = MenuItem(name.getNameWithFlags())
