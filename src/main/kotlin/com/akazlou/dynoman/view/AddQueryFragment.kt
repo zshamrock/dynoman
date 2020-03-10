@@ -2,7 +2,6 @@ package com.akazlou.dynoman.view
 
 import com.akazlou.dynoman.controller.AddQuerySaverController
 import com.akazlou.dynoman.controller.MainController
-import com.akazlou.dynoman.domain.Config
 import com.akazlou.dynoman.domain.Environment
 import com.akazlou.dynoman.domain.ForeignSearchName
 import com.akazlou.dynoman.domain.search.ResultData
@@ -143,10 +142,8 @@ class AddQueryFragment : Fragment("Add Query") {
     }
 
     private fun createQuery() {
-        val base = Config.getSavedQueriesPath(Config.getProfile(app.config), app.configBasePath)
         foreignSearchName = addQuerySaverController.save(
                 sourceTable,
-                base,
                 queryNameProperty.value,
                 searchCriteriaFragment!!.getSearch(),
                 data)

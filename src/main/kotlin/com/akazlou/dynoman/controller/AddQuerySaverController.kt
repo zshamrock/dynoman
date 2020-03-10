@@ -1,5 +1,6 @@
 package com.akazlou.dynoman.controller
 
+import com.akazlou.dynoman.domain.Config
 import com.akazlou.dynoman.domain.ForeignSearchName
 import com.akazlou.dynoman.domain.search.ResultData
 import com.akazlou.dynoman.domain.search.Search
@@ -10,15 +11,19 @@ import java.nio.file.Path
 class AddQuerySaverController : Controller() {
     private val service = AddQuerySaverService()
 
-    fun save(table: String, base: Path, name: String, search: Search, data: List<ResultData>): ForeignSearchName {
-        return service.save(table, base, name, search, data)
+    fun save(table: String, name: String, search: Search, data: List<ResultData>): ForeignSearchName {
+        return service.save(table, getBase(), name, search, data)
     }
 
-    fun listNames(table: String, path: Path): List<ForeignSearchName> {
-        return service.listNames(table, path)
+    fun listNames(table: String): List<ForeignSearchName> {
+        return service.listNames(table, getBase())
     }
 
-    fun restore(table: String, base: Path, name: ForeignSearchName): Search {
-        return service.restore(table, base, name)
+    fun restore(table: String, name: ForeignSearchName): Search {
+        return service.restore(table, getBase(), name)
+    }
+
+    private fun getBase(): Path {
+        return Config.getSavedQueriesPath(Config.getProfile(app.config), app.configBasePath)
     }
 }
