@@ -23,6 +23,10 @@ class AddQuerySaverController : Controller() {
         return service.restore(table, getBase(), name)
     }
 
+    fun remove(name: ForeignSearchName) {
+        service.remove(getBase(), name)
+    }
+
     private fun getBase(): Path {
         return Config.getSavedQueriesPath(Config.getProfile(app.config), app.configBasePath)
     }

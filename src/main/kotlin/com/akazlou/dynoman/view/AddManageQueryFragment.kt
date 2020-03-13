@@ -30,6 +30,7 @@ class AddManageQueryFragment : Fragment("Add Query") {
     val data: List<ResultData> by param()
     val mode: Mode by param(Mode.ADD)
     val names: List<ForeignSearchName> by param(emptyList())
+    private var observableNames = names.toMutableList().asObservable()
     private var pane: ScrollPane by singleAssign()
     private var searchCriteriaFragment: SearchCriteriaFragment? = null
     private val foreignQueryNameProperty = SimpleObjectProperty<ForeignSearchName>()
@@ -87,7 +88,8 @@ class AddManageQueryFragment : Fragment("Add Query") {
         }) {
             if (mode.isManage()) {
                 field("Query:") {
-                    combobox(values = names, property = foreignQueryNameProperty) {
+                    combobox(property = foreignQueryNameProperty) {
+                        items = observableNames
                         useMaxWidth = true
                         valueProperty().onChange { name ->
                             if (name == null) {
@@ -217,6 +219,7 @@ class AddManageQueryFragment : Fragment("Add Query") {
                             runAsyncWithProgress {
                                 deleteQuery()
                             } ui {
+                                observableNames.remove(foreignQueryNameProperty.value)
                                 foreignQueryNameProperty.value = null
                             }
                         }
@@ -241,5 +244,6 @@ class AddManageQueryFragment : Fragment("Add Query") {
     }
 
     private fun deleteQuery() {
+        addQuerySaverController.remove(foreignQueryNameProperty.value)
     }
 }

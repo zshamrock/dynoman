@@ -133,4 +133,8 @@ class AddQuerySaverService {
             }
         }
     }
+
+    fun remove(base: Path, name: ForeignSearchName) {
+        service.remove(SearchesSaverService.Type.QUERY, base, name.getFullName())
+    }
 }
