@@ -66,34 +66,38 @@ class QueryTabFragment : Fragment("Query Tab") {
             println("Add Query...")
             val description = params["description"] as TableDescription
             val table = description.tableName
-            val addQueryFragment = find<AddQueryFragment>(
+            val addQueryFragment = find<AddManageQueryFragment>(
                     params = mapOf(
-                            AddQueryFragment::operation to params["operation"],
-                            AddQueryFragment::attributes to USER_INPUT_MARK_LIST.plus(allColumns.toList()),
-                            AddQueryFragment::sourceTable to (params["description"] as TableDescription).tableName,
-                            AddQueryFragment::data to data)
+                            AddManageQueryFragment::operation to params["operation"],
+                            AddManageQueryFragment::attributes to USER_INPUT_MARK_LIST.plus(allColumns.toList()),
+                            AddManageQueryFragment::sourceTable to (params["description"] as TableDescription).tableName,
+                            AddManageQueryFragment::data to data)
             )
             addQueryFragment.openModal(block = true)
             queryMenu.items.clear()
             setupQueryMenu(queryMenu)
-            if (addQueryFragment.response == AddQueryFragment.Response.CREATE_AND_RUN) {
+            if (addQueryFragment.response == AddManageQueryFragment.Response.CREATE_AND_RUN) {
                 runForeignQuery(addQueryFragment.foreignSearchName!!, table)
             }
         }
         manageQueriesMenuItem = MenuItem("Manage...")
         manageQueriesMenuItem.action {
-            //            val description = params["description"] as TableDescription
-//            val table = description.tableName
-//            val addQueryFragment = find<AddQueryFragment>(
-//                    params = mapOf(
-//                            AddQueryFragment::operation to params["operation"],
-//                            AddQueryFragment::attributes to USER_INPUT_MARK_LIST.plus(allColumns.toList()),
-//                            AddQueryFragment::sourceTable to (params["description"] as TableDescription).tableName,
-//                            AddQueryFragment::data to data)
-//            )
-//            addQueryFragment.openModal(block = true)
-//            queryMenu.items.clear()
-//            setupQueryMenu(queryMenu)
+            val description = params["description"] as TableDescription
+            val table = description.tableName
+            val names = addQuerySaverController.listNames(table)
+            val addQueryFragment = find<AddManageQueryFragment>(
+                    params = mapOf(
+                            AddManageQueryFragment::operation to params["operation"],
+                            AddManageQueryFragment::attributes to USER_INPUT_MARK_LIST.plus(allColumns.toList()),
+                            AddManageQueryFragment::sourceTable to (params["description"] as TableDescription).tableName,
+                            AddManageQueryFragment::data to data,
+                            AddManageQueryFragment::mode to AddManageQueryFragment.Mode.MANAGE,
+                            AddManageQueryFragment::names to names)
+            )
+
+            addQueryFragment.openModal(block = true)
+            queryMenu.items.clear()
+            setupQueryMenu(queryMenu)
         }
         refreshQueriesMenuItem = MenuItem("Refresh")
         refreshQueriesMenuItem.action {

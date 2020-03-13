@@ -66,4 +66,8 @@ data class ForeignSearchName(val table: String, val name: String, val flags: Enu
     fun matches(table: String): Boolean {
         return this.table == table
     }
+
+    override fun toString(): String {
+        return getNameWithFlags()
+    }
 }

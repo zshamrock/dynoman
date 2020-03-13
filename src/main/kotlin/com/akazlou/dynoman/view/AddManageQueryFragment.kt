@@ -5,9 +5,11 @@ import com.akazlou.dynoman.controller.MainController
 import com.akazlou.dynoman.domain.Environment
 import com.akazlou.dynoman.domain.ForeignSearchName
 import com.akazlou.dynoman.domain.search.ResultData
+import com.akazlou.dynoman.domain.search.Search
 import com.akazlou.dynoman.domain.search.SearchType
 import com.akazlou.dynoman.service.DynamoDBOperation
 import javafx.beans.binding.Bindings
+import javafx.beans.property.SimpleObjectProperty
 import javafx.beans.property.SimpleStringProperty
 import javafx.geometry.Orientation
 import javafx.geometry.Pos
@@ -17,7 +19,7 @@ import javafx.scene.layout.Priority
 import javafx.stage.StageStyle
 import tornadofx.*
 
-class AddQueryFragment : Fragment("Add Query") {
+class AddManageQueryFragment : Fragment("Add Query") {
     private val controller: MainController by inject()
     private val addQuerySaverController: AddQuerySaverController by inject()
     private val queryNameProperty = SimpleStringProperty()
@@ -26,8 +28,11 @@ class AddQueryFragment : Fragment("Add Query") {
     val attributes: List<String> by param()
     val sourceTable: String by param()
     val data: List<ResultData> by param()
+    val mode: Mode by param(Mode.ADD)
+    val names: List<ForeignSearchName> by param(emptyList())
     private var pane: ScrollPane by singleAssign()
     private var searchCriteriaFragment: SearchCriteriaFragment? = null
+    private val foreignQueryNameProperty = SimpleObjectProperty<ForeignSearchName>()
 
     companion object {
         private const val QUERY_NAME_STANDARD_PREFIX = "Get"
@@ -39,6 +44,19 @@ class AddQueryFragment : Fragment("Add Query") {
         CANCEL
     }
 
+    enum class Mode {
+        ADD,
+        MANAGE;
+
+        fun isManage(): Boolean {
+            return this == MANAGE
+        }
+
+        fun isAdd(): Boolean {
+            return this == ADD
+        }
+    }
+
     var response: Response = Response.CANCEL
         private set
 
@@ -47,10 +65,55 @@ class AddQueryFragment : Fragment("Add Query") {
 
     private val createButtonEnabled = Bindings.and(queryNameProperty.isNotEmpty, foreignTableProperty.isNotEmpty)
 
+    init {
+        title = if (mode.isManage()) {
+            "Manage Queries"
+        } else {
+            "Add Query"
+        }
+    }
+
     override val root = form {
         prefWidth = 850.0
-        prefHeight = 380.0
-        fieldset("New Query") {
+        prefHeight = if (mode.isManage()) {
+            420.0
+        } else {
+            380.0
+        }
+        fieldset(if (mode.isManage()) {
+            "Manage Queries"
+        } else {
+            "New Query"
+        }) {
+            if (mode.isManage()) {
+                field("Query:") {
+                    combobox(values = names, property = foreignQueryNameProperty) {
+                        useMaxWidth = true
+                        valueProperty().onChange { name ->
+                            queryNameProperty.value = name?.name
+                            var search = addQuerySaverController.restore(sourceTable, name!!)
+                            foreignTableProperty.value = search.table
+                            searchCriteriaFragment = find(params = mapOf(
+                                    "searchType" to search.type,
+                                    "description" to operation.describeTable(search.table),
+                                    "attributes" to attributes
+                            ))
+                            // Expand ?1, ?2, etc. into ?
+                            val values = search.getAllValues()
+                            val mapping = values.filter { Search.requiresUserInput(it) }
+                                    .associateWith { Search.USER_INPUT_MARK }
+                            if (mapping.isNotEmpty()) {
+                                search = search.expand(mapping)
+                            }
+                            searchCriteriaFragment!!.init(search)
+                            pane.content = searchCriteriaFragment!!.root
+                        }
+                    }
+                }
+            }
+            if (mode.isManage()) {
+                separator()
+            }
             text("You can use \"?\" as the placeholder for the values where when search is applied you will be asked " +
                     "to manually enter the values.\nThis allows to create parametrized search.") {
                 addClass("hint")
@@ -104,31 +167,43 @@ class AddQueryFragment : Fragment("Add Query") {
             alignment = Pos.BOTTOM_RIGHT
             isFillHeight = false
             buttonbar {
-                button("Create") {
-                    addClass("button-large")
-                    enableWhen { createButtonEnabled }
-                    action {
-                        runAsyncWithProgress {
-                            createQuery()
-                        } ui {
-                            response = Response.CREATE
-                            close()
-                        } fail { ex ->
-                            find<ErrorMessageFragment>(params = mapOf(ErrorMessageFragment::message to ex.message))
-                                    .openModal(block = true)
+                if (mode.isAdd()) {
+                    button("Create") {
+                        addClass("button-large")
+                        enableWhen { createButtonEnabled }
+                        action {
+                            runAsyncWithProgress {
+                                createQuery()
+                            } ui {
+                                response = Response.CREATE
+                                close()
+                            } fail { ex ->
+                                find<ErrorMessageFragment>(params = mapOf(ErrorMessageFragment::message to ex.message))
+                                        .openModal(block = true)
+                            }
+                        }
+                    }
+                    button("Create and Run") {
+                        addClass("button-large")
+                        enableWhen { createButtonEnabled }
+                        action {
+                            runAsyncWithProgress {
+                                createQuery()
+                            } ui {
+                                response = Response.CREATE_AND_RUN
+                                close()
+                            }
                         }
                     }
                 }
-                button("Create and Run") {
-                    addClass("button-large")
-                    enableWhen { createButtonEnabled }
-                    action {
-                        runAsyncWithProgress {
-                            createQuery()
-                        } ui {
-                            response = Response.CREATE_AND_RUN
-                            close()
-                        }
+                if (mode.isManage()) {
+                    button("Update") {
+                        addClass("button-large")
+                        enableWhen { foreignQueryNameProperty.isNotNull }
+                    }
+                    button("Delete") {
+                        addClass("button-large")
+                        enableWhen { foreignQueryNameProperty.isNotNull }
                     }
                 }
                 button("Cancel") {
