@@ -49,12 +49,12 @@ class AddManageQueryFragment : Fragment("Add Query") {
         ADD,
         MANAGE;
 
-        fun isManage(): Boolean {
-            return this == MANAGE
-        }
-
         fun isAdd(): Boolean {
             return this == ADD
+        }
+
+        fun isManage(): Boolean {
+            return this == MANAGE
         }
     }
 
@@ -211,6 +211,12 @@ class AddManageQueryFragment : Fragment("Add Query") {
                     button("Update") {
                         addClass("button-large")
                         enableWhen { foreignQueryNameProperty.isNotNull }
+                        action {
+                            runAsyncWithProgress {
+                                createQuery()
+                            } ui {
+                            }
+                        }
                     }
                     button("Delete") {
                         addClass("button-large")
@@ -225,7 +231,11 @@ class AddManageQueryFragment : Fragment("Add Query") {
                         }
                     }
                 }
-                button("Cancel") {
+                button(if (mode.isManage()) {
+                    "Close"
+                } else {
+                    "Cancel"
+                }) {
                     addClass("button-large")
                     action {
                         close()
