@@ -90,23 +90,31 @@ class AddManageQueryFragment : Fragment("Add Query") {
                     combobox(values = names, property = foreignQueryNameProperty) {
                         useMaxWidth = true
                         valueProperty().onChange { name ->
-                            queryNameProperty.value = name?.name
-                            var search = addQuerySaverController.restore(sourceTable, name!!)
-                            foreignTableProperty.value = search.table
-                            searchCriteriaFragment = find(params = mapOf(
-                                    "searchType" to search.type,
-                                    "description" to operation.describeTable(search.table),
-                                    "attributes" to attributes
-                            ))
-                            // Expand ?1, ?2, etc. into ?
-                            val values = search.getAllValues()
-                            val mapping = values.filter { Search.requiresUserInput(it) }
-                                    .associateWith { Search.USER_INPUT_MARK }
-                            if (mapping.isNotEmpty()) {
-                                search = search.expand(mapping)
+                            if (name == null) {
+                                queryNameProperty.value = null
+                                foreignTableProperty.value = null
+                                pane.content = null
+                                pane.vbarPolicy = ScrollPane.ScrollBarPolicy.NEVER
+                            } else {
+                                queryNameProperty.value = name.name
+                                var search = addQuerySaverController.restore(sourceTable, name)
+                                foreignTableProperty.value = search.table
+                                searchCriteriaFragment = find(params = mapOf(
+                                        "searchType" to search.type,
+                                        "description" to operation.describeTable(search.table),
+                                        "attributes" to attributes
+                                ))
+                                // Expand ?1, ?2, etc. into ?
+                                val values = search.getAllValues()
+                                val mapping = values.filter { Search.requiresUserInput(it) }
+                                        .associateWith { Search.USER_INPUT_MARK }
+                                if (mapping.isNotEmpty()) {
+                                    search = search.expand(mapping)
+                                }
+                                searchCriteriaFragment!!.init(search)
+                                pane.content = searchCriteriaFragment!!.root
+                                pane.vbarPolicy = ScrollPane.ScrollBarPolicy.AS_NEEDED
                             }
-                            searchCriteriaFragment!!.init(search)
-                            pane.content = searchCriteriaFragment!!.root
                         }
                     }
                 }
@@ -149,6 +157,7 @@ class AddManageQueryFragment : Fragment("Add Query") {
                                     "attributes" to attributes
                             ))
                             pane.content = searchCriteriaFragment!!.root
+                            pane.vbarPolicy = ScrollPane.ScrollBarPolicy.AS_NEEDED
                         }
                     }
                 }
@@ -204,6 +213,13 @@ class AddManageQueryFragment : Fragment("Add Query") {
                     button("Delete") {
                         addClass("button-large")
                         enableWhen { foreignQueryNameProperty.isNotNull }
+                        action {
+                            runAsyncWithProgress {
+                                deleteQuery()
+                            } ui {
+                                foreignQueryNameProperty.value = null
+                            }
+                        }
                     }
                 }
                 button("Cancel") {
@@ -222,5 +238,8 @@ class AddManageQueryFragment : Fragment("Add Query") {
                 queryNameProperty.value,
                 searchCriteriaFragment!!.getSearch(),
                 data)
+    }
+
+    private fun deleteQuery() {
     }
 }
