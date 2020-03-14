@@ -95,11 +95,17 @@ class QueryView : View("Query") {
             button("Delete") {
                 enableWhen { Bindings.isNotEmpty(openSessionNameProperty) }
                 action {
-                    runAsyncWithProgress {
-                        sessionSaverController.remove(openSessionNameProperty.value)
-                    } ui {
-                        openSessionNameProperty.value = null
-                        updateNamedQueries()
+                    val confirmation = find<DeleteConfirmationFragment>(params = mapOf(
+                            DeleteConfirmationFragment::type to DeleteConfirmationFragment.Type.SESSION,
+                            DeleteConfirmationFragment::name to openSessionNameProperty.value))
+                    confirmation.openModal(block = true)
+                    if (confirmation.isConfirmed()) {
+                        runAsyncWithProgress {
+                            sessionSaverController.remove(openSessionNameProperty.value)
+                        } ui {
+                            openSessionNameProperty.value = null
+                            updateNamedQueries()
+                        }
                     }
                 }
             }

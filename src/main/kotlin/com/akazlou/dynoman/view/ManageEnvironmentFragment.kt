@@ -66,14 +66,20 @@ class ManageEnvironmentFragment : Fragment("Manage Environments") {
                 button("Delete") {
                     enableWhen { environmentNameProperty.isNotEqualTo(ManagedEnvironment.GLOBALS) }
                     action {
-                        runAsyncWithProgress {
-                            val name = environmentNameProperty.value
-                            controller.remove(name)
-                            name
-                        } ui { name ->
-                            environmentNameProperty.set(ManagedEnvironment.GLOBALS)
-                            environments.remove(name)
-                            valuesChanged.set(false)
+                        val confirmation = find<DeleteConfirmationFragment>(params = mapOf(
+                                DeleteConfirmationFragment::type to DeleteConfirmationFragment.Type.ENVIRONMENT,
+                                DeleteConfirmationFragment::name to environmentNameProperty.value))
+                        confirmation.openModal(block = true)
+                        if (confirmation.isConfirmed()) {
+                            runAsyncWithProgress {
+                                val name = environmentNameProperty.value
+                                controller.remove(name)
+                                name
+                            } ui { name ->
+                                environmentNameProperty.set(ManagedEnvironment.GLOBALS)
+                                environments.remove(name)
+                                valuesChanged.set(false)
+                            }
                         }
                     }
                 }

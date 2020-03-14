@@ -222,11 +222,17 @@ class AddManageQueryFragment : Fragment("Add Query") {
                         addClass("button-large")
                         enableWhen { foreignQueryNameProperty.isNotNull }
                         action {
-                            runAsyncWithProgress {
-                                deleteQuery()
-                            } ui {
-                                observableNames.remove(foreignQueryNameProperty.value)
-                                foreignQueryNameProperty.value = null
+                            val confirmation = find<DeleteConfirmationFragment>(params = mapOf(
+                                    DeleteConfirmationFragment::type to DeleteConfirmationFragment.Type.FOREIGN_QUERY,
+                                    DeleteConfirmationFragment::name to foreignQueryNameProperty.value.getNameWithFlags()))
+                            confirmation.openModal(block = true)
+                            if (confirmation.isConfirmed()) {
+                                runAsyncWithProgress {
+                                    deleteQuery()
+                                } ui {
+                                    observableNames.remove(foreignQueryNameProperty.value)
+                                    foreignQueryNameProperty.value = null
+                                }
                             }
                         }
                     }

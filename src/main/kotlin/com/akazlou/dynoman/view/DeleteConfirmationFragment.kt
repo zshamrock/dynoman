@@ -3,17 +3,24 @@ package com.akazlou.dynoman.view
 import javafx.geometry.Pos
 import tornadofx.*
 
-class CloseTabsConfirmationFragment : Fragment("Close Tabs Confirmation") {
-    val tabs: Int by param()
+class DeleteConfirmationFragment : Fragment("Delete Confirmation") {
+    val type: Type by param()
+    val name: String by param()
     private var confirmed: Boolean = false
 
+    enum class Type(val title: String) {
+        FOREIGN_QUERY("foreign query"),
+        ENVIRONMENT("environment"),
+        SESSION("saved session")
+    }
+
     override val root = vbox(5.0, Pos.CENTER) {
-        prefWidth = 490.0
+        prefWidth = 720.0
         prefHeight = 80.0
-        text("You are about to close $tabs tab${if (tabs > 1) "s" else ""}. Are you sure you want to continue?")
+        text("You are about to delete ${type.title} \"$name\". Are you sure you want to continue?")
         buttonbar {
             paddingRight = 5.0
-            button("Close Tabs") {
+            button("Delete") {
                 action {
                     confirmed = true
                     close()
