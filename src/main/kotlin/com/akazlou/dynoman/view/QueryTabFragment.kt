@@ -180,12 +180,12 @@ class QueryTabFragment : Fragment("Query Tab") {
             fold("Data", expanded = true) {
                 resultTable = tableview(data) {
                     contextmenu {
-                        item("Open Value in Viewer") {
-                            setOnAction {
-                                println("Open Value in Viewer")
-                                println(selectedCell)
-                            }
-                        }
+//                        item("Open Value in Viewer") {
+//                            setOnAction {
+//                                println("Open Value in Viewer")
+//                                println(selectedCell)
+//                            }
+//                        }
                         item("Hide this Column") {
                             setOnAction {
                                 selectedColumn?.setVisible(false)
