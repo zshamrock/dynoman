@@ -30,7 +30,8 @@ class TableListView : View() {
             vboxConstraints {
                 prefHeight = 200.0
             }
-            isEditable = false
+            isWrapText = true
+            promptText = "You can use this area to put work in progress data, notes or thoughts"
         }
     }
 
