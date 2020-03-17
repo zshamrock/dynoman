@@ -113,7 +113,9 @@ class AddQuerySaverService {
     fun listNames(table: String, path: Path): List<ForeignSearchName> {
         val names = service.listNames(path)
         val env = Environment(table)
-        return names.map { ForeignSearchName.of(it) }.filter { it.matches(env.value) }
+        return names.map { ForeignSearchName.of(it) }
+                .filter { it.matches(env.value) }
+                .sortedBy { it.getNameWithFlags() }
     }
 
     fun restore(table: String, base: Path, fsn: ForeignSearchName): Search {
