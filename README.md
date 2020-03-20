@@ -48,9 +48,11 @@ See [Wiki/Foreign Query](https://github.com/zshamrock/dynoman/wiki/Foreign-Query
 
 ### To run
 
-`gradle run`
+`./gradlew run` or `gradlew.bat run`
 
-To install `gradle` best way is to use [SDKMAN!](https://sdkman.io/): `sdk install gradle`.
+It will utilize the Gradle Wrapper.
+
+If you want to install Gradle standalone the best way is to use [SDKMAN!](https://sdkman.io/): `sdk install gradle`.
 
 ### Support :heart:
 
