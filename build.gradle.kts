@@ -63,6 +63,7 @@ configure<FXLauncherExtension> {
     applicationVendor = "Aliaksandr Kazlou (aliaksandr.kazlou@gmail.com)"
     applicationUrl = "http://com.akazlou.dynoman.s3-website-us-west-2.amazonaws.com"
     applicationMainClass = application.mainClassName
+    cacheDir = "deps"
     acceptDowngrade = false
 }
 
