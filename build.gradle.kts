@@ -63,8 +63,12 @@ configure<FXLauncherExtension> {
     applicationVendor = "Aliaksandr Kazlou (aliaksandr.kazlou@gmail.com)"
     applicationUrl = "http://com.akazlou.dynoman.s3-website-us-west-2.amazonaws.com"
     applicationMainClass = application.mainClassName
+    applicationVersion = "1.0.0"
+    applicationTitle = "DynamoDB Manager"
+    applicationName = "dynoman"
     cacheDir = "deps"
     acceptDowngrade = false
+
 }
 
 // docker run --net host -v /tmp/.X11-unix:/tmp/.X11-unix -v $HOME/.Xauthority:/root/.Xauthority -e DISPLAY=unix$DISPLAY dynoman
