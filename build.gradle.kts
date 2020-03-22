@@ -68,7 +68,6 @@ configure<FXLauncherExtension> {
     applicationName = "dynoman"
     cacheDir = "deps"
     acceptDowngrade = false
-
 }
 
 // docker run --net host -v /tmp/.X11-unix:/tmp/.X11-unix -v $HOME/.Xauthority:/root/.Xauthority -e DISPLAY=unix$DISPLAY dynoman
