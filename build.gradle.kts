@@ -4,7 +4,7 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 buildscript {
     var kotlin_version: String by extra
-    kotlin_version = "1.3.41"
+    kotlin_version = "1.3.72"
 
     repositories {
         mavenCentral()
@@ -46,7 +46,7 @@ dependencies {
     compile(kotlin("reflect", kotlin_version))
     compile("com.amazonaws", "aws-java-sdk-dynamodb", "1.11.609")
     compile("com.github.ben-manes.caffeine", "caffeine", "2.8.0")
-    compile("no.tornado", "tornadofx", "1.7.19")
+    compile("no.tornado", "tornadofx", "1.7.20")
     compile("org.reflections", "reflections", "0.9.11")
     compile("com.squareup.okhttp3", "okhttp", "4.2.0")
     compile("org.controlsfx", "controlsfx", "8.40.16")
