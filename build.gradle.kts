@@ -50,6 +50,7 @@ dependencies {
     compile("org.reflections", "reflections", "0.9.11")
     compile("com.squareup.okhttp3", "okhttp", "4.2.0")
     compile("org.controlsfx", "controlsfx", "8.40.16")
+    compile("org.partiql", "partiql-lang-kotlin", "0.2.4")
 
     testImplementation("io.kotlintest:kotlintest-runner-junit5:3.4.0")
     testCompile("org.testcontainers:testcontainers:1.12.0")
