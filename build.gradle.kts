@@ -12,14 +12,14 @@ buildscript {
     dependencies {
         classpath(kotlin("gradle-plugin", kotlin_version))
         classpath("com.github.jengelman.gradle.plugins:shadow:4.0.3")
-        classpath("no.tornado:fxlauncher-gradle-plugin:1.0.20")
+        classpath("no.tornado:fxlauncher-gradle-plugin:1.0.21")
     }
 }
 
 plugins {
     java
     application
-    id("com.google.cloud.tools.jib") version "1.7.0"
+    id("com.google.cloud.tools.jib") version "3.2.0"
 }
 
 application {
@@ -44,16 +44,16 @@ repositories {
 dependencies {
     compile(kotlin("stdlib-jdk8", kotlin_version))
     compile(kotlin("reflect", kotlin_version))
-    compile("com.amazonaws", "aws-java-sdk-dynamodb", "1.11.609")
-    compile("com.github.ben-manes.caffeine", "caffeine", "2.8.0")
+    compile("com.amazonaws", "aws-java-sdk-dynamodb", "1.12.210")
+    compile("com.github.ben-manes.caffeine", "caffeine", "3.1.0")
     compile("no.tornado", "tornadofx", "1.7.20")
-    compile("org.reflections", "reflections", "0.9.11")
-    compile("com.squareup.okhttp3", "okhttp", "4.2.0")
-    compile("org.controlsfx", "controlsfx", "8.40.16")
-    compile("org.partiql", "partiql-lang-kotlin", "0.2.4")
+    compile("org.reflections", "reflections", "0.10.2")
+    compile("com.squareup.okhttp3", "okhttp", "4.9.3")
+    compile("org.controlsfx", "controlsfx", "11.1.1")
+    compile("org.partiql", "partiql-lang-kotlin", "0.6.0")
 
-    testImplementation("io.kotlintest:kotlintest-runner-junit5:3.4.0")
-    testCompile("org.testcontainers:testcontainers:1.12.0")
+    testImplementation("io.kotlintest:kotlintest-runner-junit5:3.4.2")
+    testCompile("org.testcontainers:testcontainers:1.17.1")
 }
 
 configure<JavaPluginConvention> {
