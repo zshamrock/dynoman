@@ -23,7 +23,7 @@ plugins {
 }
 
 application {
-    mainClassName = "com.akazlou.dynoman.DynomanApp"
+    mainClass.set("com.akazlou.dynoman.DynomanApp")
 }
 
 group = "dynoman"
@@ -42,28 +42,28 @@ repositories {
 }
 
 dependencies {
-    compile(kotlin("stdlib-jdk8", kotlin_version))
-    compile(kotlin("reflect", kotlin_version))
-    compile("com.amazonaws", "aws-java-sdk-dynamodb", "1.12.210")
-    compile("com.github.ben-manes.caffeine", "caffeine", "3.1.0")
-    compile("no.tornado", "tornadofx", "1.7.20")
-    compile("org.reflections", "reflections", "0.10.2")
-    compile("com.squareup.okhttp3", "okhttp", "4.9.3")
-    compile("org.controlsfx", "controlsfx", "11.1.1")
-    compile("org.partiql", "partiql-lang-kotlin", "0.6.0")
+    implementation(kotlin("stdlib-jdk8", kotlin_version))
+    implementation(kotlin("reflect", kotlin_version))
+    implementation("com.amazonaws:aws-java-sdk-dynamodb:1.12.210")
+    implementation("com.github.ben-manes.caffeine:caffeine:2.9.3")
+    implementation("no.tornado:tornadofx:1.7.20")
+    implementation("org.reflections:reflections:0.10.2")
+    implementation("com.squareup.okhttp3:okhttp:4.9.3")
+    implementation("org.controlsfx:controlsfx:8.40.18")
+    implementation("org.partiql:partiql-lang-kotlin:0.6.0")
 
     testImplementation("io.kotlintest:kotlintest-runner-junit5:3.4.2")
-    testCompile("org.testcontainers:testcontainers:1.17.1")
+    testImplementation("org.testcontainers:testcontainers:1.17.1")
 }
 
-configure<JavaPluginConvention> {
+configure<JavaPluginExtension> {
     sourceCompatibility = JavaVersion.VERSION_1_8
 }
 
 configure<FXLauncherExtension> {
     applicationVendor = "Aliaksandr Kazlou (aliaksandr.kazlou@gmail.com)"
     applicationUrl = "http://com.akazlou.dynoman.s3-website-us-west-2.amazonaws.com"
-    applicationMainClass = application.mainClassName
+    applicationMainClass = application.mainClass.get()
     applicationVersion = "1.0.0"
     applicationTitle = "DynamoDB Manager"
     applicationName = "dynoman"
@@ -74,25 +74,25 @@ configure<FXLauncherExtension> {
 // docker run --net host -v /tmp/.X11-unix:/tmp/.X11-unix -v $HOME/.Xauthority:/root/.Xauthority -e DISPLAY=unix$DISPLAY dynoman
 configure<JibExtension> {
     from {
-        image = "amazoncorretto:8u232"
+       image = "amazoncorretto:8u232"
     }
     to {
         image = "dynoman:latest"
         tags = setOf("amazoncorretto", "amazoncorretto-8u232")
     }
     container {
-        mainClass = application.mainClassName
+        mainClass = application.mainClass.get()
         creationTime = "USE_CURRENT_TIMESTAMP"
         jvmFlags = listOf(
-                "-Djdk.gtk.verbose=true",
-                "-Djavafx.verbose=true"
+            "-Djdk.gtk.verbose=true",
+            "-Djavafx.verbose=true"
         )
     }
 }
 
 tasks.getting(Jar::class) {
     manifest {
-        attributes(mapOf("Main-Class" to application.mainClassName))
+        attributes(mapOf("Main-Class" to application.mainClass.get()))
     }
 }
 
