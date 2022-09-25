@@ -47,7 +47,7 @@ dependencies {
     implementation(kotlin("stdlib-jdk8", kotlin_version))
     implementation(kotlin("reflect", kotlin_version))
     implementation("com.amazonaws:aws-java-sdk-dynamodb:1.12.310")
-    implementation("com.github.ben-manes.caffeine:caffeine:3.0.6")
+    implementation("com.github.ben-manes.caffeine:caffeine:2.9.3")
     implementation("no.tornado:tornadofx:1.7.20")
     implementation("org.reflections:reflections:0.10.2")
     implementation("com.squareup.okhttp3:okhttp:4.10.0")
