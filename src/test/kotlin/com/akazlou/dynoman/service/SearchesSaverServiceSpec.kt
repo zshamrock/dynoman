@@ -1,12 +1,6 @@
 package com.akazlou.dynoman.service
 
-import com.akazlou.dynoman.domain.search.Condition
-import com.akazlou.dynoman.domain.search.Operator
-import com.akazlou.dynoman.domain.search.Order
-import com.akazlou.dynoman.domain.search.QuerySearch
-import com.akazlou.dynoman.domain.search.ScanSearch
-import com.akazlou.dynoman.domain.search.Search
-import com.akazlou.dynoman.domain.search.Type
+import com.akazlou.dynoman.domain.search.*
 import com.akazlou.dynoman.service.SearchesSaverService.Type.SESSION
 import io.kotlintest.Matcher
 import io.kotlintest.MatcherResult
@@ -58,14 +52,16 @@ class SearchesSaverServiceSpec : StringSpec() {
                     Order.DESC),
             // Empty values
             QuerySearch(
-                    "Table4",
-                    "Table4.Index1",
-                    Condition.hashKey("Id", Type.STRING, ""),
-                    Condition("Timestamp", Type.NUMBER, Operator.EQ, listOf("")),
-                    listOf(
-                            Condition("Filter1", Type.NUMBER, Operator.BETWEEN, listOf("", "")),
-                            Condition("Filter2", Type.STRING, Operator.EQ, listOf(""))),
-                    Order.ASC),
+                "Table4",
+                "Table4.Index1",
+                Condition.hashKey("Id", Type.STRING, ""),
+                Condition("Timestamp", Type.NUMBER, Operator.EQ, emptyList()),
+                listOf(
+                    Condition("Filter1", Type.NUMBER, Operator.BETWEEN, listOf("", "")),
+                    Condition("Filter2", Type.STRING, Operator.EQ, listOf(""))
+                ),
+                Order.ASC
+            ),
             // Table scan
             ScanSearch("Table5", null, listOf()),
             // Index scan

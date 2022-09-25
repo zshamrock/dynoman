@@ -1,23 +1,12 @@
 package com.akazlou.dynoman.domain.search
 
-import com.akazlou.dynoman.domain.search.Operator.BEGINS_WITH
-import com.akazlou.dynoman.domain.search.Operator.BETWEEN
-import com.akazlou.dynoman.domain.search.Operator.CONTAINS
-import com.akazlou.dynoman.domain.search.Operator.EQ
-import com.akazlou.dynoman.domain.search.Operator.EXISTS
-import com.akazlou.dynoman.domain.search.Operator.GE
-import com.akazlou.dynoman.domain.search.Operator.GT
-import com.akazlou.dynoman.domain.search.Operator.LE
-import com.akazlou.dynoman.domain.search.Operator.LT
-import com.akazlou.dynoman.domain.search.Operator.NE
-import com.akazlou.dynoman.domain.search.Operator.NOT_CONTAINS
-import com.akazlou.dynoman.domain.search.Operator.NOT_EXISTS
+import com.akazlou.dynoman.domain.search.Operator.*
 import com.akazlou.dynoman.ext.expand
 import com.amazonaws.services.dynamodbv2.document.QueryFilter
 import com.amazonaws.services.dynamodbv2.document.RangeKeyCondition
 import com.amazonaws.services.dynamodbv2.document.ScanFilter
 import com.amazonaws.services.dynamodbv2.document.internal.Filter
-import java.util.Locale
+import java.util.*
 
 data class Condition(val name: String, val type: Type, val operator: Operator, val values: List<String>) {
     fun toQueryFilter(): QueryFilter {
@@ -44,14 +33,22 @@ data class Condition(val name: String, val type: Type, val operator: Operator, v
 }
 
 enum class Type(val sortOperators: List<Operator>, val filterOperators: List<Operator>) {
-    STRING(listOf(EQ, LE, LT, GE, GT, BETWEEN, BEGINS_WITH),
-            listOf(EQ, NE, LE, LT, GE, GT, BETWEEN, EXISTS, NOT_EXISTS, CONTAINS, NOT_CONTAINS, BEGINS_WITH)),
-    BINARY(listOf(EQ, LE, LT, GE, GT, BETWEEN, BEGINS_WITH),
-            listOf(EQ, NE, LE, LT, GE, GT, BETWEEN, EXISTS, NOT_EXISTS, CONTAINS, NOT_CONTAINS, BEGINS_WITH)),
-    NUMBER(listOf(EQ, LE, LT, GE, GT, BETWEEN),
-            listOf(EQ, NE, LE, LT, GE, GT, BETWEEN, EXISTS, NOT_EXISTS)),
-    BOOLEAN(listOf(EQ, NE),
-            listOf(EQ, NE, EXISTS, NOT_EXISTS)),
+    STRING(
+        listOf(EQ, LE, LT, GE, GT, BETWEEN, BEGINS_WITH),
+        listOf(EQ, NE, LE, LT, GE, GT, BETWEEN, EXISTS, NOT_EXISTS, CONTAINS, NOT_CONTAINS, BEGINS_WITH)
+    ),
+    BINARY(
+        listOf(EQ, LE, LT, GE, GT, BETWEEN, BEGINS_WITH),
+        listOf(EQ, NE, LE, LT, GE, GT, BETWEEN, EXISTS, NOT_EXISTS, CONTAINS, NOT_CONTAINS, BEGINS_WITH)
+    ),
+    NUMBER(
+        listOf(EQ, LE, LT, GE, GT, BETWEEN),
+        listOf(EQ, NE, LE, LT, GE, GT, BETWEEN, EXISTS, NOT_EXISTS)
+    ),
+    BOOLEAN(
+        listOf(EQ, NE),
+        listOf(EQ, NE, EXISTS, NOT_EXISTS)
+    ),
     NULL(listOf(), listOf(EXISTS, NOT_EXISTS));
 
     companion object {
@@ -67,7 +64,7 @@ enum class Type(val sortOperators: List<Operator>, val filterOperators: List<Ope
     }
 
     override fun toString(): String {
-        return name.toLowerCase(Locale.ROOT).capitalize()
+        return name.lowercase(Locale.ROOT).replaceFirstChar { it.uppercase(Locale.ROOT) }
     }
 }
 
@@ -109,9 +106,11 @@ enum class Operator(val text: String) {
     }
 
     // TODO: Filter is the internal class switch to use Condition-s instead
-    private fun <T : Filter<T>> toFilter(filter: Filter<T>,
-                                         type: Type,
-                                         values: Array<out String>): Filter<T> {
+    private fun <T : Filter<T>> toFilter(
+        filter: Filter<T>,
+        type: Type,
+        values: Array<out String>
+    ): Filter<T> {
         val value1: Any? = cast(0, type, values)
         val value2: Any? = cast(1, type, values)
         return when (this) {

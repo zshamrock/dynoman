@@ -1,7 +1,6 @@
 package com.akazlou.dynoman.function
 
-import java.util.Locale
-import java.util.UUID
+import java.util.*
 
 class ParseUUIDFunction : Function<String>() {
 
@@ -11,7 +10,7 @@ class ParseUUIDFunction : Function<String>() {
 
     override fun run(vararg args: Any): String {
         val text = args[0].toString()
-        val uuid = text.toLowerCase(Locale.ROOT).replace("-", "")
+        val uuid = text.lowercase(Locale.ROOT).replace("-", "")
         return UUID.fromString(uuid.substring(0, 8) + "-"
                 + uuid.substring(8, 12) + "-"
                 + uuid.substring(12, 16) + "-"

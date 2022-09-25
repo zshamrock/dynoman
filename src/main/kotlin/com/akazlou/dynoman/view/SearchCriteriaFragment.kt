@@ -3,14 +3,7 @@ package com.akazlou.dynoman.view
 import com.akazlou.dynoman.controller.ManagedEnvironmentsController
 import com.akazlou.dynoman.domain.ManagedEnvironment
 import com.akazlou.dynoman.domain.SearchSource
-import com.akazlou.dynoman.domain.search.Condition
-import com.akazlou.dynoman.domain.search.Operator
-import com.akazlou.dynoman.domain.search.Order
-import com.akazlou.dynoman.domain.search.QuerySearch
-import com.akazlou.dynoman.domain.search.ScanSearch
-import com.akazlou.dynoman.domain.search.Search
-import com.akazlou.dynoman.domain.search.SearchType
-import com.akazlou.dynoman.domain.search.Type
+import com.akazlou.dynoman.domain.search.*
 import com.akazlou.dynoman.function.Function
 import com.akazlou.dynoman.function.Functions
 import com.amazonaws.services.dynamodbv2.model.KeySchemaElement
@@ -157,11 +150,15 @@ class SearchCriteriaFragment : Fragment("Search") {
                                 addFilterRow(queryGridPane, filter)
                             }
                         }
+
                         SearchType.SCAN -> {
                             val filters = cleanQueryGridPane()
                             filters.forEach { filter ->
                                 addFilterRow(queryGridPane, filter)
                             }
+                        }
+
+                        else -> {/* do nothing */
                         }
                     }
                 }

@@ -4,12 +4,7 @@ import com.akazlou.dynoman.domain.ConnectionProperties
 import com.akazlou.dynoman.domain.search.QueryResult
 import com.akazlou.dynoman.domain.search.QuerySearch
 import com.akazlou.dynoman.domain.search.ScanSearch
-import com.amazonaws.services.dynamodbv2.document.DynamoDB
-import com.amazonaws.services.dynamodbv2.document.Item
-import com.amazonaws.services.dynamodbv2.document.Page
-import com.amazonaws.services.dynamodbv2.document.QueryOutcome
-import com.amazonaws.services.dynamodbv2.document.ScanOutcome
-import com.amazonaws.services.dynamodbv2.document.Table
+import com.amazonaws.services.dynamodbv2.document.*
 import com.amazonaws.services.dynamodbv2.model.TableDescription
 import java.util.concurrent.TimeUnit
 import kotlin.system.measureTimeMillis
@@ -49,7 +44,7 @@ class DynamoDBOperation(val properties: ConnectionProperties, private val offlin
     fun query(search: QuerySearch): Page<Item, QueryOutcome> {
         val spec = search.toQuerySpec(QueryResult.QUERY_MAX_PAGE_RESULT_SIZE)
         println("Run query")
-        var page: Page<Item, QueryOutcome>? = null
+        var page: Page<Item, QueryOutcome>?
         val runTime = measureTimeMillis {
             val table = getTable(search.table)
             val result = if (search.index != null) {

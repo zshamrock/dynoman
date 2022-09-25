@@ -18,6 +18,7 @@ import javafx.scene.layout.Background
 import javafx.scene.layout.Priority
 import javafx.stage.StageStyle
 import tornadofx.*
+import java.util.*
 
 class AddManageQueryFragment : Fragment("Add Query") {
     private val controller: MainController by inject()
@@ -150,7 +151,7 @@ class AddManageQueryFragment : Fragment("Add Query") {
                             foreignTableProperty.value = table.name
                             if (queryNameProperty.value.isNullOrEmpty()) {
                                 queryNameProperty.value = QUERY_NAME_STANDARD_PREFIX +
-                                        Environment(table.name).value.capitalize()
+                                        Environment(table.name).value.replaceFirstChar { it.uppercase(Locale.ROOT) }
                             }
                             // TODO: If it was the index, select it accordingly instead of table
                             searchCriteriaFragment = find(params = mapOf(

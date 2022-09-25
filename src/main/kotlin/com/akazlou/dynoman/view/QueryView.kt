@@ -17,12 +17,7 @@ import com.amazonaws.services.dynamodbv2.model.TableDescription
 import javafx.beans.binding.Bindings
 import javafx.beans.property.SimpleStringProperty
 import javafx.geometry.Pos
-import javafx.scene.control.Button
-import javafx.scene.control.ContextMenu
-import javafx.scene.control.MenuItem
-import javafx.scene.control.SeparatorMenuItem
-import javafx.scene.control.Tab
-import javafx.scene.control.TabPane
+import javafx.scene.control.*
 import javafx.scene.layout.Priority
 import tornadofx.*
 import java.util.concurrent.Callable
@@ -59,6 +54,8 @@ class QueryView : View("Query") {
             useMaxWidth = true
         }
         var saveButton: Button by singleAssign()
+
+        @Suppress("UNUSED_VARIABLE")
         val controlArea = hbox(5.0) {
             vboxConstraints {
                 maxHeight = 45.0
@@ -79,14 +76,14 @@ class QueryView : View("Query") {
                         searches.forEach { search ->
                             if (operation != null) {
                                 setQueryResult(
-                                        operation!!,
-                                        operation!!.describeTable(search.table),
-                                        search,
-                                        // When restore the search from the stored one we don't want to do the network
-                                        // (later could be configured over settings whether to do the network call or
-                                        // not) calls to fetch the actual data, instead we populate the search view and
-                                        // allow the user to do the actual network call when required
-                                        null)
+                                    operation!!,
+                                    operation!!.describeTable(search.table),
+                                    search,
+                                    // When restore the search from the stored one we don't want to do the network
+                                    // (later could be configured over settings whether to do the network call or
+                                    // not) calls to fetch the actual data, instead we populate the search view and
+                                    // allow the user to do the actual network call when required
+                                    null)
                             }
                         }
                     }
@@ -96,8 +93,8 @@ class QueryView : View("Query") {
                 enableWhen { Bindings.isNotEmpty(openSessionNameProperty) }
                 action {
                     val confirmation = find<DeleteConfirmationFragment>(params = mapOf(
-                            DeleteConfirmationFragment::type to DeleteConfirmationFragment.Type.SESSION,
-                            DeleteConfirmationFragment::name to openSessionNameProperty.value))
+                        DeleteConfirmationFragment::type to DeleteConfirmationFragment.Type.SESSION,
+                        DeleteConfirmationFragment::name to openSessionNameProperty.value))
                     confirmation.openModal(block = true)
                     if (confirmation.isConfirmed()) {
                         runAsyncWithProgress {
@@ -114,11 +111,11 @@ class QueryView : View("Query") {
                 shortcut("Ctrl+S")
                 action {
                     val searches = queries.tabs
-                            .map { Pair(it, it.properties[QUERY_TAB_FRAGMENT_KEY] as QueryTabFragment) }
-                            .map { it.second.getSearch(it.first.text) }
+                        .map { Pair(it, it.properties[QUERY_TAB_FRAGMENT_KEY] as QueryTabFragment) }
+                        .map { it.second.getSearch(it.first.text) }
                     find<SaveSessionFragment>(params = mapOf(
-                            SaveSessionFragment::searches to searches,
-                            SaveSessionFragment::name to openSessionNameProperty.value.orEmpty()
+                        SaveSessionFragment::searches to searches,
+                        SaveSessionFragment::name to openSessionNameProperty.value.orEmpty()
                     )).openModal(block = true)
                     updateNamedQueries()
                 }
@@ -136,7 +133,7 @@ class QueryView : View("Query") {
                 addClass("button-xlarge")
                 action {
                     val fragment = find<ManageEnvironmentFragment>(
-                            params = mapOf(ManageEnvironmentFragment::environmentName to environmentNameProperty.value))
+                        params = mapOf(ManageEnvironmentFragment::environmentName to environmentNameProperty.value))
                     fragment.openModal(block = true)
                     environments.setAll(fragment.getEnvironments())
                     environmentNameProperty.set(fragment.getSelectedEnvironmentName())
@@ -216,6 +213,8 @@ class QueryView : View("Query") {
         duplicateTabMenuItem.setOnAction {
             val tabs = queries.tabs
             val currentFragment = tab.properties[QUERY_TAB_FRAGMENT_KEY] as QueryTabFragment
+
+            @Suppress("UNUSED_VARIABLE")
             val qr = currentFragment.getQueryResult()!!
             val fragment = currentFragment.duplicate()
             val index = tabs.indexOf(tab)

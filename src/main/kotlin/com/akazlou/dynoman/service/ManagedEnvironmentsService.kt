@@ -23,7 +23,7 @@ class ManagedEnvironmentsService : SaverService() {
     fun save(base: Path, environment: ManagedEnvironment) {
         val writer = StringWriter()
         environment.values.forEach {
-            writer.appendln(it.toString())
+            writer.appendLine(it.toString())
         }
         write(base, environment.name, ENV_EXTENSION, writer)
         envs.refresh(Pair(base, environment.name))

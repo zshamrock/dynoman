@@ -2,15 +2,7 @@ package com.akazlou.dynoman.view
 
 import com.akazlou.dynoman.controller.AddQuerySaverController
 import com.akazlou.dynoman.domain.ForeignSearchName
-import com.akazlou.dynoman.domain.search.Condition
-import com.akazlou.dynoman.domain.search.Operator
-import com.akazlou.dynoman.domain.search.QueryResult
-import com.akazlou.dynoman.domain.search.QuerySearch
-import com.akazlou.dynoman.domain.search.ResultData
-import com.akazlou.dynoman.domain.search.ScanSearch
-import com.akazlou.dynoman.domain.search.Search
-import com.akazlou.dynoman.domain.search.SearchInput
-import com.akazlou.dynoman.domain.search.SearchType
+import com.akazlou.dynoman.domain.search.*
 import com.akazlou.dynoman.function.Functions
 import com.akazlou.dynoman.service.DynamoDBOperation
 import com.amazonaws.services.dynamodbv2.model.TableDescription
@@ -20,16 +12,7 @@ import javafx.beans.value.ObservableValue
 import javafx.collections.FXCollections
 import javafx.geometry.Pos
 import javafx.scene.Cursor
-import javafx.scene.control.Menu
-import javafx.scene.control.MenuItem
-import javafx.scene.control.SelectionMode
-import javafx.scene.control.SeparatorMenuItem
-import javafx.scene.control.Tab
-import javafx.scene.control.TabPane
-import javafx.scene.control.TableColumn
-import javafx.scene.control.TablePosition
-import javafx.scene.control.TableView
-import javafx.scene.control.TextArea
+import javafx.scene.control.*
 import javafx.scene.input.KeyCombination
 import javafx.scene.layout.Priority
 import javafx.util.Callback
@@ -67,11 +50,12 @@ class QueryTabFragment : Fragment("Query Tab") {
             val description = params["description"] as TableDescription
             val table = description.tableName
             val addQueryFragment = find<AddManageQueryFragment>(
-                    params = mapOf(
-                            AddManageQueryFragment::operation to params["operation"],
-                            AddManageQueryFragment::attributes to USER_INPUT_MARK_LIST.plus(allColumns.toList()),
-                            AddManageQueryFragment::sourceTable to (params["description"] as TableDescription).tableName,
-                            AddManageQueryFragment::data to data)
+                params = mapOf(
+                    AddManageQueryFragment::operation to params["operation"],
+                    AddManageQueryFragment::attributes to USER_INPUT_MARK_LIST.plus(allColumns.toList()),
+                    AddManageQueryFragment::sourceTable to (params["description"] as TableDescription).tableName,
+                    AddManageQueryFragment::data to data
+                )
             )
             addQueryFragment.openModal(block = true)
             queryMenu.items.clear()
@@ -86,13 +70,14 @@ class QueryTabFragment : Fragment("Query Tab") {
             val table = description.tableName
             val names = addQuerySaverController.listNames(table)
             val addQueryFragment = find<AddManageQueryFragment>(
-                    params = mapOf(
-                            AddManageQueryFragment::operation to params["operation"],
-                            AddManageQueryFragment::attributes to USER_INPUT_MARK_LIST.plus(allColumns.toList()),
-                            AddManageQueryFragment::sourceTable to (params["description"] as TableDescription).tableName,
-                            AddManageQueryFragment::data to data,
-                            AddManageQueryFragment::mode to AddManageQueryFragment.Mode.MANAGE,
-                            AddManageQueryFragment::names to names)
+                params = mapOf(
+                    AddManageQueryFragment::operation to params["operation"],
+                    AddManageQueryFragment::attributes to USER_INPUT_MARK_LIST.plus(allColumns.toList()),
+                    AddManageQueryFragment::sourceTable to (params["description"] as TableDescription).tableName,
+                    AddManageQueryFragment::data to data,
+                    AddManageQueryFragment::mode to AddManageQueryFragment.Mode.MANAGE,
+                    AddManageQueryFragment::names to names
+                )
             )
 
             addQueryFragment.openModal(block = true)
@@ -156,6 +141,7 @@ class QueryTabFragment : Fragment("Query Tab") {
                 tabpane {
                     tabClosingPolicy = TabPane.TabClosingPolicy.UNAVAILABLE
                     tabMinWidth = 60.0
+                    @Suppress("UNUSED_VARIABLE")
                     val sql = tab("SQL") {
                         queryArea = textarea("SELECT * FROM T") {
                             vboxConstraints {
@@ -167,11 +153,13 @@ class QueryTabFragment : Fragment("Query Tab") {
                     val description = params["description"] as TableDescription
                     val search = params["search"] as Search
                     qwf = find(
-                            params = mapOf(
-                                    QueryWindowFragment::mode to QueryWindowFragment.Mode.INLINE,
-                                    SearchCriteriaFragment.SEARCH_TYPE_PARAM to search.type,
-                                    QueryWindowFragment::description to description,
-                                    QueryWindowFragment::operation to params["operation"]))
+                        params = mapOf(
+                            QueryWindowFragment::mode to QueryWindowFragment.Mode.INLINE,
+                            SearchCriteriaFragment.SEARCH_TYPE_PARAM to search.type,
+                            QueryWindowFragment::description to description,
+                            QueryWindowFragment::operation to params["operation"]
+                        )
+                    )
                     val editor = tab("EDITOR", qwf.root)
                     qwf.init(search, this@QueryTabFragment)
                     editor.select()
@@ -236,7 +224,8 @@ class QueryTabFragment : Fragment("Query Tab") {
                         separator()
                         item("Copy All") {
                             setOnAction {
-                                val content = data.joinToString("\n") { it.getValues(allColumns).joinToString { "'$it'" } }
+                                val content =
+                                    data.joinToString("\n") { it.getValues(allColumns).joinToString { "'$it'" } }
                                 clipboard.putString(content)
                                 println("Copy All")
                             }
@@ -246,7 +235,9 @@ class QueryTabFragment : Fragment("Query Tab") {
                                 if (selectedItem != null) {
                                     val content = (allColumns.joinToString { it }
                                             + "\n"
-                                            + data.joinToString("\n") { it.getValues(allColumns).joinToString { "'$it'" } })
+                                            + data.joinToString("\n") {
+                                        it.getValues(allColumns).joinToString { "'$it'" }
+                                    })
                                     clipboard.putString(content)
                                 }
                                 println("Copy All (with names)")
@@ -261,12 +252,17 @@ class QueryTabFragment : Fragment("Query Tab") {
                                     setOnAction {
                                         if (selectedCell != null && selectedColumn != null && data.isNotEmpty()) {
                                             val attributeName = (selectedColumn as TableColumn<ResultData, *>).text
-                                            val column = TableColumn<ResultData, String>("${function.name()}($attributeName)")
-                                            column.cellValueFactory = Callback<TableColumn.CellDataFeatures<ResultData, String>, ObservableValue<String>> {
-                                                SimpleStringProperty(function.run(it.value.getValue(attributeName)).toString())
-                                            }
+                                            val column =
+                                                TableColumn<ResultData, String>("${function.name()}($attributeName)")
+                                            column.cellValueFactory =
+                                                Callback<TableColumn.CellDataFeatures<ResultData, String>, ObservableValue<String>> {
+                                                    SimpleStringProperty(
+                                                        function.run(it.value.getValue(attributeName)).toString()
+                                                    )
+                                                }
                                             resultTable.columns.add(
-                                                    (selectedCell as TablePosition<ResultData, *>).column + 1, column)
+                                                (selectedCell as TablePosition<ResultData, *>).column + 1, column
+                                            )
                                         }
                                     }
                                 }
@@ -305,7 +301,8 @@ class QueryTabFragment : Fragment("Query Tab") {
             val inputs = findSearchInputs(raw)
             if (inputs.isNotEmpty()) {
                 val confirmation = find<UserQueryInputFragment>(
-                        params = mapOf(UserQueryInputFragment::inputs to inputs))
+                    params = mapOf(UserQueryInputFragment::inputs to inputs)
+                )
                 confirmation.openModal(block = true)
                 if (confirmation.isCancel()) {
                     return
@@ -333,17 +330,19 @@ class QueryTabFragment : Fragment("Query Tab") {
                     is ScanSearch -> {
                         operation.scan(search)
                     }
+
                     is QuerySearch -> {
                         operation.query(search)
                     }
                 }
                 println("Run $name using mapping $m")
                 val tab = queryView.setQueryResult(
-                        operation,
-                        operation.describeTable(search.table),
-                        search,
-                        page,
-                        QueryView.TabPosition.AFTER_CURRENT)
+                    operation,
+                    operation.describeTable(search.table),
+                    search,
+                    page,
+                    QueryView.TabPosition.AFTER_CURRENT
+                )
                 if (firstTab == null) {
                     firstTab = tab
                 }
@@ -361,22 +360,30 @@ class QueryTabFragment : Fragment("Query Tab") {
             is ScanSearch -> {
                 mapToSearchInputs(search.filters)
             }
+
             is QuerySearch -> {
                 val inputs = mutableListOf<SearchInput>()
                 if (Search.requiresUserInput(search.getHashKeyValue())) {
-                    inputs.add(SearchInput(
+                    inputs.add(
+                        SearchInput(
                             search.getHashKeyName(),
                             search.getHashKeyType(),
                             Operator.EQ,
-                            listOf(search.getHashKeyValue())))
+                            listOf(search.getHashKeyValue())
+                        )
+                    )
                 }
                 if (search.getRangeKeyValues().isNotEmpty()
-                        && search.getRangeKeyValues().any { Search.requiresUserInput(it) }) {
-                    inputs.add(SearchInput(
+                    && search.getRangeKeyValues().any { Search.requiresUserInput(it) }
+                ) {
+                    inputs.add(
+                        SearchInput(
                             search.getRangeKeyName()!!,
                             search.getRangeKeyType(),
                             search.getRangeKeyOperator(),
-                            search.getRangeKeyValues()))
+                            search.getRangeKeyValues()
+                        )
+                    )
                 }
                 inputs.addAll(mapToSearchInputs(search.filters))
                 inputs
@@ -386,8 +393,8 @@ class QueryTabFragment : Fragment("Query Tab") {
 
     private fun mapToSearchInputs(conditions: List<Condition>): List<SearchInput> {
         return conditions
-                .filter { condition -> condition.values.any { Search.requiresUserInput(it) } }
-                .map { condition -> SearchInput(condition.name, condition.type, condition.operator, condition.values) }
+            .filter { condition -> condition.values.any { Search.requiresUserInput(it) } }
+            .map { condition -> SearchInput(condition.name, condition.type, condition.operator, condition.values) }
     }
 
     fun getQuery(): String {
@@ -400,10 +407,13 @@ class QueryTabFragment : Fragment("Query Tab") {
         println("criteria $search")
         println(search.filters)
         val description = params["description"] as TableDescription
-        val fragment = find<QueryTabFragment>(params = mapOf(
+        val fragment = find<QueryTabFragment>(
+            params = mapOf(
                 "description" to description,
                 "operation" to params["operation"],
-                "search" to search))
+                "search" to search
+            )
+        )
         fragment.setQueryResult(queryResult!!)
         println("current tab: $this")
         println("duplicated tab: $fragment")
@@ -420,21 +430,22 @@ class QueryTabFragment : Fragment("Query Tab") {
         } else {
             allColumns.clear()
             results.asSequence()
-                    .flatMap { it.getKeys().asSequence() }
-                    .map { attributeName ->
-                        if (allColumns.contains(attributeName)) {
-                            null
-                        } else {
-                            val column = TableColumn<ResultData, String>(attributeName)
-                            column.cellValueFactory = Callback<TableColumn.CellDataFeatures<ResultData, String>, ObservableValue<String>> {
+                .flatMap { it.getKeys().asSequence() }
+                .map { attributeName ->
+                    if (allColumns.contains(attributeName)) {
+                        null
+                    } else {
+                        val column = TableColumn<ResultData, String>(attributeName)
+                        column.cellValueFactory =
+                            Callback<TableColumn.CellDataFeatures<ResultData, String>, ObservableValue<String>> {
                                 SimpleStringProperty(it.value.getValue(attributeName))
                             }
-                            allColumns.add(attributeName)
-                            column
-                        }
+                        allColumns.add(attributeName)
+                        column
                     }
-                    .filterNotNull()
-                    .toList()
+                }
+                .filterNotNull()
+                .toList()
         }
         prevPageVisibleProperty.value = false
         nextPageVisibleProperty.value = qr.hasMoreData(pageNum)
@@ -469,11 +480,11 @@ class QueryTabFragment : Fragment("Query Tab") {
 
     private fun getDataByField(field: String, distinct: Boolean): Sequence<String> {
         var content = data.asSequence()
-                .map { it.data[field] }
-                .flatMap {
-                    (it as? List<*> ?: listOf(it)).asSequence()
-                }
-                .map { it?.toString() ?: "" }
+            .map { it.data[field] }
+            .flatMap {
+                (it as? List<*> ?: listOf(it)).asSequence()
+            }
+            .map { it?.toString() ?: "" }
         if (distinct) {
             content = content.filter { it.isNotBlank() }.distinct()
         }

@@ -1,13 +1,13 @@
 package com.akazlou.dynoman.domain.search
 
-import java.util.Locale
+import java.util.*
 
 enum class SearchType {
     SCAN,
     QUERY;
 
     override fun toString(): String {
-        return this.name.toLowerCase(Locale.ROOT).capitalize()
+        return this.name.lowercase(Locale.ROOT).replaceFirstChar { it.uppercase(Locale.ROOT) }
     }
 
     fun isScan(): Boolean {
