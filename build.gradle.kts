@@ -52,7 +52,7 @@ dependencies {
     implementation("org.reflections:reflections:0.10.2")
     implementation("com.squareup.okhttp3:okhttp:4.10.0")
     implementation("org.controlsfx:controlsfx:8.40.18")
-    implementation("org.partiql:partiql-lang-kotlin:0.6.0")
+    implementation("org.partiql:partiql-lang-kotlin:0.10.0")
 
     testImplementation("io.kotlintest:kotlintest-runner-junit5:3.4.2")
     testImplementation("org.testcontainers:testcontainers:1.17.3")
