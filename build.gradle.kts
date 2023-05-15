@@ -55,7 +55,7 @@ dependencies {
     implementation("org.partiql:partiql-lang-kotlin:0.6.0")
 
     testImplementation("io.kotlintest:kotlintest-runner-junit5:3.4.2")
-    testImplementation("org.testcontainers:testcontainers:1.17.3")
+    testImplementation("org.testcontainers:testcontainers:1.18.1")
 }
 
 configure<JavaPluginExtension> {
