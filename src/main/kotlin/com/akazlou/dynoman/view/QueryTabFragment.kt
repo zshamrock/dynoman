@@ -143,11 +143,18 @@ class QueryTabFragment : Fragment("Query Tab") {
                     tabMinWidth = 60.0
                     @Suppress("UNUSED_VARIABLE")
                     val sql = tab("SQL") {
-                        queryArea = textarea("SELECT * FROM T") {
-                            vboxConstraints {
-                                prefHeight = 300.0
+                        vbox(5.0) {
+                            button("Run") {
+                                action {
+
+                                }
                             }
-                            selectAll()
+                            queryArea = textarea("SELECT * FROM T") {
+                                vboxConstraints {
+                                    prefHeight = 300.0
+                                }
+                                selectAll()
+                            }
                         }
                     }
                     val description = params["description"] as TableDescription
