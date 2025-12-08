@@ -146,7 +146,7 @@ class QueryTabFragment : Fragment("Query Tab") {
                         vbox(5.0) {
                             button("Run") {
                                 action {
-
+                                    println(queryArea.text.trim())
                                 }
                             }
                             queryArea = textarea("SELECT * FROM T") {
