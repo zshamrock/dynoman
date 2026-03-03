@@ -121,7 +121,6 @@ class SearchCriteriaFragment : Fragment("Search") {
         bindAutoCompletion(sortKeyTextField)
         sortKeyComboBox = createAttributesComboBox(sortKeyProperty)
 
-        println("B")
         sortKeyOperatorComboBox = ComboBox<Operator>(sortKeyOperators)
         sortKeyOperatorComboBox.applyAccessibilityNpeWorkaround()
         sortKeyOperatorComboBox.bind(sortKeyOperatorProperty)
@@ -142,8 +141,6 @@ class SearchCriteriaFragment : Fragment("Search") {
 
     override val root = vbox(5.0) {
         hbox(5.0, Pos.CENTER_LEFT) {
-            println("C")
-            println("EE")
             combobox(values = searchTypes, property = searchTypeProperty) {
                 prefWidth = 100.0
                 valueProperty().onChange { searchType ->
@@ -168,7 +165,6 @@ class SearchCriteriaFragment : Fragment("Search") {
                     }
                 }
             }.applyAccessibilityNpeWorkaround()
-            println("D")
             searchSourceComboBox = combobox(values = searchSources, property = searchSourceProperty)
                     .applyAccessibilityNpeWorkaround()
             searchSourceComboBox.prefWidth = 585.0
@@ -313,7 +309,6 @@ class SearchCriteriaFragment : Fragment("Search") {
             filterKeyOperatorProperties.add(filterKeyOperation)
             val filterKeyOperators = mutableListOf<Operator>().asObservable()
             filterKeyOperators.setAll(type.filterOperators)
-            println("A")
             val filterKeyOperationComboBox = combobox(
                     values = filterKeyOperators, property = filterKeyOperation)
                     .applyAccessibilityNpeWorkaround()
@@ -396,7 +391,6 @@ class SearchCriteriaFragment : Fragment("Search") {
     }
 
     private fun createAttributesComboBox(property: SimpleStringProperty): ComboBox<String> {
-        println("createAttributesComboBox")
         return ComboBox(attributes).apply {
             isEditable = true
             prefWidth = ATTRIBUTE_VALUE_COLUMN_WIDTH

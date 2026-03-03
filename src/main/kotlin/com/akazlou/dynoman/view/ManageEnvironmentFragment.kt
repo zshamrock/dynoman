@@ -33,9 +33,7 @@ class ManageEnvironmentFragment : Fragment("Manage Environments") {
         })
         environmentNameProperty.onChange {
             if (!it.isNullOrBlank()) {
-                println("6")
-                println(controller.get(it)!!.values)
-                items.setAll(controller.get(it)!!.values)
+                items.setAll(controller.get(it).values)
             }
             valuesChanged.set(false)
         }
@@ -49,11 +47,8 @@ class ManageEnvironmentFragment : Fragment("Manage Environments") {
         hbox(5.0) {
             hbox(5.0) {
                 paddingLeft = 5.0
-                println("BB")
                 combobox(environmentNameProperty) {
                     prefWidth = 200.0
-                    println("2")
-                    println(environments)
                     items = environments
                 }.applyAccessibilityNpeWorkaround()
                 button("New") {

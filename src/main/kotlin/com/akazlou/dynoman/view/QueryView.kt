@@ -63,13 +63,10 @@ class QueryView : View("Query") {
             }
             padding = tornadofx.insets(5, 0)
             alignment = Pos.CENTER_LEFT
-            println("CC")
             combobox<String>(openSessionNameProperty) {
                 //setPrefSize(200.0, 40.0)
                 prefWidth = 200.0
-                println("3")
-                println(namedQueries)
-                items = listOf("1").asObservable()//namedQueries
+                items = namedQueries
             }.applyAccessibilityNpeWorkaround()
             button("Open") {
                 enableWhen { Bindings.isNotEmpty(openSessionNameProperty) }
@@ -129,11 +126,8 @@ class QueryView : View("Query") {
                     hGrow = Priority.ALWAYS
                 }
             }
-            println("DD")
             combobox<String>(environmentNameProperty) {
                 prefWidth = 200.0
-                println("4")
-                println(environments)
                 items = environments
             }.applyAccessibilityNpeWorkaround()
             button("Manage Environments") {
@@ -141,16 +135,10 @@ class QueryView : View("Query") {
                 action {
                     val fragment = find<ManageEnvironmentFragment>(
                         params = mapOf(ManageEnvironmentFragment::environmentName to environmentNameProperty.value))
-                    println("Created fragment")
-                    //fragment.openModal(block = true)
-                    println("Opened fragment")
+                    fragment.openModal(block = true)
                     val fragmentEnvironments = fragment.getEnvironments()
-                    println("8")
-                    println(fragmentEnvironments)
                     environments.setAll(fragmentEnvironments)
                     val selectedEnvironmentName = fragment.getSelectedEnvironmentName()
-                    println("7")
-                    println(selectedEnvironmentName)
                     environmentNameProperty.set(selectedEnvironmentName)
                 }
             }

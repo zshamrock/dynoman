@@ -90,11 +90,8 @@ class AddManageQueryFragment : Fragment("Add Query") {
         }) {
             if (mode.isManage()) {
                 field("Query:") {
-                    println("AA")
                     combobox(property = foreignQueryNameProperty) {
-                        println("1")
-                        println(observableNames)
-                        items = emptyList<ForeignSearchName>().asObservable()//observableNames
+                        items = observableNames
                         useMaxWidth = true
                         valueProperty().onChange { name ->
                             if (name == null) {
