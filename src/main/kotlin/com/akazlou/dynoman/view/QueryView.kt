@@ -137,8 +137,7 @@ class QueryView : View("Query") {
                         params = mapOf(ManageEnvironmentFragment::environmentName to environmentNameProperty.value))
                     fragment.openModal(block = true)
                     environments.setAll(fragment.getEnvironments())
-                    val selectedEnvironmentName = fragment.getSelectedEnvironmentName()
-                    environmentNameProperty.set(selectedEnvironmentName)
+                    environmentNameProperty.set(fragment.getSelectedEnvironmentName())
                 }
             }
         }
