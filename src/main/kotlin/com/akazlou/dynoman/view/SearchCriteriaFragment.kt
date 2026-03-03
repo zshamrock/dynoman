@@ -242,7 +242,7 @@ class SearchCriteriaFragment : Fragment("Search") {
             }
         }
         if (ManagedEnvironment.isEnvVar(value)) {
-            return managedEnvironmentsController.get(queryView.getEnvironmentName())!!.get(value)
+            return managedEnvironmentsController.get(queryView.getEnvironmentName()).get(value)
         }
         return value
     }
@@ -578,7 +578,7 @@ class SearchCriteriaFragment : Fragment("Search") {
         override fun call(request: AutoCompletionBinding.ISuggestionRequest?): Collection<String> {
             val userText = request?.userText.orEmpty()
             return if (ManagedEnvironment.startsWithPrefix(userText)) {
-                val environment = managedEnvironmentsController.get(queryView.getEnvironmentName())!!
+                val environment = managedEnvironmentsController.get(queryView.getEnvironmentName())
                 environment.getCompletions(userText).map { ManagedEnvironment.surround(it) }
             } else {
                 emptyList()

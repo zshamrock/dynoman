@@ -16,8 +16,7 @@ import tornadofx.*
 class ManageEnvironmentFragment : Fragment("Manage Environments") {
     private val controller: ManagedEnvironmentsController by inject()
     val environmentName: String by param()
-    private val items = FXCollections.observableList((controller.get(environmentName) ?: ManagedEnvironment(
-        ManagedEnvironment.GLOBALS, emptyList()))
+    private val items = FXCollections.observableList(controller.get(environmentName)
             .values.toMutableList()) { value -> arrayOf(value.nameProperty, value.valueProperty) }
     private var valuesView: TableView<EnvironmentValue> by singleAssign()
     private val removeButtonEnabled: SimpleBooleanProperty = SimpleBooleanProperty(false)
