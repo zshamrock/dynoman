@@ -3,6 +3,7 @@ package com.akazlou.dynoman.view
 import com.akazlou.dynoman.controller.ManagedEnvironmentsController
 import com.akazlou.dynoman.domain.EnvironmentValue
 import com.akazlou.dynoman.domain.ManagedEnvironment
+import com.akazlou.dynoman.ext.applyAccessibilityNpeWorkaround
 import javafx.beans.property.SimpleBooleanProperty
 import javafx.beans.property.SimpleStringProperty
 import javafx.collections.FXCollections
@@ -15,7 +16,8 @@ import tornadofx.*
 class ManageEnvironmentFragment : Fragment("Manage Environments") {
     private val controller: ManagedEnvironmentsController by inject()
     val environmentName: String by param()
-    private val items = FXCollections.observableList(controller.get(environmentName)
+    private val items = FXCollections.observableList((controller.get(environmentName) ?: ManagedEnvironment(
+        ManagedEnvironment.GLOBALS, emptyList()))
             .values.toMutableList()) { value -> arrayOf(value.nameProperty, value.valueProperty) }
     private var valuesView: TableView<EnvironmentValue> by singleAssign()
     private val removeButtonEnabled: SimpleBooleanProperty = SimpleBooleanProperty(false)
@@ -31,7 +33,9 @@ class ManageEnvironmentFragment : Fragment("Manage Environments") {
         })
         environmentNameProperty.onChange {
             if (!it.isNullOrBlank()) {
-                items.setAll(controller.get(it).values)
+                println("6")
+                println(controller.get(it)!!.values)
+                items.setAll(controller.get(it)!!.values)
             }
             valuesChanged.set(false)
         }
@@ -45,10 +49,13 @@ class ManageEnvironmentFragment : Fragment("Manage Environments") {
         hbox(5.0) {
             hbox(5.0) {
                 paddingLeft = 5.0
+                println("BB")
                 combobox(environmentNameProperty) {
                     prefWidth = 200.0
+                    println("2")
+                    println(environments)
                     items = environments
-                }
+                }.applyAccessibilityNpeWorkaround()
                 button("New") {
                     action {
                         val fragment = find<CreateEnvironmentFragment>()

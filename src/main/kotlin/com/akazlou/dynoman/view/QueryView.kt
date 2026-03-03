@@ -8,6 +8,7 @@ import com.akazlou.dynoman.domain.ManagedEnvironment
 import com.akazlou.dynoman.domain.Version
 import com.akazlou.dynoman.domain.search.QueryResult
 import com.akazlou.dynoman.domain.search.Search
+import com.akazlou.dynoman.ext.applyAccessibilityNpeWorkaround
 import com.akazlou.dynoman.ext.tab
 import com.akazlou.dynoman.service.DynamoDBOperation
 import com.amazonaws.regions.Regions
@@ -62,11 +63,14 @@ class QueryView : View("Query") {
             }
             padding = tornadofx.insets(5, 0)
             alignment = Pos.CENTER_LEFT
+            println("CC")
             combobox<String>(openSessionNameProperty) {
                 //setPrefSize(200.0, 40.0)
                 prefWidth = 200.0
-                items = namedQueries
-            }
+                println("3")
+                println(namedQueries)
+                items = listOf("1").asObservable()//namedQueries
+            }.applyAccessibilityNpeWorkaround()
             button("Open") {
                 enableWhen { Bindings.isNotEmpty(openSessionNameProperty) }
                 action {
@@ -125,18 +129,29 @@ class QueryView : View("Query") {
                     hGrow = Priority.ALWAYS
                 }
             }
+            println("DD")
             combobox<String>(environmentNameProperty) {
                 prefWidth = 200.0
+                println("4")
+                println(environments)
                 items = environments
-            }
+            }.applyAccessibilityNpeWorkaround()
             button("Manage Environments") {
                 addClass("button-xlarge")
                 action {
                     val fragment = find<ManageEnvironmentFragment>(
                         params = mapOf(ManageEnvironmentFragment::environmentName to environmentNameProperty.value))
-                    fragment.openModal(block = true)
-                    environments.setAll(fragment.getEnvironments())
-                    environmentNameProperty.set(fragment.getSelectedEnvironmentName())
+                    println("Created fragment")
+                    //fragment.openModal(block = true)
+                    println("Opened fragment")
+                    val fragmentEnvironments = fragment.getEnvironments()
+                    println("8")
+                    println(fragmentEnvironments)
+                    environments.setAll(fragmentEnvironments)
+                    val selectedEnvironmentName = fragment.getSelectedEnvironmentName()
+                    println("7")
+                    println(selectedEnvironmentName)
+                    environmentNameProperty.set(selectedEnvironmentName)
                 }
             }
         }

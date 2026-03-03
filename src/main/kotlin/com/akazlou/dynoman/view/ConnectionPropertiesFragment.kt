@@ -2,6 +2,7 @@ package com.akazlou.dynoman.view
 
 import com.akazlou.dynoman.controller.MainController
 import com.akazlou.dynoman.domain.Config
+import com.akazlou.dynoman.ext.applyAccessibilityNpeWorkaround
 import com.amazonaws.regions.Regions
 import javafx.beans.property.SimpleBooleanProperty
 import javafx.beans.property.SimpleStringProperty
@@ -38,7 +39,7 @@ class ConnectionPropertiesFragment : Fragment("Connection") {
                 }
             }
             field("Region:") {
-                combobox(region, Regions.values().map { it.getName() })
+                combobox(region, Regions.values().map { it.getName() }).applyAccessibilityNpeWorkaround()
                 checkbox("local", local)
             }
         }

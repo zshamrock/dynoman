@@ -7,6 +7,7 @@ import com.akazlou.dynoman.domain.ForeignSearchName
 import com.akazlou.dynoman.domain.search.ResultData
 import com.akazlou.dynoman.domain.search.Search
 import com.akazlou.dynoman.domain.search.SearchType
+import com.akazlou.dynoman.ext.applyAccessibilityNpeWorkaround
 import com.akazlou.dynoman.service.DynamoDBOperation
 import javafx.beans.binding.Bindings
 import javafx.beans.property.SimpleObjectProperty
@@ -89,8 +90,11 @@ class AddManageQueryFragment : Fragment("Add Query") {
         }) {
             if (mode.isManage()) {
                 field("Query:") {
+                    println("AA")
                     combobox(property = foreignQueryNameProperty) {
-                        items = observableNames
+                        println("1")
+                        println(observableNames)
+                        items = emptyList<ForeignSearchName>().asObservable()//observableNames
                         useMaxWidth = true
                         valueProperty().onChange { name ->
                             if (name == null) {
@@ -119,7 +123,7 @@ class AddManageQueryFragment : Fragment("Add Query") {
                                 pane.vbarPolicy = ScrollPane.ScrollBarPolicy.AS_NEEDED
                             }
                         }
-                    }
+                    }.applyAccessibilityNpeWorkaround()
                 }
             }
             if (mode.isManage()) {

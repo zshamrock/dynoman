@@ -4,6 +4,7 @@ import com.akazlou.dynoman.controller.ManagedEnvironmentsController
 import com.akazlou.dynoman.domain.ManagedEnvironment
 import com.akazlou.dynoman.domain.SearchSource
 import com.akazlou.dynoman.domain.search.*
+import com.akazlou.dynoman.ext.applyAccessibilityNpeWorkaround
 import com.akazlou.dynoman.function.Function
 import com.akazlou.dynoman.function.Functions
 import com.amazonaws.services.dynamodbv2.model.KeySchemaElement
@@ -120,7 +121,9 @@ class SearchCriteriaFragment : Fragment("Search") {
         bindAutoCompletion(sortKeyTextField)
         sortKeyComboBox = createAttributesComboBox(sortKeyProperty)
 
+        println("B")
         sortKeyOperatorComboBox = ComboBox<Operator>(sortKeyOperators)
+        sortKeyOperatorComboBox.applyAccessibilityNpeWorkaround()
         sortKeyOperatorComboBox.bind(sortKeyOperatorProperty)
         sortKeyOperatorComboBox.prefWidth = ATTRIBUTE_OPERATION_COLUMN_WIDTH
         sortKeyOperatorComboBox.valueProperty()
@@ -139,6 +142,8 @@ class SearchCriteriaFragment : Fragment("Search") {
 
     override val root = vbox(5.0) {
         hbox(5.0, Pos.CENTER_LEFT) {
+            println("C")
+            println("EE")
             combobox(values = searchTypes, property = searchTypeProperty) {
                 prefWidth = 100.0
                 valueProperty().onChange { searchType ->
@@ -162,8 +167,10 @@ class SearchCriteriaFragment : Fragment("Search") {
                         }
                     }
                 }
-            }
+            }.applyAccessibilityNpeWorkaround()
+            println("D")
             searchSourceComboBox = combobox(values = searchSources, property = searchSourceProperty)
+                    .applyAccessibilityNpeWorkaround()
             searchSourceComboBox.prefWidth = 585.0
             searchSourceComboBox.valueProperty().onChange {
                 cleanQueryGridPane()
@@ -239,7 +246,7 @@ class SearchCriteriaFragment : Fragment("Search") {
             }
         }
         if (ManagedEnvironment.isEnvVar(value)) {
-            return managedEnvironmentsController.get(queryView.getEnvironmentName()).get(value)
+            return managedEnvironmentsController.get(queryView.getEnvironmentName())!!.get(value)
         }
         return value
     }
@@ -301,13 +308,15 @@ class SearchCriteriaFragment : Fragment("Search") {
             val type = condition?.type ?: Type.STRING
             val filterKeyType = SimpleObjectProperty<Type>(type)
             filterKeyTypeProperties.add(filterKeyType)
-            combobox(values = FILTER_KEY_TYPES, property = filterKeyType)
+            combobox(values = FILTER_KEY_TYPES, property = filterKeyType).applyAccessibilityNpeWorkaround()
             val filterKeyOperation = SimpleObjectProperty<Operator>(condition?.operator ?: Operator.EQ)
             filterKeyOperatorProperties.add(filterKeyOperation)
             val filterKeyOperators = mutableListOf<Operator>().asObservable()
             filterKeyOperators.setAll(type.filterOperators)
+            println("A")
             val filterKeyOperationComboBox = combobox(
                     values = filterKeyOperators, property = filterKeyOperation)
+                    .applyAccessibilityNpeWorkaround()
             filterKeyOperationComboBox.prefWidth = ATTRIBUTE_OPERATION_COLUMN_WIDTH
             filterKeyType.addListener { _, _, newValue ->
                 filterKeyOperators.setAll(newValue.filterOperators)
@@ -387,10 +396,12 @@ class SearchCriteriaFragment : Fragment("Search") {
     }
 
     private fun createAttributesComboBox(property: SimpleStringProperty): ComboBox<String> {
+        println("createAttributesComboBox")
         return ComboBox(attributes).apply {
             isEditable = true
             prefWidth = ATTRIBUTE_VALUE_COLUMN_WIDTH
             bind(property)
+            applyAccessibilityNpeWorkaround()
         }
     }
 
@@ -573,7 +584,7 @@ class SearchCriteriaFragment : Fragment("Search") {
         override fun call(request: AutoCompletionBinding.ISuggestionRequest?): Collection<String> {
             val userText = request?.userText.orEmpty()
             return if (ManagedEnvironment.startsWithPrefix(userText)) {
-                val environment = managedEnvironmentsController.get(queryView.getEnvironmentName())
+                val environment = managedEnvironmentsController.get(queryView.getEnvironmentName())!!
                 environment.getCompletions(userText).map { ManagedEnvironment.surround(it) }
             } else {
                 emptyList()
