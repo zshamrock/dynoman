@@ -4,8 +4,7 @@ import com.akazlou.dynoman.domain.ConnectionProperties
 import com.akazlou.dynoman.domain.search.QueryResult
 import com.akazlou.dynoman.domain.search.QuerySearch
 import com.akazlou.dynoman.domain.search.ScanSearch
-import com.amazonaws.services.dynamodbv2.document.*
-import com.amazonaws.services.dynamodbv2.model.TableDescription
+import software.amazon.awssdk.services.dynamodb.model.TableDescription
 import java.util.concurrent.TimeUnit
 import kotlin.system.measureTimeMillis
 
@@ -58,6 +57,9 @@ class DynamoDBOperation(val properties: ConnectionProperties, private val offlin
         println("Query run $runTime ms, and ${TimeUnit.MILLISECONDS.toSeconds(runTime)} secs")
         return page!!
     }
+
+//    fun query(query: String): Page<Item, QueryOutcome> {
+//    }
 
     fun describeTable(tableName: String): TableDescription {
         return descriptions.getOrPut(tableName) { getTable(tableName).describe() }
