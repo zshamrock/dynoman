@@ -51,7 +51,7 @@ dependencies {
     implementation("no.tornado:tornadofx:1.7.20")
     implementation("org.reflections:reflections:0.10.2")
     implementation("com.squareup.okhttp3:okhttp:4.10.0")
-    implementation("org.controlsfx:controlsfx:8.40.18")
+    implementation("org.controlsfx:controlsfx:11.1.2")
     implementation("org.partiql:partiql-lang-kotlin:0.6.0")
 
     testImplementation("io.kotlintest:kotlintest-runner-junit5:3.4.2")
