@@ -12,7 +12,7 @@ buildscript {
     dependencies {
         classpath(kotlin("gradle-plugin", kotlin_version))
         classpath("com.github.jengelman.gradle.plugins:shadow:4.0.3")
-        classpath("no.tornado:fxlauncher-gradle-plugin:1.0.21")
+        classpath("no.tornado:fxlauncher-gradle-plugin:1.0.21.1")
     }
 }
 
